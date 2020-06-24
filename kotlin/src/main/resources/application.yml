@@ -1,0 +1,8 @@
+spring:
+  main:
+    banner-mode: off
+
+#telegram:
+
+#  Telegram bot API-token
+#  token: 612543674:AAGWTokenTokenTokenRYEYZ_DRTokenPRa
