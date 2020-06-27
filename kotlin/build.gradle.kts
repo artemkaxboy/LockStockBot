@@ -32,7 +32,9 @@ dependencies {
     implementation(kotlin("reflect"))
 
     // spring
-    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    runtimeOnly("org.postgresql:postgresql")
+
     // implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -92,6 +94,7 @@ tasks.withType<Test> {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions {
+        @Suppress("SpellCheckingInspection")
         freeCompilerArgs = listOf("-Xjsr305=strict")
         jvmTarget = "11"
     }

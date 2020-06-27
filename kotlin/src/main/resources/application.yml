@@ -1,6 +1,15 @@
+server:
+  error:
+    include-message: always
+    include-exception: on
+
 spring:
   main:
     banner-mode: off
+
+  datasource:
+    hikari:
+      connection-timeout: 1000
 
 #telegram:
 
