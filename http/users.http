@@ -1,0 +1,29 @@
+POST {{api_path}}/user
+Content-Type: application/json
+
+{
+  "chatId": {{$randomInt}},
+  "name": "{{$uuid}}"
+}
+
+###
+
+GET {{api_path}}/users
+
+> {%
+client.global.set("chat_id", response.body.data.items[0].chatId);
+%}
+
+
+###
+GET {{api_path}}/user/{{chat_id}}
+
+### UPDATE USER NAME
+POST {{api_path}}/user
+Content-Type: application/json
+
+{
+  "chatId": {{chat_id}},
+  "name": "{{$uuid}}"
+}
+
