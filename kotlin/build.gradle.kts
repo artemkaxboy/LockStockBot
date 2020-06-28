@@ -15,7 +15,8 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 val kotlinLoggingVersion by extra("1.7.10")
 val ktTelegramBotVersion by extra("1.3.0-beta")
-val springfoxSwaggerVersion by extra("3.0.0-SNAPSHOT")
+val swaggerSnapshotVersion by extra("3.0.0-SNAPSHOT")
+val swaggerStableVersion by extra("2.10.5")
 val tag by extra(System.getenv("TAG") ?: project.version)
 
 repositories {
@@ -42,9 +43,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
 
     // swagger
-    implementation("io.springfox:springfox-swagger2:$springfoxSwaggerVersion")
-    implementation("io.springfox:springfox-spring-webflux:$springfoxSwaggerVersion")
-    implementation("io.springfox:springfox-swagger-ui:$springfoxSwaggerVersion")
+    implementation("io.springfox:springfox-swagger2:$swaggerSnapshotVersion")
+    implementation("io.springfox:springfox-spring-webflux:$swaggerSnapshotVersion")
+    implementation("io.springfox:springfox-swagger-ui:$swaggerStableVersion")
 
     // logging
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
