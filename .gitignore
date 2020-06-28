@@ -54,3 +54,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Project ###
+*.private.env.json
+application-local.yml
+application-local.properties
