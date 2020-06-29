@@ -17,6 +17,10 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
     /**
      * Returns forecasts page from source 1.
+     *
+     * @param page needed page of values, starts from 0.
+     * @return array of [Source1TickerDto] with size equals to [ForecastSource1Properties.pageSize]
+     * or less if it's the last page.
      */
     private fun getPage(page: Int): Array<Source1TickerDto> {
 
@@ -29,6 +33,10 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             ?: throw IllegalStateException("Cannot fetch tickers page from $url")
     }
 
+    /**
+     * Gets all tickers from source 1 or less if [ForecastSource1Properties.maxPages] value were reached.
+     * @return the full list of tickers from source 1.
+     */
     fun getList(): List<Source1TickerDto> {
 
         val results = mutableListOf<Source1TickerDto>()
@@ -50,46 +58,45 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             .toList()
     }
 
-    fun getBaseUrl(): String {
-        return forecastSource1Properties.baseUrl
-    }
-
     private fun filterByForecasts(ticker: Source1TickerDto): Boolean {
-        logger.info { "${ticker.company.title} count: ${ticker.forecasts.size}" }
 
-        val remainedItemsCount = ticker.forecasts
-            .also { if (!isEnoughForecasts(it)) return false }
+        return ticker.forecasts
+            .also { logger.debug { "${ticker.company.title} forecasts: ${it.size}" } }
+            .takeIf(this::isEnoughForecasts)
 
             /* filter out old forecasts */
-            .filter(this::isActualForecast)
-            .also { if (!isEnoughForecasts(it)) return false }
-            .map { it.sharePrice }
-            .sorted()
+            ?.filter(this::isForecastActual)
+            ?.takeIf(this::isEnoughForecasts)
+
+            /* map to prices */
+            ?.map { it.sharePrice }
+            ?.sorted()
 
             /* cut extremely low forecast */
-            .let { cutExtremeLow(it, ticker.price) }
-            .also { if (!isEnoughForecasts(it)) return false }
+            ?.let { cutExtremeLow(it, ticker.price) }
+            ?.takeIf(this::isEnoughForecasts)
 
             /* cut extremely high forecast */
-            .reversed()
-            .let { cutExtremeLow(it, ticker.price) }
-            .also { if (!isEnoughForecasts(it)) return false }
-            .size
+            ?.reversed()
+            ?.let { cutExtremeLow(it, ticker.price) }
+            ?.takeIf(this::isEnoughForecasts)
 
-        logger.info { "${ticker.company.title} count: $remainedItemsCount" }
-        return true
+            ?.also { logger.debug { "${ticker.company.title} filtered forecasts: ${it.size}" } }
+            ?.let { true }
+            ?: false
     }
 
     /**
-     * Drop
+     * Drops the lowest value if it further than [ForecastSource1Properties.extremeThreshold] percent of base
+     * from the second low value.
      */
     private fun cutExtremeLow(list: List<Double>, base: Double): List<Double> {
 
         return list.takeIf { it.size > 2 }
-            ?.takeIf { ((it[0] - it[1]).absoluteValue / base) > forecastSource1Properties.extremeThreshold / 100.0 }
-            ?.also { logger.debug { "${it[0]}  ${it[1]}  $base  ${((it[0] - it[1]).absoluteValue / base)}" } }
-            ?.also { logger.debug { "dropping value ${it[0]}" } }
-            ?.drop(1)
+            ?.let { (it[0] - it[1]).absoluteValue / base }
+            ?.takeIf { it > forecastSource1Properties.extremeThreshold / 100.0 }
+            ?.also { logger.debug { "extreme value dropped ${list[0]}" } }
+            ?.let { list.drop(1) }
             ?: list
     }
 
@@ -108,14 +115,12 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
      *
      * @return true if given forecast is still actual, false - otherwise
      */
-    private fun isActualForecast(forecast: Forecast): Boolean {
-        if (forecastSource1Properties.ttl.isZero) {
-            return true
-        }
+    private fun isForecastActual(forecast: Forecast): Boolean {
+        if (forecastSource1Properties.ttl.isZero) return true
 
-        return forecast.publishDate.toLocalDateTime().isAfter(
-            LocalDateTime.now().minus(forecastSource1Properties.ttl)
-        )
+        return forecast.publishDate
+            .toLocalDateTime()
+            .isAfter(LocalDateTime.now().minus(forecastSource1Properties.ttl))
     }
 
     companion object {

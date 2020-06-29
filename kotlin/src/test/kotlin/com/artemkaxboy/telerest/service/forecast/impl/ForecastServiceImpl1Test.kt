@@ -20,7 +20,7 @@ internal class ForecastServiceImpl1Test {
 
     @Test
     fun getList() {
-        println(forecastService.getBaseUrl())
+        // println(forecastService.getBaseUrl())
         // val list = forecastService.getList()
         // println(list)
     }
