@@ -1,17 +1,37 @@
 package com.artemkaxboy.telerest.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.convert.DurationUnit
 import org.springframework.context.annotation.Configuration
 import org.springframework.validation.annotation.Validated
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 import javax.validation.constraints.NotBlank
+
+private const val DEFAULT_TTL_PERIOD_DAYS = 30L
+private const val DEFAULT_MIN_FORECASTS_COUNT = 3
+private const val DEFAULT_THRESHOLD_PERCENT = 5
+private const val DEFAULT_PAGE_SIZE = 15
 
 @Configuration
 @ConfigurationProperties("forecast.source1")
 @Validated
 class ForecastSource1Properties {
 
+
+    val pageSize: Int = DEFAULT_PAGE_SIZE
+
+    /**
+     * Threshold of forecast price difference comparing with the nearest one.
+     * The extreme values are dropped from analysis when they difference is greater than threshold. */
+    val extremeThreshold: Int = DEFAULT_THRESHOLD_PERCENT
+
     /** Minimal count of active forecasts to make consensus forecast. */
-    var minCount: Int = 3
+    var minCount: Int = DEFAULT_MIN_FORECASTS_COUNT
+
+    /** Default delay between connection attempts */
+    @DurationUnit(ChronoUnit.DAYS)
+    var ttl: Duration = Duration.ofDays(DEFAULT_TTL_PERIOD_DAYS)
 
     /** Base url to perform requests */
     @NotBlank(message = "Source1 base url cannot be empty.")
