@@ -12,19 +12,27 @@ private const val DEFAULT_TTL_PERIOD_DAYS = 30L
 private const val DEFAULT_MIN_FORECASTS_COUNT = 3
 private const val DEFAULT_THRESHOLD_PERCENT = 5
 private const val DEFAULT_PAGE_SIZE = 15
+private const val DEFAULT_MAX_PAGES = 20
 
 @Configuration
 @ConfigurationProperties("forecast.source1")
 @Validated
 class ForecastSource1Properties {
 
+    /**
+     * Max page number. Fuse property in order not to fall in endless loop
+     */
+    var maxPages: Int = DEFAULT_MAX_PAGES
 
-    val pageSize: Int = DEFAULT_PAGE_SIZE
+    /**
+     * Ticker page size. Set page size to get from source 1 API.
+     */
+    var pageSize: Int = DEFAULT_PAGE_SIZE
 
     /**
      * Threshold of forecast price difference comparing with the nearest one.
      * The extreme values are dropped from analysis when they difference is greater than threshold. */
-    val extremeThreshold: Int = DEFAULT_THRESHOLD_PERCENT
+    var extremeThreshold: Int = DEFAULT_THRESHOLD_PERCENT
 
     /** Minimal count of active forecasts to make consensus forecast. */
     var minCount: Int = DEFAULT_MIN_FORECASTS_COUNT

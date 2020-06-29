@@ -11,9 +11,6 @@ import org.springframework.web.client.RestTemplate
 import java.time.LocalDateTime
 import kotlin.math.absoluteValue
 
-private const val PAGE_SIZE = 15
-private const val MAX_PAGE = 15
-
 @Service
 class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource1Properties) :
     ForecastService {
@@ -26,7 +23,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
         val url = forecastSource1Properties.baseUrl +
             "?type=share" +
             "&limit=${forecastSource1Properties.pageSize}" +
-            "&offset=${PAGE_SIZE * page}"
+            "&offset=${forecastSource1Properties.pageSize * page}"
 
         return RestTemplate().getForObject(url, Array<Source1TickerDto>::class.java)
             ?: throw IllegalStateException("Cannot fetch tickers page from $url")
@@ -36,22 +33,20 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
         val results = mutableListOf<Source1TickerDto>()
 
-        for (i in 0..MAX_PAGE) {
+        for (i in 0..forecastSource1Properties.maxPages) {
             val pageResult = getPage(i)
             results.addAll(pageResult)
 
-            if (pageResult.size < PAGE_SIZE) {
+            if (pageResult.size < forecastSource1Properties.pageSize) {
                 break
             }
         }
 
         return results
-            .also { logger.info { it.size } }
+            .also { logger.debug { "Got ${it.size} tickers" } }
             .filter { it.currency.isNotEmpty() }
-            .also { logger.info { it.size } }
             .filter(this::filterByForecasts)
-            .also { logger.info { it.size } }
-            // .filter { it.forecasts  }
+            .also { logger.debug { "Have ${it.size} tickers after filters" } }
             .toList()
     }
 
@@ -99,6 +94,10 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
     }
 
     fun isEnoughForecasts(forecasts: List<Any>): Boolean {
+
+        /* minCount disabled */
+        if (forecastSource1Properties.minCount == 0) return true
+
         if (forecasts.size < forecastSource1Properties.minCount) return false
         return true
     }
