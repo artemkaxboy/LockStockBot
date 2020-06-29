@@ -35,6 +35,7 @@ dependencies {
     // spring
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     runtimeOnly("org.postgresql:postgresql")
+    testRuntimeOnly("com.h2database:h2:1.4.200")
 
     // implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
