@@ -52,21 +52,26 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
         return results
             .also { logger.debug { "Got ${it.size} tickers" } }
-            .filter { it.currency.isNotEmpty() }
+            .filter(this::dropIncorrect)
             .filter(this::filterByForecasts)
             .also { logger.debug { "Have ${it.size} tickers after filters" } }
             .toList()
+    }
+
+    private fun dropIncorrect(ticker: Source1TickerDto): Boolean {
+        if (ticker.currency.isEmpty()) return false
+        return true
     }
 
     private fun filterByForecasts(ticker: Source1TickerDto): Boolean {
 
         return ticker.forecasts
             .also { logger.debug { "${ticker.company.title} forecasts: ${it.size}" } }
-            .takeIf(this::isEnoughForecasts)
+            .takeIf(this::hasQuorum)
 
             /* filter out old forecasts */
             ?.filter(this::isForecastActual)
-            ?.takeIf(this::isEnoughForecasts)
+            ?.takeIf(this::hasQuorum)
 
             /* map to prices */
             ?.map { it.sharePrice }
@@ -74,12 +79,12 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
             /* cut extremely low forecast */
             ?.let { cutExtremeLow(it, ticker.price) }
-            ?.takeIf(this::isEnoughForecasts)
+            ?.takeIf(this::hasQuorum)
 
             /* cut extremely high forecast */
             ?.reversed()
             ?.let { cutExtremeLow(it, ticker.price) }
-            ?.takeIf(this::isEnoughForecasts)
+            ?.takeIf(this::hasQuorum)
 
             ?.also { logger.debug { "${ticker.company.title} filtered forecasts: ${it.size}" } }
             ?.let { true }
@@ -100,12 +105,13 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             ?: list
     }
 
-    fun isEnoughForecasts(forecasts: List<Any>): Boolean {
+    private fun isQuorumEnabled() = forecastSource1Properties.quorum > 0
 
-        /* minCount disabled */
-        if (forecastSource1Properties.minCount == 0) return true
+    private fun hasQuorum(forecasts: List<Any>): Boolean {
 
-        if (forecasts.size < forecastSource1Properties.minCount) return false
+        if (isQuorumEnabled() && forecasts.size < forecastSource1Properties.quorum) {
+            return false
+        }
         return true
     }
 
