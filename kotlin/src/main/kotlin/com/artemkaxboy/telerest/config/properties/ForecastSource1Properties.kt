@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit
 import javax.validation.constraints.NotBlank
 
 private const val DEFAULT_TTL_PERIOD_DAYS = 30L
-private const val DEFAULT_MIN_FORECASTS_COUNT = 3
+private const val DEFAULT_QUORUM = 3
 private const val DEFAULT_THRESHOLD_PERCENT = 5
 private const val DEFAULT_PAGE_SIZE = 15
 private const val DEFAULT_MAX_PAGES = 20
@@ -35,7 +35,7 @@ class ForecastSource1Properties {
     var extremeThreshold: Int = DEFAULT_THRESHOLD_PERCENT
 
     /** Minimal count of active forecasts to make consensus forecast. */
-    var minCount: Int = DEFAULT_MIN_FORECASTS_COUNT
+    var quorum: Int = DEFAULT_QUORUM
 
     /** Default delay between connection attempts */
     @DurationUnit(ChronoUnit.DAYS)
