@@ -48,7 +48,7 @@ class ForecastSource1Properties {
     /** Minimal count of active forecasts to make consensus forecast. */
     var quorum: Int = DEFAULT_QUORUM
 
-    /** Default delay between connection attempts */
+    /** Time to live for forecasts. */
     @DurationUnit(ChronoUnit.DAYS)
     var ttl: Duration = Duration.ofDays(DEFAULT_TTL_PERIOD_DAYS)
 
