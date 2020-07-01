@@ -17,6 +17,7 @@ val kotlinLoggingVersion by extra("1.7.10")
 val ktTelegramBotVersion by extra("1.3.0-beta")
 val swaggerSnapshotVersion by extra("3.0.0-SNAPSHOT")
 val swaggerStableVersion by extra("2.10.5")
+val modelMapperVersion by extra("2.3.8")
 val tag by extra(System.getenv("TAG") ?: project.version)
 
 repositories {
@@ -54,6 +55,9 @@ dependencies {
     // validation       https://www.baeldung.com/javax-validation
     implementation("javax.validation:validation-api")
     implementation("org.hibernate.validator:hibernate-validator")
+
+    // entity dto mapper    https://habr.com/ru/post/438808/
+    implementation("org.modelmapper:modelmapper:$modelMapperVersion")
 
     // telegram bot   https://github.com/elbekD/kt-telegram-bot
     implementation("com.github.elbekD:kt-telegram-bot:$ktTelegramBotVersion") {
