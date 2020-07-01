@@ -5,6 +5,12 @@ import com.artemkaxboy.telerest.converter.toLocalDateTime
 import com.artemkaxboy.telerest.dto.Forecast
 import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.service.forecast.ForecastService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -30,6 +36,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             "&offset=${forecastSource1Properties.pageSize * page}"
 
         return RestTemplate().getForObject(url, Array<Source1TickerDto>::class.java)
+            .also { logger.debug { "Got source1 page: $page" } }
             ?: throw IllegalStateException("Cannot fetch tickers page from $url")
     }
 
@@ -37,36 +44,35 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
      * Gets all tickers from source 1 or less if [ForecastSource1Properties.maxPages] value were reached.
      * @return the full list of tickers from source 1.
      */
-    fun getList(): List<Source1TickerDto> {
+    fun getFlow(): Flow<Source1TickerDto> {
 
-        val results = mutableListOf<Source1TickerDto>()
+        return flow {
+            for (i in 0.until(forecastSource1Properties.maxPages)) {
+                val page = getPage(i)
+                emitAll(page.asFlow())
 
-        for (i in 0..forecastSource1Properties.maxPages) {
-            val pageResult = getPage(i)
-            results.addAll(pageResult)
-
-            if (pageResult.size < forecastSource1Properties.pageSize) {
-                break
+                /* break if last page */
+                if (page.size != forecastSource1Properties.pageSize) break
             }
         }
-
-        return results
-            .also { logger.debug { "Got ${it.size} tickers" } }
             .filter(this::dropIncorrect)
             .filter(this::filterByForecasts)
-            .also { logger.debug { "Have ${it.size} tickers after filters" } }
-            .toList()
     }
 
-    private fun dropIncorrect(ticker: Source1TickerDto): Boolean {
-        if (ticker.currency.isEmpty()) return false
+    fun getBufferedFlow() = getFlow()
+        .buffer(forecastSource1Properties.pageSize * forecastSource1Properties.bufferPages)
+
+    private suspend fun dropIncorrect(ticker: Source1TickerDto): Boolean {
+        if (ticker.currency.isEmpty()) {
+            logger.debug { "${ticker.company.title} dropped: no currency" }
+            return false
+        }
         return true
     }
 
-    private fun filterByForecasts(ticker: Source1TickerDto): Boolean {
+    private suspend fun filterByForecasts(ticker: Source1TickerDto): Boolean {
 
         return ticker.forecasts
-            .also { logger.debug { "${ticker.company.title} forecasts: ${it.size}" } }
             .takeIf(this::hasQuorum)
 
             /* filter out old forecasts */
@@ -86,7 +92,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             ?.let { cutExtremeLow(it, ticker.price) }
             ?.takeIf(this::hasQuorum)
 
-            ?.also { logger.debug { "${ticker.company.title} filtered forecasts: ${it.size}" } }
+            ?.also { logger.trace { "Filtering ${ticker.company.title} forecasts finished, count: ${it.size}" } }
             ?.let { true }
             ?: false
     }
@@ -100,7 +106,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
         return list.takeIf { it.size > 2 }
             ?.let { (it[0] - it[1]).absoluteValue / base }
             ?.takeIf { it > forecastSource1Properties.extremeThreshold / 100.0 }
-            ?.also { logger.debug { "extreme value dropped ${list[0]}" } }
+            ?.also { logger.trace { "extreme value dropped ${list[0]}" } }
             ?.let { list.drop(1) }
             ?: list
     }
@@ -110,6 +116,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
     private fun hasQuorum(forecasts: List<Any>): Boolean {
 
         if (isQuorumEnabled() && forecasts.size < forecastSource1Properties.quorum) {
+            logger.debug { "Ticker dropped: no forecasts quorum" }
             return false
         }
         return true
