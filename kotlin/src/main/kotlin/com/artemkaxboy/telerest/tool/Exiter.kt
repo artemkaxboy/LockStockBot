@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component
 import kotlin.system.exitProcess
 
 @Component
-class Exiter : ApplicationContextAware {
-
-    lateinit var context: ConfigurableApplicationContext
+class Exiter(
+    private val context: ConfigurableApplicationContext
+) {
 
     fun error(message: String, status: Int = 1) {
         logger.error { message }
@@ -20,10 +20,6 @@ class Exiter : ApplicationContextAware {
     fun exit(status: Int = 1) {
         context.close()
         exitProcess(status)
-    }
-
-    override fun setApplicationContext(applicationContext: ApplicationContext) {
-        context = applicationContext as ConfigurableApplicationContext
     }
 
     companion object {
