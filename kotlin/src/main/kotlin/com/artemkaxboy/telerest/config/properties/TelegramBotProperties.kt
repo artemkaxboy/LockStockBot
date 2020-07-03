@@ -17,6 +17,9 @@ const val DEFAULT_RECONNECTION_DELAY_SECONDS = 3L
 @Validated
 class TelegramBotProperties {
 
+    /** Telegram API connection enabled. */
+    var enabled = true
+
     /** Telegram bot API-token */
     @NotBlank(message = "Telegram token must be provided. Use config files or env variables.")
     lateinit var token: String

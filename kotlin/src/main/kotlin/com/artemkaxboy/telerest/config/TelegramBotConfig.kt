@@ -15,6 +15,7 @@ class TelegramBotConfig(
     @Bean
     fun getTelegramBot(): TelegramBot {
         return TelegramBot(
+            enabled = telegramBotProperties.enabled,
             token = telegramBotProperties.token,
             botName = telegramBotProperties.botName,
             reconnectionCount = telegramBotProperties.reconnection.count,
