@@ -12,10 +12,11 @@ import java.time.Duration
 private const val COMMAND_START = "/start"
 
 class TelegramBot(
+    private val enabled: Boolean,
     token: String,
     botName: String,
-    val reconnectionCount: Int = DEFAULT_RECONNECTION_COUNT,
-    val reconnectionDelay: Duration = Duration.ofSeconds(DEFAULT_RECONNECTION_DELAY_SECONDS)
+    private val reconnectionCount: Int = DEFAULT_RECONNECTION_COUNT,
+    private val reconnectionDelay: Duration = Duration.ofSeconds(DEFAULT_RECONNECTION_DELAY_SECONDS)
 ) {
 
     private val bot = Bot.createPolling(botName, token)
@@ -23,9 +24,14 @@ class TelegramBot(
     /**
      * Starts the bot.
      *
-     * @return true if bot started correct, false - otherwise.
+     * @return true if bot started correct or connection disabled, false - bot couldn't start.
      */
     suspend fun start(): Boolean {
+        if (!enabled) {
+            logger.info { "Telegram bot disabled." }
+            return true
+        }
+
         configureBot()
 
         repeat(reconnectionCount) {
@@ -52,7 +58,7 @@ class TelegramBot(
         return runCatching {
             logger.info { "Telegram bot starting..." }
             bot.start()
-            logger.info { "Telegram bot started successfully" }
+            logger.info { "Telegram bot started successfully." }
             true
         }.getOrElse {
             logger.error { "Cannot start Telegram bot: ${it.message}" }
