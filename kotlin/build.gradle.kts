@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.3.72"
     kotlin("plugin.spring") version "1.3.72"
     kotlin("kapt") version "1.3.72"
+    kotlin("plugin.noarg") version "1.3.72"
     id("org.springframework.boot") version "2.3.1.RELEASE"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("com.google.cloud.tools.jib") version "1.7.0"
@@ -91,6 +92,10 @@ jib {
     to {
         image = "artemkaxboy/${rootProject.name}:${tag}"
     }
+}
+
+noArg {
+    annotation("javax.persistence.Entity")
 }
 
 tasks.withType<Test> {

@@ -14,15 +14,15 @@ data class Source1TickerDto(
 
     val currency: String,
 
-    val company: Company,
+    val company: Source1CompanyDto,
 
     @JsonProperty("forecasts_ideas")
-    val forecasts: List<Forecast>,
+    val forecasts: List<Source1ForecastDto>,
 
     val price: Double
 )
 
-data class Company(
+data class Source1CompanyDto(
 
     val title: String,
 
@@ -30,7 +30,7 @@ data class Company(
     val logoLink: String
 )
 
-data class Forecast(
+data class Source1ForecastDto(
 
     val id: String,
 
