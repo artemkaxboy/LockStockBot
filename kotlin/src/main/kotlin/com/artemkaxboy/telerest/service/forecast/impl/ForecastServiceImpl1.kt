@@ -2,7 +2,7 @@ package com.artemkaxboy.telerest.service.forecast.impl
 
 import com.artemkaxboy.telerest.config.properties.ForecastSource1Properties
 import com.artemkaxboy.telerest.converter.toLocalDateTime
-import com.artemkaxboy.telerest.dto.Forecast
+import com.artemkaxboy.telerest.dto.Source1ForecastDto
 import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.service.forecast.ForecastService
 import kotlinx.coroutines.flow.Flow
@@ -113,7 +113,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
     private fun isQuorumEnabled() = forecastSource1Properties.quorum > 0
 
-    private fun hasQuorum(forecasts: List<Any>): Boolean {
+    private fun hasQuorum(forecasts: Collection<Any>): Boolean {
 
         if (isQuorumEnabled() && forecasts.size < forecastSource1Properties.quorum) {
             logger.debug { "Ticker dropped: no forecasts quorum" }
@@ -128,7 +128,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
      *
      * @return true if given forecast is still actual, false - otherwise
      */
-    private fun isForecastActual(forecast: Forecast): Boolean {
+    private fun isForecastActual(forecast: Source1ForecastDto): Boolean {
         if (forecastSource1Properties.ttl.isZero) return true
 
         return forecast.publishDate
