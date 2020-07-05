@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
@@ -55,12 +56,11 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
                 if (page.size != forecastSource1Properties.pageSize) break
             }
         }
+            .buffer(forecastSource1Properties.pageSize * forecastSource1Properties.bufferPages)
             .filter(this::dropIncorrect)
             .filter(this::filterByForecasts)
+            .onEach(this::calculateConsensus)
     }
-
-    fun getBufferedFlow() = getFlow()
-        .buffer(forecastSource1Properties.pageSize * forecastSource1Properties.bufferPages)
 
     private suspend fun dropIncorrect(ticker: Source1TickerDto): Boolean {
         if (ticker.currency.isEmpty()) {
@@ -95,6 +95,10 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             ?.also { logger.trace { "Filtering ${ticker.company.title} forecasts finished, count: ${it.size}" } }
             ?.let { true }
             ?: false
+    }
+
+    suspend fun calculateConsensus(ticker: Source1TickerDto) {
+        ticker.consensus = ticker.forecasts.map { it.sharePrice }.average()
     }
 
     /**
