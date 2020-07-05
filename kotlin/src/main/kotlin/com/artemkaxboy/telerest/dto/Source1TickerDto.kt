@@ -20,7 +20,10 @@ data class Source1TickerDto(
     val forecasts: List<Source1ForecastDto>,
 
     val price: Double
-)
+) {
+
+    var consensus: Double = 0.0
+}
 
 data class Source1CompanyDto(
 

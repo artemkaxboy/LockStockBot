@@ -1,6 +1,6 @@
 package com.artemkaxboy.telerest.service
 
-import com.artemkaxboy.telerest.model.User
+import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.repo.UserRepo
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest

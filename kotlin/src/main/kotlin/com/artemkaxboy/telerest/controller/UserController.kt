@@ -2,7 +2,7 @@ package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.config.API_V1
 import com.artemkaxboy.telerest.dto.ResponseDto
-import com.artemkaxboy.telerest.model.User
+import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.service.UserService
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation

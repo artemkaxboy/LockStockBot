@@ -1,6 +1,6 @@
 package com.artemkaxboy.telerest.schedule
 
-import com.artemkaxboy.telerest.model.Ticker
+import com.artemkaxboy.telerest.entity.Ticker
 import com.artemkaxboy.telerest.repo.TickerRepo
 import com.artemkaxboy.telerest.service.forecast.impl.ForecastServiceImpl1
 import kotlinx.coroutines.flow.map
@@ -22,7 +22,7 @@ class ScheduledJob(
     fun update() {
 
         runBlocking { // todo R2DBC will be perfect here
-            val list = forecastServiceImpl1.getBufferedFlow()
+            val list = forecastServiceImpl1.getFlow()
                 .map { conversionService.convert(it, Ticker::class.java) }
                 .toList()
             try {

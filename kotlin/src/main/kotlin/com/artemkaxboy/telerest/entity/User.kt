@@ -1,4 +1,4 @@
-package com.artemkaxboy.telerest.model
+package com.artemkaxboy.telerest.entity
 
 import io.swagger.annotations.ApiModelProperty
 import javax.persistence.CascadeType
