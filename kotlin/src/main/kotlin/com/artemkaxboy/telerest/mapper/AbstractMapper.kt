@@ -12,9 +12,9 @@ abstract class AbstractMapper<E : AbstractEntity, D : AbstractDto>(
     val dtoClass: Class<D>
 ) : Mapper<E, D> {
 
-    override fun toEntity(dto: D?) = dto?.let { mapper.map(dto, entityClass) }
+    override fun toEntity(dto: D?) = dto?.let { mapper.map(it, entityClass) }
 
-    override fun toDto(entity: E?) = entity?.let { mapper.map(entity, dtoClass) }
+    override fun toDto(entity: E?) = entity?.let { mapper.map(it, dtoClass) }
 
     fun dtoPostConverter(): Converter<E, D> {
         return Converter { context: MappingContext<E, D> ->

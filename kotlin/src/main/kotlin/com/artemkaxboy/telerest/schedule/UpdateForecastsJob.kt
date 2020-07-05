@@ -1,21 +1,20 @@
 package com.artemkaxboy.telerest.schedule
 
-import com.artemkaxboy.telerest.entity.Ticker
-import com.artemkaxboy.telerest.repo.TickerRepo
+import com.artemkaxboy.telerest.mapper.LiveDataToSource1TickerDtoMapper
+import com.artemkaxboy.telerest.service.LiveDataService
 import com.artemkaxboy.telerest.service.forecast.impl.ForecastServiceImpl1
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.convert.ConversionService
 import org.springframework.scheduling.annotation.Scheduled
 
 @Configuration
 class ScheduledJob(
     private val forecastServiceImpl1: ForecastServiceImpl1,
-    private val tickerRepo: TickerRepo,
-    private val conversionService: ConversionService
+    private val liveDataService: LiveDataService,
+    private val liveDataToSource1TickerDtoMapper: LiveDataToSource1TickerDtoMapper
 ) {
 
     @Scheduled(fixedRateString = "#{@forecastSource1Properties.updateInterval.toMillis()}")
@@ -23,11 +22,11 @@ class ScheduledJob(
 
         runBlocking { // todo R2DBC will be perfect here
             val list = forecastServiceImpl1.getFlow()
-                .map { conversionService.convert(it, Ticker::class.java) }
+                .map { liveDataToSource1TickerDtoMapper.toEntity(it) }
                 .toList()
             try {
                 list.forEach { logger.info { it } }
-                val res = tickerRepo.saveAll(list)
+                val res = liveDataService.saveAll(list)
                 res.forEach { logger.info { it } }
             } catch (e: Exception) {
                 logger.error(e) { e.message }
