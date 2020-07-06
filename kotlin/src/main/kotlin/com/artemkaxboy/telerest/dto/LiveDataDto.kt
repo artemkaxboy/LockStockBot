@@ -1,6 +1,5 @@
 package com.artemkaxboy.telerest.dto
 
-import java.io.Serializable
 import java.time.LocalDate
 
 @Suppress("unused") // DTO needs data
@@ -24,4 +23,4 @@ class LiveDataDto(
 
     var potential: String = ""
 
-) : Serializable, AbstractDto
+) : AbstractDto

@@ -63,4 +63,4 @@ data class DataDto(
         example = "12"
     )
     val totalPages: Int = 1
-)
+) : AbstractDto
