@@ -38,7 +38,8 @@ class UserController(
     @ApiOperation(value = "Get all users")
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
     private fun getUsers(
-        @RequestParam(required = false, defaultValue = "0")
+
+        @RequestParam(required = false, defaultValue = "1")
         page: Int,
 
         @RequestParam(required = false, defaultValue = "10")
@@ -50,7 +51,7 @@ class UserController(
 
         return ResponseDto
             .getResponse(request) {
-                userService.findAll(PageRequest.of(page, pageSize)).content
+                userService.findAll(PageRequest.of(page - 1, pageSize)).content
             }
             .toMono()
     }

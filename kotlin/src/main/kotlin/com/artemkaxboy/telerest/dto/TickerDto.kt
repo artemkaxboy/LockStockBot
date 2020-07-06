@@ -12,11 +12,5 @@ class TickerDto(
 
     val name: String = "",
 
-    val logo: String = "",
-
-    var price: Double = 0.0,
-
-    var forecast: Double = 0.0,
-
-    var potential: String = ""
+    val logo: String = ""
 ) : Serializable, AbstractDto

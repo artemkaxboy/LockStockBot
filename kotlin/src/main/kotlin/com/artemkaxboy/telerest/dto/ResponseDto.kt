@@ -3,6 +3,7 @@ package com.artemkaxboy.telerest.dto
 import com.artemkaxboy.telerest.config.CURRENT_API_VERSION
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
+import org.springframework.data.domain.Page
 import org.springframework.http.server.reactive.ServerHttpRequest
 import kotlin.random.Random
 
@@ -69,17 +70,29 @@ data class ResponseDto(
                 }
         }
 
-        private fun wrap(request: ServerHttpRequest, result: Any): ResponseDto {
-            /* wrap result into list */
-            val list = when (result) {
-                is List<*> -> result.filterNotNull()
-                else -> listOf(result)
+        private fun wrap(
+            request: ServerHttpRequest,
+            result: Any
+        ): ResponseDto {
+
+            val data = when (result) {
+                is Page<*> ->
+                    DataDto(
+                        items = result.content,
+                        currentItemCount = result.count(),
+                        itemsPerPage = result.size,
+                        startIndex = result.pageable.offset + 1,
+                        totalItems = result.totalElements,
+                        pageIndex = result.number + 1,
+                        totalPages = result.totalPages
+                    )
+                else -> DataDto(listOf(result))
             }
 
             return ResponseDto(
                 id = request.id,
                 method = request.path.value(),
-                data = DataDto(list)
+                data = data
             )
         }
     }
