@@ -7,6 +7,6 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties("application")
 class ApplicationProperties {
 
-    /** Application version */
+    /** Application version. */
     var version: String = "debug"
 }

@@ -52,7 +52,7 @@ class ForecastSource1Properties {
     @DurationUnit(ChronoUnit.DAYS)
     var ttl: Duration = Duration.ofDays(DEFAULT_TTL_PERIOD_DAYS)
 
-    /** Base url to perform requests */
+    /** Base url to perform requests. */
     @NotBlank(message = "Source1 base url cannot be empty.")
     lateinit var baseUrl: String
 }

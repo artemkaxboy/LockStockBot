@@ -20,12 +20,12 @@ class TelegramBotProperties {
     /** Telegram API connection enabled. */
     var enabled = true
 
-    /** Telegram bot API-token */
+    /** Telegram bot API-token. */
     @NotBlank(message = "Telegram token must be provided. Use config files or env variables.")
     lateinit var token: String
 
     /** Make sense when the bot added to chat where another bot has the same command,
-     *  in this case users should send the command with the bot name before (e.g. @bot1/start) */
+     *  in this case users should send the command with the bot name before (e.g. @bot1/start). */
     @NotBlank(message = "Telegram bot name must be provided. Use config files or env variables.")
     lateinit var botName: String
 
@@ -33,10 +33,10 @@ class TelegramBotProperties {
 
     class Reconnection {
 
-        /** Amount of attempts to initially connect to Telegram API */
+        /** Amount of attempts to initially connect to Telegram API. */
         var count = DEFAULT_RECONNECTION_COUNT
 
-        /** Default delay between connection attempts */
+        /** Delay between connection attempts. */
         @DurationUnit(ChronoUnit.SECONDS)
         var delay: Duration = Duration.ofSeconds(DEFAULT_RECONNECTION_DELAY_SECONDS)
     }
