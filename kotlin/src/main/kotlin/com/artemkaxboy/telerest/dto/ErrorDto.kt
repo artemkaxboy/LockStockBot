@@ -25,4 +25,4 @@ data class ErrorDto(
         required = false
     )
     val errors: List<ErrorDetailDto>? = null
-)
+) : AbstractDto

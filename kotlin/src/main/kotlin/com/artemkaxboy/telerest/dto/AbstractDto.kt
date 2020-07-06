@@ -1,3 +1,5 @@
 package com.artemkaxboy.telerest.dto
 
-interface AbstractDto
+import java.io.Serializable
+
+interface AbstractDto : Serializable

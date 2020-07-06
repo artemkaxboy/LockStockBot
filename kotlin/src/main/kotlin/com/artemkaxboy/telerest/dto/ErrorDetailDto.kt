@@ -41,8 +41,15 @@ data class ErrorDetailDto(
         example = "Set some property value. Documentation: https://tools.ietf.org/html/rfc3261"
     )
     val extendedHelp: String? = null
-) {
+) : AbstractDto {
+
     companion object {
+
+        /**
+         * Extracts error fields from throwable to place it to [ErrorDetailDto].
+         *
+         * @return filled [ErrorDetailDto] object.
+         */
         fun fromThrowable(
             throwable: Throwable,
             domain: String? = null

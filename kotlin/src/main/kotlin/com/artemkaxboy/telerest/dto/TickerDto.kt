@@ -1,7 +1,6 @@
 package com.artemkaxboy.telerest.dto
 
-import java.io.Serializable
-
+@Suppress("unused") // DTO needs data
 class TickerDto(
 
     val ticker: String = "",
@@ -13,4 +12,4 @@ class TickerDto(
     val name: String = "",
 
     val logo: String = ""
-) : Serializable, AbstractDto
+) : AbstractDto

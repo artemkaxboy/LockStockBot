@@ -19,4 +19,4 @@ data class MessageDto(
         example = "Hi, there!"
     )
     val text: String
-)
+) : AbstractDto

@@ -45,10 +45,16 @@ data class ResponseDto(
         required = false
     )
     val error: ErrorDto? = null
-) {
+) : AbstractDto {
 
     companion object {
 
+        /**
+         * Performs given [block] and wraps result into [ResponseDto].[DataDto] object.
+         * If [block] threw any exception wraps it into [ResponseDto].[ErrorDto] object.
+         *
+         * @return filled [ResponseDto]
+         */
         fun getResponse(request: ServerHttpRequest, block: () -> Any): ResponseDto {
 
             return runCatching { wrap(request, block()) }

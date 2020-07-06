@@ -24,7 +24,6 @@ data class Source1TickerDto(
 ) : AbstractDto {
 
     var consensus: Double = 0.0
-
 }
 
 data class Source1CompanyDto(
@@ -33,8 +32,7 @@ data class Source1CompanyDto(
 
     @JsonProperty("logo_link")
     val logoLink: String
-
-)
+) : AbstractDto
 
 data class Source1ForecastDto(
 
@@ -49,5 +47,4 @@ data class Source1ForecastDto(
 
     @JsonProperty("share_price")
     val sharePrice: Double
-
-)
+) : AbstractDto
