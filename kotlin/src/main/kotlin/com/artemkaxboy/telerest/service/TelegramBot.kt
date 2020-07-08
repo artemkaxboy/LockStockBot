@@ -1,7 +1,5 @@
 package com.artemkaxboy.telerest.service
 
-import com.artemkaxboy.telerest.config.properties.DEFAULT_RECONNECTION_COUNT
-import com.artemkaxboy.telerest.config.properties.DEFAULT_RECONNECTION_DELAY_SECONDS
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.Message
 import com.elbekD.bot.types.Update
@@ -15,8 +13,8 @@ class TelegramBot(
     private val enabled: Boolean,
     token: String,
     botName: String,
-    private val reconnectionCount: Int = DEFAULT_RECONNECTION_COUNT,
-    private val reconnectionDelay: Duration = Duration.ofSeconds(DEFAULT_RECONNECTION_DELAY_SECONDS)
+    private val reconnectionCount: Int,
+    private val reconnectionDelay: Duration
 ) {
 
     private val bot = Bot.createPolling(botName, token)

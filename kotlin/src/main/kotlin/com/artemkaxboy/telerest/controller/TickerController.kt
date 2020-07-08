@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -20,9 +21,14 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import springfox.documentation.annotations.ApiIgnore
+import javax.validation.constraints.Max
 import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
 
-@RestController
+private const val MAX_API_INT = 1073741824L
+private const val MAX_PAGE_SIZE = 100L
+
+@RestController @Validated
 @RequestMapping(value = ["api/$API_V1"])
 @Api(tags = ["Ticker controller"], description = "Perform tickers operation")
 class TickerController(
@@ -36,14 +42,18 @@ class TickerController(
     )
     @ApiOperation(value = "Get all tickers", response = ResponseDto::class)
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
-    private fun getTickers(
+    fun getTickers(
 
-        @Min(1) // todo not working -- fix
-        @ApiParam(allowableValues = "range[1, infinity]")
-        @RequestParam(required = false, defaultValue = "1")
+        @Min(1, message = "Page number cannot be lower than 1.")
+        @Max(MAX_API_INT, message = "Page number cannot be greater than $MAX_API_INT.")
+        @ApiParam(allowableValues = "range[1, $MAX_API_INT]", defaultValue = "1")
+        @RequestParam(required = false)
         page: Int,
 
-        @RequestParam(required = false, defaultValue = "10")
+        @Min(1, message = "Page size cannot be lower than 1.")
+        @Max(MAX_PAGE_SIZE, message = "Page size cannot be greater than $MAX_PAGE_SIZE.")
+        @ApiParam(allowableValues = "range[1, 100]", defaultValue = "10")
+        @RequestParam(required = false)
         pageSize: Int,
 
         @ApiIgnore

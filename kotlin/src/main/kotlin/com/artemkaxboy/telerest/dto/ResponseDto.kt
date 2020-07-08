@@ -64,8 +64,8 @@ data class ResponseDto(
         private fun wrapError(request: ServerHttpRequest, error: Throwable): ResponseDto {
             return ErrorDto(
                 Random.nextInt(10_000), // todo add later
-                error.message,
-                errors = listOf(ErrorDetailDto.fromThrowable(error))
+                error.message ?: error.toString(),
+                errors = ErrorDetailDto.fromThrowable(error)
             )
                 .let {
                     ResponseDto(
