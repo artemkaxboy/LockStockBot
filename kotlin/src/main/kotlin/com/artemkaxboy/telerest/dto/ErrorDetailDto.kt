@@ -53,10 +53,27 @@ data class ErrorDetailDto(
         fun fromThrowable(
             throwable: Throwable,
             domain: String? = null
-        ) = ErrorDetailDto(
-            domain = domain,
-            reason = throwable.cause?.message,
-            message = throwable.message
-        )
+        ): List<ErrorDetailDto> {
+            val result = mutableListOf<ErrorDetailDto>()
+
+            var anotherThrowable: Throwable? = throwable
+            do {
+                result.add(fromOneThrowable(anotherThrowable!!, domain))
+                anotherThrowable = anotherThrowable.cause?.takeIf { it !== anotherThrowable }
+            } while (anotherThrowable != null)
+
+            return result
+        }
+
+        private fun fromOneThrowable(
+            throwable: Throwable,
+            domain: String? = null
+        ): ErrorDetailDto {
+            return ErrorDetailDto(
+                domain = domain,
+                reason = throwable.cause?.message,
+                message = throwable.message ?: throwable.toString()
+            )
+        }
     }
 }

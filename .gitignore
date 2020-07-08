@@ -57,5 +57,5 @@ out/
 
 ### Project ###
 *.private.env.json
-application-local.yml
-application-local.properties
+*-local.yml
+*-local.properties
