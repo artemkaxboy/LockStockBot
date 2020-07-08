@@ -19,7 +19,7 @@ import springfox.documentation.annotations.ApiIgnore
 
 @RestController
 @RequestMapping(value = ["api/$API_V1"])
-// @PropertySource doesn't work here
+// @PropertySource doesn't work in the same-level @Api annotation
 @Api(tags = ["General information"], description = "Get basic service information")
 @PropertySource("classpath:swagger.properties")
 class GeneralController(
