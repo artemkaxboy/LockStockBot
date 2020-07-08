@@ -56,6 +56,7 @@ dependencies {
     // validation       https://www.baeldung.com/javax-validation
     implementation("javax.validation:validation-api")
     implementation("org.hibernate.validator:hibernate-validator")
+    implementation("org.glassfish:javax.el:3.0.0")
 
     // entity dto mapper    https://habr.com/ru/post/438808/
     implementation("org.modelmapper:modelmapper:$modelMapperVersion")

@@ -1,16 +1,18 @@
 package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.config.API_V1
-import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.service.LiveDataService
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
+import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
+import org.springframework.context.annotation.PropertySource
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,23 +22,30 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import springfox.documentation.annotations.ApiIgnore
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
+import javax.validation.constraints.NotBlank
 
-@RestController
+private const val EDITABLE_DAYS_INTERVAL = 365L
+
+@RestController @Validated
 @RequestMapping(value = ["api/$API_V1"])
 @Api(tags = ["Live data controller"], description = "Perform live data operation")
+@PropertySource("classpath:swagger.properties")
 class LiveDataController(
     private val liveDataService: LiveDataService,
     private val liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
 ) {
 
-    @GetMapping(
-        "/liveData/{ticker}",
-        produces = [MediaType.APPLICATION_JSON_VALUE]
-    )
-    @ApiOperation(value = "Get ticker latest data", response = ResponseDto::class)
+    @GetMapping("/liveData/{ticker}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ApiOperation(value = "\${liveData.ticker.get}", response = ResponseDto::class)
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
-    private fun getLiveData(
+    fun getLiveData(
 
+        // @PropertySource doesn't work in validation annotation
+        @NotBlank(message = "{invalid-ticker}")
+        // @PropertySource doesn't work in @ApiParam example field
+        @ApiParam(value = "\${liveData.ticker.get.ticker}", allowEmptyValue = false, example = "AMZN")
         @PathVariable
         ticker: String,
 
@@ -53,23 +62,37 @@ class LiveDataController(
             .toMono()
     }
 
-    @PostMapping(
-        "/liveData/{ticker}",
-        produces = [MediaType.APPLICATION_JSON_VALUE]
-    )
-    @ApiOperation(value = "Post ticker live data", response = ResponseDto::class)
+    @PostMapping("/liveData/{ticker}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    @ApiOperation(value = "\${liveData.ticker.post}", response = ResponseDto::class)
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
-    private fun postTickerW(
+    fun postTicker(
 
+        @NotBlank(message = "{invalid-ticker}")
+        @ApiParam(value = "\${liveData.ticker.post.ticker}", allowEmptyValue = false, example = "AMZN")
         @PathVariable
         ticker: String,
 
-        @RequestParam(required = false, defaultValue = "0")
-        days: Long,
+        @Min(-EDITABLE_DAYS_INTERVAL, message = "{liveData.ticker.post.days.min}")
+        @Max(EDITABLE_DAYS_INTERVAL, message = "{liveData.ticker.post.days.max}")
+        @ApiParam(
+            value = "\${liveData.ticker.post.days}",
+            allowableValues = "range[-365, 365]",
+            example = "0"
+        )
+        @RequestParam(required = false)
+        days: Int?,
 
+        @ApiParam(
+            value = "\${liveData.ticker.post.price}",
+            example = "0.0"
+        )
         @RequestParam(required = false)
         price: Double?,
 
+        @ApiParam(
+            value = "\${liveData.ticker.post.consensus}",
+            example = "0.0"
+        )
         @RequestParam(required = false)
         consensus: Double?,
 
@@ -79,24 +102,8 @@ class LiveDataController(
 
         return ResponseDto
             .getResponse(request) {
-                postTicker(ticker, days, price, consensus)
-                // runBlocking {
-                //     forecastServiceImpl1.getFlow().toList()
-                // }
+                liveDataService.postLiveData(ticker, days, price, consensus)
             }
             .toMono()
-    }
-
-    private fun postTicker(ticker: String, days: Long, price: Double?, consensus: Double?): LiveDataDto {
-        val current = liveDataService.findFirstByTickerTickerOrderByDateDesc("EQT")
-            ?: throw RuntimeException("Cannot find any data for ticker: $ticker")
-
-        days.takeIf { it != 0L }?.also { current.date = current.date.plusDays(it) }
-        price?.also { current.price = it }
-        consensus?.also { current.consensus = it }
-
-        return liveDataService.save(current)
-            .let { liveDataToLiveDataDtoMapper.toDto(it) }
-            .let { requireNotNull(it) }
     }
 }
