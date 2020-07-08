@@ -7,6 +7,7 @@ import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
+import org.springframework.context.annotation.PropertySource
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,17 +17,19 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import springfox.documentation.annotations.ApiIgnore
 
-@Api(tags = ["General information"], description = "Get basic service information")
 @RestController
 @RequestMapping(value = ["api/$API_V1"])
+// @PropertySource doesn't work here
+@Api(tags = ["General information"], description = "Get basic service information")
+@PropertySource("classpath:swagger.properties")
 class GeneralController(
     val applicationProperties: ApplicationProperties
 ) {
 
     @GetMapping("/version", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiOperation(value = "Get app version")
+    @ApiOperation(value = "\${version.get}", response = ResponseDto::class)
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
-    private fun getVersion(@ApiIgnore request: ServerHttpRequest): Mono<ResponseDto> {
+    fun getVersion(@ApiIgnore request: ServerHttpRequest): Mono<ResponseDto> {
         return ResponseDto.getResponse(request) { applicationProperties.version }.toMono()
     }
 }
