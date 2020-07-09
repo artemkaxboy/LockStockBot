@@ -11,13 +11,13 @@ private const val COMMAND_START = "/start"
 
 class TelegramBot(
     private val enabled: Boolean,
-    token: String,
-    botName: String,
+    private val token: String,
+    private val botName: String,
     private val reconnectionCount: Int,
     private val reconnectionDelay: Duration
 ) {
 
-    private val bot = Bot.createPolling(botName, token)
+    private lateinit var bot: Bot
 
     /**
      * Starts the bot.
@@ -27,6 +27,11 @@ class TelegramBot(
     suspend fun start(): Boolean {
         if (!enabled) {
             logger.info { "Telegram bot disabled." }
+            return true
+        }
+
+        if (token.isEmpty()) {
+            logger.warn { "Telegram token is empty. Telegram bot disabled." }
             return true
         }
 
@@ -46,6 +51,7 @@ class TelegramBot(
     }
 
     private fun configureBot() {
+        bot = Bot.createPolling(botName, token)
         bot.onCommand(COMMAND_START, this::onStartCommand)
         bot.onMessage(this::onMessage)
         bot.onAnyUpdate(this::onAnyUpdate)

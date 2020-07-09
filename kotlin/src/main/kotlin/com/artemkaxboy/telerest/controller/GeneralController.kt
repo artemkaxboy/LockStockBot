@@ -1,8 +1,8 @@
 package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.config.API_V1
-import com.artemkaxboy.telerest.config.properties.ApplicationProperties
 import com.artemkaxboy.telerest.dto.ResponseDto
+import com.artemkaxboy.telerest.service.GeneralService
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiResponse
@@ -23,13 +23,13 @@ import springfox.documentation.annotations.ApiIgnore
 @Api(tags = ["General information"], description = "Get basic service information")
 @PropertySource("classpath:swagger.properties")
 class GeneralController(
-    val applicationProperties: ApplicationProperties
+    val generalService: GeneralService
 ) {
 
     @GetMapping("/version", produces = [MediaType.APPLICATION_JSON_VALUE])
     @ApiOperation(value = "\${version.get}", response = ResponseDto::class)
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
     fun getVersion(@ApiIgnore request: ServerHttpRequest): Mono<ResponseDto> {
-        return ResponseDto.getResponse(request) { applicationProperties.version }.toMono()
+        return ResponseDto.getResponse(request) { generalService.getVersion() }.toMono()
     }
 }
