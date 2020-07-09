@@ -9,4 +9,7 @@ class ApplicationProperties {
 
     /** Application version. */
     var version: String = "debug"
+
+    /** Scheduling enabled. */
+    var schedulingEnabled: Boolean = true
 }

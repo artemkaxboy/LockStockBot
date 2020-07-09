@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.Scheduled
+import org.springframework.stereotype.Component
 
-@Configuration
+@Component
 class ScheduledJob(
     private val forecastServiceImpl1: ForecastServiceImpl1,
     private val liveDataService: LiveDataService,

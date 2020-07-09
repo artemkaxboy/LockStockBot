@@ -21,13 +21,13 @@ class TelegramBotProperties {
     var enabled = true
 
     /** Telegram bot API-token. */
-    @NotBlank(message = "Telegram token must be provided. Use config files or env variables.")
-    lateinit var token: String
+    // @NotBlank(message = "Telegram token must be provided. Use config files or env variables.")
+    var token: String = ""
 
     /** Make sense when the bot added to chat where another bot has the same command,
      *  in this case users should send the command with the bot name before (e.g. @bot1/start). */
-    @NotBlank(message = "Telegram bot name must be provided. Use config files or env variables.")
-    lateinit var botName: String
+    // @NotBlank(message = "Telegram bot name must be provided. Use config files or env variables.")
+    var botName: String = ""
 
     val reconnection = Reconnection()
 
