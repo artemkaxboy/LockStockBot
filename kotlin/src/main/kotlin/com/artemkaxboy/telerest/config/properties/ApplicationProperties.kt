@@ -12,4 +12,7 @@ class ApplicationProperties {
 
     /** Scheduling enabled. */
     var schedulingEnabled: Boolean = true
+
+    /** Timezone */
+    val timeZone: String = "UTC"
 }
