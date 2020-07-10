@@ -26,7 +26,7 @@ class TestingWebApplicationTests {
     private fun getUrl() = "http://localhost:$port/api/v1/version"
 
     @Test
-    fun `failed to return version`() {
+    fun `fail to return version`() {
 
         val entity = restTemplate
             .getForEntity<ResponseDto>(getUrl())

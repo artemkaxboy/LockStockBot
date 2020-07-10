@@ -7,13 +7,13 @@ import springfox.documentation.builders.RequestHandlerSelectors
 import springfox.documentation.service.ApiInfo
 import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spring.web.plugins.Docket
-import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux
+import springfox.documentation.swagger2.annotations.EnableSwagger2
 
 const val API_V1 = "v1"
 const val CURRENT_API_VERSION = API_V1
 
 @Configuration
-@EnableSwagger2WebFlux
+@EnableSwagger2
 class SpringFoxConfig {
 
     @Bean
@@ -28,7 +28,6 @@ class SpringFoxConfig {
             ApiInfo.DEFAULT.licenseUrl,
             ApiInfo.DEFAULT.vendorExtensions
         )
-
 
         return Docket(DocumentationType.SWAGGER_2)
             .apiInfo(info)

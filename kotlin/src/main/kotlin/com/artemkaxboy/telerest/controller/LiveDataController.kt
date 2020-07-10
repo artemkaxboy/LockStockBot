@@ -43,6 +43,8 @@ class LiveDataController(
     fun getLiveData(
 
         // @PropertySource doesn't work in validation annotation
+        // https://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-message-interpolation.html#section-interpolation-with-message-expressions
+        // https://howtodoinjava.com/hibernate/hibernate-validator-java-bean-validation/
         @NotBlank(message = "{invalid-ticker}")
         // @PropertySource doesn't work in @ApiParam example field
         @ApiParam(value = "\${liveData.ticker.get.ticker}", allowEmptyValue = false, example = "AMZN")
