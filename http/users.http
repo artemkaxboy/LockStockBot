@@ -11,6 +11,7 @@ Content-Type: application/json
 GET {{api_path}}/users
 
 > {%
+// noinspection JSUnresolvedVariable
 client.global.set("chat_id", response.body.data.items[0].chatId);
 %}
 
@@ -23,7 +24,7 @@ POST {{api_path}}/user
 Content-Type: application/json
 
 {
-  "chatId": {{chat_id}},
+  "chatId": "{{chat_id}}",
   "name": "{{$uuid}}"
 }
 

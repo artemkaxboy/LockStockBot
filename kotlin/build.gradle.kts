@@ -75,6 +75,7 @@ dependencies {
 
     // kapt
     kapt("org.springframework.boot:spring-boot-configuration-processor")
+    kaptTest("org.springframework.boot:spring-boot-configuration-processor")
 }
 
 // https://peterevans.dev/posts/containerising-kotlin-with-jib/

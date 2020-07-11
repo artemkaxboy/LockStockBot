@@ -77,7 +77,7 @@ class LiveDataController(
         @Schema(
             description = "Signed days diff from today to edit values. " +
                 "Must be an integer signed number between -365 and 365 inclusively.",
-            minimum = "${-EDITABLE_DAYS_INTERVAL}",
+            minimum = "-$EDITABLE_DAYS_INTERVAL",
             maximum = "$EDITABLE_DAYS_INTERVAL",
             example = "0"
         )

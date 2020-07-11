@@ -25,6 +25,7 @@ class ForecastSource1Properties {
      * Interval of renewing forecasts information. Cannot be less than one minute.
      * Default value is 15 minute.
      * */
+    @Suppress("unused") // used in UpdateForecastsJob.update @Scheduled.fixedRateString
     @DurationUnit(ChronoUnit.MINUTES)
     @DurationMin(minutes = 1, message = "Update interval cannot be less than one minute.")
     var updateInterval: Duration = Duration.ofMinutes(DEFAULT_UPDATE_INTERVAL_MINUTES)

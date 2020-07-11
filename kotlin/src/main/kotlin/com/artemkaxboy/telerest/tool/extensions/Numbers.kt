@@ -1,3 +1,5 @@
+@file:Suppress("unused") // library functions can be unused
+
 package com.artemkaxboy.telerest.tool.extensions
 
 import kotlin.math.pow
