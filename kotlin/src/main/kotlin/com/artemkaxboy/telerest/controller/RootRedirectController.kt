@@ -1,15 +1,15 @@
 package com.artemkaxboy.telerest.controller
 
+import io.swagger.v3.oas.annotations.Hidden
 import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import springfox.documentation.annotations.ApiIgnore
 import java.net.URI
 
 
-@ApiIgnore
+@Hidden
 @RestController
 class RootRedirectController {
 
