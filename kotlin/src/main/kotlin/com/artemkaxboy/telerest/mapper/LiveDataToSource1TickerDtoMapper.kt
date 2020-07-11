@@ -4,11 +4,10 @@ import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.entity.Currency
 import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.entity.Ticker
-import org.modelmapper.ModelMapper
-import org.springframework.stereotype.Component
 import java.time.LocalDate
 import javax.annotation.PostConstruct
-
+import org.modelmapper.ModelMapper
+import org.springframework.stereotype.Component
 
 @Component
 class LiveDataToSource1TickerDtoMapper(mapper: ModelMapper) :

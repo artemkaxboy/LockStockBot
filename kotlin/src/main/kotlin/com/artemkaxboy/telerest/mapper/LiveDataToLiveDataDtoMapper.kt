@@ -3,10 +3,9 @@ package com.artemkaxboy.telerest.mapper
 import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.tool.extensions.toString
+import javax.annotation.PostConstruct
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
-
 
 @Component
 class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :

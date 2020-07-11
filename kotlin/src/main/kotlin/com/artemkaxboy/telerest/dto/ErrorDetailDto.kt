@@ -64,8 +64,7 @@ data class ErrorDetailDto(
             return result
         }
 
-        private
-        fun fromOneThrowable(
+        private fun fromOneThrowable(
             throwable: Throwable,
             domain: String? = null
         ): ErrorDetailDto {

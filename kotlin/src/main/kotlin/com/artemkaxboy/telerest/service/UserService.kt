@@ -9,7 +9,6 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
-
 @Service
 class UserService(private val userRepo: UserRepo) {
 
@@ -22,12 +21,8 @@ class UserService(private val userRepo: UserRepo) {
     fun save(user: User) = userRepo.save(user)
 }
 
-
-private
-fun Pageable.fixSorting(): Pageable =
+private fun Pageable.fixSorting(): Pageable =
     this.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(this.pageNumber, this.pageSize, Sort.by(User::name.name))
 
-
-private
-val defaultPageRequest = PageRequest.of(0, 10)
+private val defaultPageRequest = PageRequest.of(0, 10)

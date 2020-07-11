@@ -2,10 +2,9 @@ package com.artemkaxboy.telerest.mapper
 
 import com.artemkaxboy.telerest.dto.TickerDto
 import com.artemkaxboy.telerest.entity.Ticker
+import javax.annotation.PostConstruct
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
-import javax.annotation.PostConstruct
-
 
 @Component
 class TickerToTickerDtoMapper(mapper: ModelMapper) :

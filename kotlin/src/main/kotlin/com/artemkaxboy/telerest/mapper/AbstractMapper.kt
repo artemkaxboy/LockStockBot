@@ -6,7 +6,6 @@ import org.modelmapper.Converter
 import org.modelmapper.ModelMapper
 import org.modelmapper.spi.MappingContext
 
-
 abstract class AbstractMapper<E : AbstractEntity, D : AbstractDto>(
     val mapper: ModelMapper,
     val entityClass: Class<E>,
