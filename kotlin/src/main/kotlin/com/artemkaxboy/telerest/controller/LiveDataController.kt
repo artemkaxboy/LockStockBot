@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.config.API_V1
 import com.artemkaxboy.telerest.dto.ResponseDto
+import com.artemkaxboy.telerest.exception.RequestException
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.service.LiveDataService
 import io.swagger.annotations.Api
@@ -10,8 +11,10 @@ import io.swagger.annotations.ApiParam
 import io.swagger.annotations.ApiResponse
 import io.swagger.annotations.ApiResponses
 import org.springframework.context.annotation.PropertySource
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -52,14 +55,17 @@ class LiveDataController(
         ticker: String,
 
         @ApiIgnore
-        request: ServerHttpRequest
+        request: ServerHttpRequest,
+
+        @ApiIgnore
+        response: ServerHttpResponse
     ): Mono<ResponseDto> {
 
         return ResponseDto
-            .getResponse(request) {
+            .getResponse(request, response) {
                 liveDataService.findFirstByTickerTickerOrderByDateDesc(ticker)
                     ?.let { liveDataToLiveDataDtoMapper.toDto(it) }
-                    ?: throw RuntimeException("Cannot find any data for ticker: $ticker")
+                    ?: throw RequestException("Ticker '$ticker' not found", HttpStatus.NOT_FOUND)
             }
             .toMono()
     }

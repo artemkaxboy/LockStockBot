@@ -1,11 +1,13 @@
 package com.artemkaxboy.telerest.dto
 
 import com.artemkaxboy.telerest.config.CURRENT_API_VERSION
+import com.artemkaxboy.telerest.exception.RequestException
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import org.springframework.data.domain.Page
+import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpRequest
-import kotlin.random.Random
+import org.springframework.http.server.reactive.ServerHttpResponse
 
 // based on https://google.github.io/styleguide/jsoncstyleguide.xml
 @ApiModel(value = "Response", description = "Object contains request information, operation result or occurred errors.")
@@ -55,15 +57,27 @@ data class ResponseDto(
          *
          * @return filled [ResponseDto]
          */
-        fun getResponse(request: ServerHttpRequest, block: () -> Any): ResponseDto {
+        fun getResponse(
+            request: ServerHttpRequest,
+            response: ServerHttpResponse? = null,
+            block: () -> Any
+        ): ResponseDto {
 
             return runCatching { wrap(request, block()) }
-                .getOrElse { wrapError(request, it) }
+                .getOrElse { wrapError(request, response, it) }
         }
 
-        private fun wrapError(request: ServerHttpRequest, error: Throwable): ResponseDto {
+        private fun wrapError(
+            request: ServerHttpRequest,
+            response: ServerHttpResponse? = null,
+            error: Throwable
+        ): ResponseDto {
+            val errorCode = ((error as? RequestException)?.code ?: HttpStatus.INTERNAL_SERVER_ERROR)
+                .also { response?.statusCode = it }
+                .value()
+
             return ErrorDto(
-                Random.nextInt(10_000), // todo add later
+                errorCode,
                 error.message ?: error.toString(),
                 errors = ErrorDetailDto.fromThrowable(error)
             )

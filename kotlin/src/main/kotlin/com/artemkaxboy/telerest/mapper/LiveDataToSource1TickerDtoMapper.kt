@@ -22,15 +22,15 @@ class LiveDataToSource1TickerDtoMapper(mapper: ModelMapper) :
     }
 
     override fun postConvert(source: Source1TickerDto, destination: LiveData): LiveData {
-        return destination.apply {
-            this.date = LocalDate.now()
-            this.ticker = Ticker(
+        return destination.copy(
+            date = LocalDate.now(),
+            ticker = Ticker(
                 ticker = source.title,
                 url = source.frontUrl,
                 currency = Currency(source.currency),
                 name = source.company.title,
                 logo = source.company.logoLink
             )
-        }
+        )
     }
 }

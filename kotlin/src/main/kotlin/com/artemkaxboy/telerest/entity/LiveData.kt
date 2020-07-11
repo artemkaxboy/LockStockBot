@@ -16,18 +16,28 @@ import javax.persistence.Table
 data class LiveData(
 
     @Id
-    var date: LocalDate = LocalDate.now(),
+    val date: LocalDate = LocalDate.now(),
 
     @Id
     @ManyToOne(cascade = [CascadeType.ALL])
     @JoinColumn(name = "ticker_fk")
-    var ticker: Ticker,
+    val ticker: Ticker,
 
-    var price: Double,
+    val price: Double,
 
-    var consensus: Double
+    val consensus: Double
 
-) : AbstractEntity()
+) : AbstractEntity() {
+
+    companion object {
+
+        val DUMMY = LiveData(
+            ticker = Ticker.DUMMY,
+            price = 10.0,
+            consensus = 11.0
+        )
+    }
+}
 
 data class LiveDataId(
 
@@ -35,4 +45,4 @@ data class LiveDataId(
 
     var ticker: String = ""
 
-): Serializable
+) : Serializable
