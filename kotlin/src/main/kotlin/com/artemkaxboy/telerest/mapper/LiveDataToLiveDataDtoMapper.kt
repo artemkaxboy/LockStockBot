@@ -7,6 +7,7 @@ import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
+
 @Component
 class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
     AbstractMapper<LiveData, LiveDataDto>(mapper, LiveData::class.java, LiveDataDto::class.java) {

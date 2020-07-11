@@ -3,6 +3,7 @@ package com.artemkaxboy.telerest.dto
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 
+
 @ApiModel(value = "Error Detail", description = "Detailed error information.")
 data class ErrorDetailDto(
 
@@ -65,7 +66,8 @@ data class ErrorDetailDto(
             return result
         }
 
-        private fun fromOneThrowable(
+        private
+        fun fromOneThrowable(
             throwable: Throwable,
             domain: String? = null
         ): ErrorDetailDto {

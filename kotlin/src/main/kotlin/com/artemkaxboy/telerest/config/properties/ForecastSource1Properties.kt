@@ -7,15 +7,35 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.validation.annotation.Validated
 import java.time.Duration
 import java.time.temporal.ChronoUnit
-import javax.validation.constraints.NotBlank
 
-private const val DEFAULT_TTL_PERIOD_DAYS = 30L
-private const val DEFAULT_QUORUM = 3
-private const val DEFAULT_THRESHOLD_PERCENT = 5
-private const val DEFAULT_PAGE_SIZE = 15
-private const val DEFAULT_MAX_PAGES = 20
-private const val DEFAULT_BUFFER_PAGES = 3
-private const val DEFAULT_UPDATE_INTERVAL_MINUTES = 15L
+
+private
+const val DEFAULT_TTL_PERIOD_DAYS = 30L
+
+
+private
+const val DEFAULT_QUORUM = 3
+
+
+private
+const val DEFAULT_THRESHOLD_PERCENT = 5
+
+
+private
+const val DEFAULT_PAGE_SIZE = 15
+
+
+private
+const val DEFAULT_MAX_PAGES = 20
+
+
+private
+const val DEFAULT_BUFFER_PAGES = 3
+
+
+private
+const val DEFAULT_UPDATE_INTERVAL_MINUTES = 15L
+
 
 @Configuration
 @ConfigurationProperties("forecast.source1")

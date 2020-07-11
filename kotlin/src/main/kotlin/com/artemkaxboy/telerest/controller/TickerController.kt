@@ -23,10 +23,15 @@ import reactor.kotlin.core.publisher.toMono
 import springfox.documentation.annotations.ApiIgnore
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
-import javax.validation.constraints.NotBlank
 
-private const val MAX_API_INT = 1073741824L
-private const val MAX_PAGE_SIZE = 100L
+
+private
+const val MAX_API_INT = 1073741824L
+
+
+private
+const val MAX_PAGE_SIZE = 100L
+
 
 @RestController @Validated
 @RequestMapping(value = ["api/$API_V1"])

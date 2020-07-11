@@ -6,6 +6,7 @@ import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
 import javax.annotation.PostConstruct
 
+
 @Component
 class TickerToTickerDtoMapper(mapper: ModelMapper) :
     AbstractMapper<Ticker, TickerDto>(mapper, Ticker::class.java, TickerDto::class.java) {

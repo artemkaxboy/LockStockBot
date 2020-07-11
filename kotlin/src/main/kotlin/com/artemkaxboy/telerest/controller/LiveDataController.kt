@@ -29,7 +29,10 @@ import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
 
-private const val EDITABLE_DAYS_INTERVAL = 365L
+
+private
+const val EDITABLE_DAYS_INTERVAL = 365L
+
 
 @RestController @Validated
 @RequestMapping(value = ["api/$API_V1"])

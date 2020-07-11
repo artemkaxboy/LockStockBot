@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 
+
 @Service
 class LiveDataService(
     private val liveDataRepo: LiveDataRepo,
@@ -43,7 +44,9 @@ class LiveDataService(
     }
 }
 
-private fun Pageable.fixSorting(): Pageable =
+
+private
+fun Pageable.fixSorting(): Pageable =
     this.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(
             this.pageNumber, this.pageSize, Sort.by(
@@ -52,4 +55,6 @@ private fun Pageable.fixSorting(): Pageable =
             )
         )
 
-private val defaultPageRequest = PageRequest.of(0, 10)
+
+private
+val defaultPageRequest = PageRequest.of(0, 10)

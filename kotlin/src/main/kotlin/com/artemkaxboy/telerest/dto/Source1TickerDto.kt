@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import java.util.Date
 
+
 data class Source1TickerDto(
 
     val title: String,
@@ -26,6 +27,7 @@ data class Source1TickerDto(
     var consensus: Double = 0.0
 }
 
+
 data class Source1CompanyDto(
 
     val title: String,
@@ -33,6 +35,7 @@ data class Source1CompanyDto(
     @JsonProperty("logo_link")
     val logoLink: String
 ) : AbstractDto
+
 
 data class Source1ForecastDto(
 

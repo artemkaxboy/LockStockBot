@@ -10,8 +10,9 @@ import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
+
 @Component
-class ScheduledJob(
+class UpdateForecastsJob(
     private val forecastServiceImpl1: ForecastServiceImpl1,
     private val liveDataService: LiveDataService,
     private val liveDataToSource1TickerDtoMapper: LiveDataToSource1TickerDtoMapper
@@ -35,6 +36,7 @@ class ScheduledJob(
     }
 
     companion object {
-        private val logger = KotlinLogging.logger { }
+        private
+        val logger = KotlinLogging.logger { }
     }
 }

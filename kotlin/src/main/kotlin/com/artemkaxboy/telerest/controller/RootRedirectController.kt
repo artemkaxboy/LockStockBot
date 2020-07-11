@@ -8,12 +8,13 @@ import reactor.core.publisher.Mono
 import springfox.documentation.annotations.ApiIgnore
 import java.net.URI
 
+
 @ApiIgnore
 @RestController
 class RootRedirectController {
 
     @GetMapping(value = ["/", "/api", "/api/"])
-    private fun getEcho(response: ServerHttpResponse): Mono<Void> {
+    fun getEcho(response: ServerHttpResponse): Mono<Void> {
         response.statusCode = HttpStatus.MOVED_PERMANENTLY
         response.headers.location = URI.create("/swagger-ui.html")
         return response.setComplete()

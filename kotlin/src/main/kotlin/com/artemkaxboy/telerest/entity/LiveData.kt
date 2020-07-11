@@ -10,6 +10,7 @@ import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.Table
 
+
 @Entity
 @IdClass(LiveDataId::class)
 @Table(name = "live_data")
@@ -38,6 +39,7 @@ data class LiveData(
         )
     }
 }
+
 
 data class LiveDataId(
 

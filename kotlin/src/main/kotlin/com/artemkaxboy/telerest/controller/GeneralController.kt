@@ -17,6 +17,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import springfox.documentation.annotations.ApiIgnore
 
+
 @RestController
 @RequestMapping(value = ["api/$API_V1"])
 // @PropertySource doesn't work in the same-level @Api annotation
