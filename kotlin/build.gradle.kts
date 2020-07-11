@@ -8,7 +8,7 @@ plugins {
     id("org.springframework.boot") version "2.3.1.RELEASE"
     id("io.spring.dependency-management") version "1.0.9.RELEASE"
     id("com.google.cloud.tools.jib") version "1.7.0"
-    id("org.gradle.kotlin-dsl.ktlint-convention") version "0.5.0"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 group = "com.artemkaxboy"
@@ -25,8 +25,6 @@ repositories {
     mavenCentral()
     // telegram bot   https://github.com/elbekD/kt-telegram-bot
     maven("https://jitpack.io")
-    // to use swagger with flux we need 3.0.0-SNAPSHOT version
-    maven("https://oss.jfrog.org/artifactory/oss-snapshot-local/")
 }
 
 dependencies {
@@ -59,6 +57,7 @@ dependencies {
 
     // entity dto mapper    https://habr.com/ru/post/438808/
     // implementation("org.modelmapper:modelmapper:$modelMapperVersion")
+    // locally fixed https://github.com/modelmapper/modelmapper/issues/553
     implementation(files("libs/modelmapper-2.3.9-SNAPSHOT.jar"))
 
     // telegram bot   https://github.com/elbekD/kt-telegram-bot

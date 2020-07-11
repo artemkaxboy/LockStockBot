@@ -4,7 +4,6 @@ import com.artemkaxboy.telerest.dto.AbstractDto
 import com.artemkaxboy.telerest.entity.AbstractEntity
 import org.jetbrains.annotations.Contract
 
-
 interface Mapper<E : AbstractEntity, D : AbstractDto> {
 
     @Contract("null -> null; !null -> !null")

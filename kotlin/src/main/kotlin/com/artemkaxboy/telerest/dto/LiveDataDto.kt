@@ -2,7 +2,6 @@ package com.artemkaxboy.telerest.dto
 
 import java.time.LocalDate
 
-
 @Suppress("unused") // DTO needs data
 data class LiveDataDto(
 

@@ -9,18 +9,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.data.repository.findByIdOrNull
 
-
 @DataJpaTest
-internal
-class UserServiceTest {
+internal class UserServiceTest {
 
     @Autowired
-    private
-    lateinit var entityManager: TestEntityManager
+    private lateinit var entityManager: TestEntityManager
 
     @Autowired
-    private
-    lateinit var userRepo: UserRepo
+    private lateinit var userRepo: UserRepo
 
     @Test
     fun findAll() {
@@ -39,7 +35,6 @@ class UserServiceTest {
         val alex = User(123, "alex")
         entityManager.persist(alex)
         entityManager.flush()
-
 
         val found = userRepo.findByIdOrNull(alex.chatId)
 

@@ -6,11 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.context.annotation.Configuration
 
-
 @SpringBootTest
 // @ActiveProfiles(profiles = ["local"])
-internal
-class ForecastServiceImpl1Test {
+internal class ForecastServiceImpl1Test {
 
     @Configuration
     class MyContextConfiguration : ForecastSource1Properties()

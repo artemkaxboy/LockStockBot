@@ -7,6 +7,7 @@ import com.artemkaxboy.telerest.service.UserService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import javax.persistence.EntityNotFoundException
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -19,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import javax.persistence.EntityNotFoundException
-
 
 @RestController
 @RequestMapping(value = ["api/$API_V1"])

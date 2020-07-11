@@ -5,6 +5,8 @@ import com.artemkaxboy.telerest.converter.toLocalDateTime
 import com.artemkaxboy.telerest.dto.Source1ForecastDto
 import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.service.forecast.ForecastService
+import java.time.LocalDateTime
+import kotlin.math.absoluteValue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
@@ -15,9 +17,6 @@ import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
-import java.time.LocalDateTime
-import kotlin.math.absoluteValue
-
 
 @Service
 class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource1Properties) :
@@ -30,8 +29,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
      * @return array of [Source1TickerDto] with size equals to [ForecastSource1Properties.pageSize]
      * or less if it's the last page.
      */
-    private
-    fun getPage(page: Int): Array<Source1TickerDto> {
+    private fun getPage(page: Int): Array<Source1TickerDto> {
 
         val url = forecastSource1Properties.baseUrl +
             "?type=share" +
@@ -64,8 +62,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             .onEach(this::calculateConsensus)
     }
 
-    private
-    suspend fun dropIncorrect(ticker: Source1TickerDto): Boolean {
+    private suspend fun dropIncorrect(ticker: Source1TickerDto): Boolean {
         if (ticker.currency.isEmpty()) {
             logger.debug { "${ticker.company.title} dropped: no currency" }
             return false
@@ -73,8 +70,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
         return true
     }
 
-    private
-    suspend fun filterByForecasts(ticker: Source1TickerDto): Boolean {
+    private suspend fun filterByForecasts(ticker: Source1TickerDto): Boolean {
 
         return ticker.forecasts
             .takeIf(this::hasQuorum)
@@ -109,8 +105,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
      * Drops the lowest value if it further than [ForecastSource1Properties.extremeThreshold] percent of base
      * from the second low value.
      */
-    private
-    fun cutExtremeLow(list: List<Double>, base: Double): List<Double> {
+    private fun cutExtremeLow(list: List<Double>, base: Double): List<Double> {
 
         return list.takeIf { it.size > 2 }
             ?.let { (it[0] - it[1]).absoluteValue / base }
@@ -120,11 +115,9 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             ?: list
     }
 
-    private
-    fun isQuorumEnabled() = forecastSource1Properties.quorum > 0
+    private fun isQuorumEnabled() = forecastSource1Properties.quorum > 0
 
-    private
-    fun hasQuorum(forecasts: Collection<Any>): Boolean {
+    private fun hasQuorum(forecasts: Collection<Any>): Boolean {
 
         if (isQuorumEnabled() && forecasts.size < forecastSource1Properties.quorum) {
             logger.debug { "Ticker dropped: no forecasts quorum" }
@@ -139,8 +132,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
      *
      * @return true if given forecast is still actual, false - otherwise
      */
-    private
-    fun isForecastActual(forecast: Source1ForecastDto): Boolean {
+    private fun isForecastActual(forecast: Source1ForecastDto): Boolean {
         if (forecastSource1Properties.ttl.isZero) return true
 
         return forecast.publishDate
@@ -150,7 +142,6 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
     companion object {
 
-        private
-        val logger = KotlinLogging.logger { }
+        private val logger = KotlinLogging.logger { }
     }
 }

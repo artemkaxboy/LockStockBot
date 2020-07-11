@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
-
 // https://www.baeldung.com/spring-webflux
 @RestController
 @RequestMapping(value = ["api/$API_V1"])

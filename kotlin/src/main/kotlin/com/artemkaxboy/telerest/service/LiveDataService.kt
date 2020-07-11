@@ -4,12 +4,11 @@ import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.repo.LiveDataRepo
+import java.time.LocalDate
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
-import java.time.LocalDate
-
 
 @Service
 class LiveDataService(
@@ -44,9 +43,7 @@ class LiveDataService(
     }
 }
 
-
-private
-fun Pageable.fixSorting(): Pageable =
+private fun Pageable.fixSorting(): Pageable =
     this.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(
             this.pageNumber, this.pageSize, Sort.by(
@@ -55,6 +52,4 @@ fun Pageable.fixSorting(): Pageable =
             )
         )
 
-
-private
-val defaultPageRequest = PageRequest.of(0, 10)
+private val defaultPageRequest = PageRequest.of(0, 10)

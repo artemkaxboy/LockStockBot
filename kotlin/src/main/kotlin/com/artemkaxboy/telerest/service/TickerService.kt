@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 
-
 @Service
 class TickerService(private val tickerRepo: TickerRepo) {
 
@@ -15,14 +14,10 @@ class TickerService(private val tickerRepo: TickerRepo) {
         tickerRepo.findAll(pageable.fixSorting())
 }
 
-
-private
-fun Pageable.fixSorting(): Pageable =
+private fun Pageable.fixSorting(): Pageable =
     this.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(
             this.pageNumber, this.pageSize, Sort.by(Ticker::ticker.name)
         )
 
-
-private
-val defaultPageRequest = PageRequest.of(0, 10)
+private val defaultPageRequest = PageRequest.of(0, 10)

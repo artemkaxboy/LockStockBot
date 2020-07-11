@@ -1,21 +1,16 @@
 package com.artemkaxboy.telerest.config.properties
 
+import java.time.Duration
+import java.time.temporal.ChronoUnit
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.convert.DurationUnit
 import org.springframework.validation.annotation.Validated
-import java.time.Duration
-import java.time.temporal.ChronoUnit
-
 
 /** Amount of attempts to initially connect to Telegram API */
-private
-const val DEFAULT_RECONNECTION_COUNT = 10
-
+private const val DEFAULT_RECONNECTION_COUNT = 10
 
 /** Default delay between connection attempts */
-private
-const val DEFAULT_RECONNECTION_DELAY_SECONDS = 3L
-
+private const val DEFAULT_RECONNECTION_DELAY_SECONDS = 3L
 
 @ConfigurationProperties("telegram")
 @Validated

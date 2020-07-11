@@ -7,6 +7,8 @@ import com.artemkaxboy.telerest.service.TickerService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.tags.Tag
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
@@ -18,20 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import javax.validation.constraints.Max
-import javax.validation.constraints.Min
 
 /**
  * Maximum API supported value, bytes representation of 1GB.
  */
-private
-const val MAX_API_INT = 1073741824L
-
-private
-const val MAX_PAGE_SIZE = 100L
-
-private
-const val DEFAULT_PAGE_SIZE = 10L
+private const val MAX_API_INT = 1073741824L
+private const val MAX_PAGE_SIZE = 100L
+private const val DEFAULT_PAGE_SIZE = 10L
 
 @RestController
 @Validated
