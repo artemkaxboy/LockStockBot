@@ -4,11 +4,9 @@ import com.artemkaxboy.telerest.config.API_V1
 import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.service.UserService
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -21,13 +19,12 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import springfox.documentation.annotations.ApiIgnore
 import javax.persistence.EntityNotFoundException
 
 
 @RestController
 @RequestMapping(value = ["api/$API_V1"])
-@Api(tags = ["User controller"], description = "Perform user control operation")
+@Tag(name = "User controller", description = "Perform user control operation")
 class UserController(
     private val userService: UserService
 ) {
@@ -36,8 +33,7 @@ class UserController(
         "/users",
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    @ApiOperation(value = "Get all users")
-    @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
+    @Operation(summary = "Get all users")
     fun getUsers(
 
         @RequestParam(required = false, defaultValue = "1")
@@ -46,7 +42,6 @@ class UserController(
         @RequestParam(required = false, defaultValue = "10")
         pageSize: Int,
 
-        @ApiIgnore
         request: ServerHttpRequest
     ): Mono<ResponseDto> {
 
@@ -61,13 +56,11 @@ class UserController(
         "/user/{id}",
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    @ApiOperation(value = "Get user by id")
-    @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
+    @Operation(summary = "Get user by id")
     fun getUser(
         @PathVariable
         id: Long,
 
-        @ApiIgnore
         request: ServerHttpRequest
     ): Mono<ResponseDto> {
 
@@ -83,15 +76,12 @@ class UserController(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    @ApiOperation(value = "Add user")
-    @ApiResponses(value = [ApiResponse(code = 201, message = "Created")])
+    @Operation(summary = "Add user", responses = [ApiResponse(responseCode = "201")])
     fun postUser(
 
-        @ApiParam(value = "User details")
         @RequestBody(required = true)
         user: User,
 
-        @ApiIgnore
         request: ServerHttpRequest
     ): Mono<ResponseDto> {
 

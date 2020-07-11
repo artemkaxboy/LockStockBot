@@ -4,11 +4,10 @@ import com.artemkaxboy.telerest.config.API_V1
 import com.artemkaxboy.telerest.dto.MessageDto
 import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.service.TelegramBot
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,13 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import springfox.documentation.annotations.ApiIgnore
 
 
 // https://www.baeldung.com/spring-webflux
 @RestController
 @RequestMapping(value = ["api/$API_V1"])
-@Api(tags = ["Message controller"], description = "Perform messages operation")
+@Tag(name = "Message controller", description = "Perform messages operation")
 class MessageController(
     val telegramBot: TelegramBot
 ) {
@@ -33,15 +31,13 @@ class MessageController(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    @ApiOperation(value = "Post message", response = ResponseDto::class)
-    @ApiResponses(value = [ApiResponse(code = 202, message = "Accepted")])
+    @Operation(summary = "Post message", responses = [ApiResponse(responseCode = "202")])
     fun postMessage(
 
-        @ApiParam(value = "Message data")
+        @Parameter(description = "Message data")
         @RequestBody(required = true)
         message: MessageDto,
 
-        @ApiIgnore
         request: ServerHttpRequest
     ): Mono<ResponseDto> {
         // Mono comes to API, it will be fixed: https://github.com/springfox/springfox/issues/2858

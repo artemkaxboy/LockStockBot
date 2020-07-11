@@ -11,6 +11,10 @@ spring:
     hikari:
       connection-timeout: 1000
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
 #telegram:
 
 #  Telegram bot API-token

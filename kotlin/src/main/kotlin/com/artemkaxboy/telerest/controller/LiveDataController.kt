@@ -5,12 +5,11 @@ import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.exception.RequestException
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.service.LiveDataService
-import io.swagger.annotations.Api
-import io.swagger.annotations.ApiOperation
-import io.swagger.annotations.ApiParam
-import io.swagger.annotations.ApiResponse
-import io.swagger.annotations.ApiResponses
-import org.springframework.context.annotation.PropertySource
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -24,43 +23,36 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
-import springfox.documentation.annotations.ApiIgnore
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotBlank
-
+import javax.validation.constraints.PositiveOrZero
 
 private
 const val EDITABLE_DAYS_INTERVAL = 365L
 
-
-@RestController @Validated
+@RestController
+@Validated
 @RequestMapping(value = ["api/$API_V1"])
-@Api(tags = ["Live data controller"], description = "Perform live data operation")
-@PropertySource("classpath:swagger.properties")
+@Tag(name = "Live data controller", description = "Perform live data operation")
 class LiveDataController(
     private val liveDataService: LiveDataService,
     private val liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
 ) {
 
     @GetMapping("/liveData/{ticker}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiOperation(value = "\${liveData.ticker.get}", response = ResponseDto::class)
-    @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
+    @Operation(summary = "Get ticker latest data")
     fun getLiveData(
 
-        // @PropertySource doesn't work in validation annotation
         // https://docs.jboss.org/hibernate/validator/5.1/reference/en-US/html/chapter-message-interpolation.html#section-interpolation-with-message-expressions
         // https://howtodoinjava.com/hibernate/hibernate-validator-java-bean-validation/
         @NotBlank(message = "{invalid-ticker}")
-        // @PropertySource doesn't work in @ApiParam example field
-        @ApiParam(value = "\${liveData.ticker.get.ticker}", allowEmptyValue = false, example = "AMZN")
+        @Parameter(description = "Ticker code, e.g. AAPL for Apple or AMZN for Amazon.", example = "AMZN")
         @PathVariable
         ticker: String,
 
-        @ApiIgnore
         request: ServerHttpRequest,
 
-        @ApiIgnore
         response: ServerHttpResponse
     ): Mono<ResponseDto> {
 
@@ -74,40 +66,34 @@ class LiveDataController(
     }
 
     @PostMapping("/liveData/{ticker}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @ApiOperation(value = "\${liveData.ticker.post}", response = ResponseDto::class)
-    @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
+    @Operation(summary = "Post ticker live data", responses = [ApiResponse(responseCode = "202")])
     fun postTicker(
 
         @NotBlank(message = "{invalid-ticker}")
-        @ApiParam(value = "\${liveData.ticker.post.ticker}", allowEmptyValue = false, example = "AMZN")
+        @Parameter(description = "Ticker code, e.g. AAPL for Apple or AMZN for Amazon.", example = "AMZN")
         @PathVariable
         ticker: String,
 
         @Min(-EDITABLE_DAYS_INTERVAL, message = "{liveData.ticker.post.days.min}")
         @Max(EDITABLE_DAYS_INTERVAL, message = "{liveData.ticker.post.days.max}")
-        @ApiParam(
-            value = "\${liveData.ticker.post.days}",
-            allowableValues = "range[-365, 365]",
+        @Schema(
+            description = "Signed days diff from today to edit values. " +
+                "Must be an integer signed number between -365 and 365 inclusively.",
+            minimum = "${-EDITABLE_DAYS_INTERVAL}",
+            maximum = "$EDITABLE_DAYS_INTERVAL",
             example = "0"
         )
         @RequestParam(required = false)
         days: Int?,
 
-        @ApiParam(
-            value = "\${liveData.ticker.post.price}",
-            example = "0.0"
-        )
+        @Schema(description = "Stock price to set.", minimum = "0.0", example = "10.0")
         @RequestParam(required = false)
         price: Double?,
 
-        @ApiParam(
-            value = "\${liveData.ticker.post.consensus}",
-            example = "0.0"
-        )
+        @Schema(description = "Consensus forecast to set.", minimum = "0.0", example = "10.0")
         @RequestParam(required = false)
         consensus: Double?,
 
-        @ApiIgnore
         request: ServerHttpRequest
     ): Mono<ResponseDto> {
 

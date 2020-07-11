@@ -17,8 +17,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 val kotlinLoggingVersion by extra("1.7.10")
 val ktTelegramBotVersion by extra("1.3.0-beta")
-val swaggerSnapshotVersion by extra("3.0.0-SNAPSHOT")
-val swaggerStableVersion by extra("2.10.5")
+val swaggerVersion by extra("1.4.3")
 val modelMapperVersion by extra("2.3.8")
 val tag by extra(System.getenv("TAG") ?: project.version)
 
@@ -48,9 +47,7 @@ dependencies {
 
     // https://github.com/springdoc/springdoc-openapi
     // swagger
-    implementation("io.springfox:springfox-swagger2:$swaggerSnapshotVersion")
-    implementation("io.springfox:springfox-spring-webflux:$swaggerSnapshotVersion")
-    implementation("io.springfox:springfox-swagger-ui:$swaggerStableVersion")
+    implementation("org.springdoc:springdoc-openapi-webflux-ui:$swaggerVersion")
 
     // logging
     implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
