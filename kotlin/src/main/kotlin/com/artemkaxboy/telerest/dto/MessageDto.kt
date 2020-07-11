@@ -1,23 +1,21 @@
 package com.artemkaxboy.telerest.dto
 
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+import io.swagger.v3.oas.annotations.media.Schema
 
-
-@ApiModel(value = "Message", description = "Basic message to send to telegram chat.")
+@Schema(title = "Message", description = "Basic message to send to telegram chat.")
 data class MessageDto(
 
-    @ApiModelProperty(
-        value = "Target chat id.",
-        example = "30811102"
-    )
+    // @ApiModelProperty(
+    //     value = "Target chat id.",
+    //     example = "30811102"
+    // )
     val chatId: String,
 
-    @ApiModelProperty(
-        value = "Message text to send.",
-        required = true,
-        allowEmptyValue = false,
-        example = "Hi, there!"
-    )
+    // @ApiModelProperty(
+    //     value = "Message text to send.",
+    //     required = true,
+    //     allowEmptyValue = false,
+    //     example = "Hi, there!"
+    // )
     val text: String
 ) : AbstractDto

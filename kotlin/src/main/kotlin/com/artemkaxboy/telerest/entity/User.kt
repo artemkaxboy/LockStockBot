@@ -1,6 +1,5 @@
 package com.artemkaxboy.telerest.entity
 
-import io.swagger.annotations.ApiModelProperty
 import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.FetchType.EAGER
@@ -22,6 +21,6 @@ data class User(
     // @OrderBy("ticker ASC")
     // @OneToMany(mappedBy = "ticker")
     @OneToMany(fetch = EAGER, cascade = [CascadeType.ALL])
-    @ApiModelProperty(readOnly = true)
+    // @ApiModelProperty(readOnly = true)
     var tickers: List<Ticker?>? = null
 )
