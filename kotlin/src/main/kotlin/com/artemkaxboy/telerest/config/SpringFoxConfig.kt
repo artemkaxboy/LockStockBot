@@ -9,8 +9,12 @@ import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 
+
 const val API_V1 = "v1"
+
+
 const val CURRENT_API_VERSION = API_V1
+
 
 @Configuration
 @EnableSwagger2

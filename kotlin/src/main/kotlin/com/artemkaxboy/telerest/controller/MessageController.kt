@@ -19,6 +19,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 import springfox.documentation.annotations.ApiIgnore
 
+
 // https://www.baeldung.com/spring-webflux
 @RestController
 @RequestMapping(value = ["api/$API_V1"])
@@ -34,7 +35,7 @@ class MessageController(
     )
     @ApiOperation(value = "Post message", response = ResponseDto::class)
     @ApiResponses(value = [ApiResponse(code = 202, message = "Accepted")])
-    private fun postMessage(
+    fun postMessage(
 
         @ApiParam(value = "Message data")
         @RequestBody(required = true)

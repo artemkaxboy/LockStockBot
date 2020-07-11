@@ -3,6 +3,7 @@ package com.artemkaxboy.telerest.dto
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 
+
 @ApiModel(value = "Message", description = "Basic message to send to telegram chat.")
 data class MessageDto(
 

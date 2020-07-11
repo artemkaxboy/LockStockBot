@@ -7,7 +7,10 @@ import kotlinx.coroutines.delay
 import mu.KotlinLogging
 import java.time.Duration
 
-private const val COMMAND_START = "/start"
+
+private
+const val COMMAND_START = "/start"
+
 
 class TelegramBot(
     private val enabled: Boolean,
@@ -17,7 +20,8 @@ class TelegramBot(
     private val reconnectionDelay: Duration
 ) {
 
-    private lateinit var bot: Bot
+    private
+    lateinit var bot: Bot
 
     /**
      * Starts the bot.
@@ -50,7 +54,8 @@ class TelegramBot(
         return bot.sendMessage(sendTo, text).get()
     }
 
-    private fun configureBot() {
+    private
+    fun configureBot() {
         bot = Bot.createPolling(botName, token)
         bot.onCommand(COMMAND_START, this::onStartCommand)
         bot.onMessage(this::onMessage)
@@ -58,7 +63,8 @@ class TelegramBot(
     }
 
 
-    private fun startBot(): Boolean {
+    private
+    fun startBot(): Boolean {
         return runCatching {
             logger.info { "Telegram bot starting..." }
             bot.start()
@@ -71,23 +77,27 @@ class TelegramBot(
     }
 
     @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER") // signature is fixed to use in Bot.onCommand
-    private suspend fun onStartCommand(message: Message, opts: String?) {
+    private
+    suspend fun onStartCommand(message: Message, opts: String?) {
         bot.sendMessage(message.chat.id, "Hello!")
     }
 
     @Suppress("RedundantSuspendModifier") // signature is fixed to use in Bot.onMessage
-    private suspend fun onMessage(message: Message){
+    private
+    suspend fun onMessage(message: Message) {
         bot.sendMessage(message.chat.id, "WOW! I didn't expect this message!")
         logger.info { message }
     }
 
     @Suppress("RedundantSuspendModifier") // signature is fixed to use in Bot.onCommand
-    private suspend fun onAnyUpdate(update: Update) {
+    private
+    suspend fun onAnyUpdate(update: Update) {
         // bot.sendMessage(update.message?.from?.id, "WOW! I didn't expect this!")
         logger.info { "any: $update" }
     }
 
     companion object {
-        private val logger = KotlinLogging.logger { }
+        private
+        val logger = KotlinLogging.logger { }
     }
 }

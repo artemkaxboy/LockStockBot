@@ -9,13 +9,15 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
+
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 class GeneralControllerTest {
 
     @Autowired
-    private lateinit var webTestClient: WebTestClient
+    private
+    lateinit var webTestClient: WebTestClient
 
     @Test
     fun `fail to return version`() {

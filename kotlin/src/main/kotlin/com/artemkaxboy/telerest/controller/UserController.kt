@@ -24,6 +24,7 @@ import reactor.kotlin.core.publisher.toMono
 import springfox.documentation.annotations.ApiIgnore
 import javax.persistence.EntityNotFoundException
 
+
 @RestController
 @RequestMapping(value = ["api/$API_V1"])
 @Api(tags = ["User controller"], description = "Perform user control operation")
@@ -37,7 +38,7 @@ class UserController(
     )
     @ApiOperation(value = "Get all users")
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
-    private fun getUsers(
+    fun getUsers(
 
         @RequestParam(required = false, defaultValue = "1")
         page: Int,
@@ -62,7 +63,7 @@ class UserController(
     )
     @ApiOperation(value = "Get user by id")
     @ApiResponses(value = [ApiResponse(code = 200, message = "OK")])
-    private fun getUser(
+    fun getUser(
         @PathVariable
         id: Long,
 
@@ -84,7 +85,7 @@ class UserController(
     )
     @ApiOperation(value = "Add user")
     @ApiResponses(value = [ApiResponse(code = 201, message = "Created")])
-    private fun postUser(
+    fun postUser(
 
         @ApiParam(value = "User details")
         @RequestBody(required = true)

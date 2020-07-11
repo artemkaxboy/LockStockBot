@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component
 import java.time.LocalDate
 import javax.annotation.PostConstruct
 
+
 @Component
 class LiveDataToSource1TickerDtoMapper(mapper: ModelMapper) :
     AbstractMapper<LiveData, Source1TickerDto>(mapper, LiveData::class.java, Source1TickerDto::class.java) {

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 
+
 // based on https://google.github.io/styleguide/jsoncstyleguide.xml
 @ApiModel(value = "Response", description = "Object contains request information, operation result or occurred errors.")
 data class ResponseDto(
@@ -67,7 +68,8 @@ data class ResponseDto(
                 .getOrElse { wrapError(request, response, it) }
         }
 
-        private fun wrapError(
+        private
+        fun wrapError(
             request: ServerHttpRequest,
             response: ServerHttpResponse? = null,
             error: Throwable
@@ -90,7 +92,8 @@ data class ResponseDto(
                 }
         }
 
-        private fun wrap(
+        private
+        fun wrap(
             request: ServerHttpRequest,
             result: Any
         ): ResponseDto {

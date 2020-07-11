@@ -18,25 +18,31 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 
+
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 class LiveDataControllerTest {
 
     @Autowired
-    private lateinit var webTestClient: WebTestClient
+    private
+    lateinit var webTestClient: WebTestClient
 
     @Autowired
-    private lateinit var liveDataService: LiveDataService
+    private
+    lateinit var liveDataService: LiveDataService
 
     @Autowired
-    private lateinit var liveDataRepo: LiveDataRepo
+    private
+    lateinit var liveDataRepo: LiveDataRepo
 
     @Autowired
-    private lateinit var liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
+    private
+    lateinit var liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
 
     @Autowired
-    private lateinit var modelMapper: ModelMapper
+    private
+    lateinit var modelMapper: ModelMapper
 
     // @important https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples/
     @Test

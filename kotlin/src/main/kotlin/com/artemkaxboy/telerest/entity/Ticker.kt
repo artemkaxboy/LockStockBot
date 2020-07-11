@@ -6,6 +6,7 @@ import javax.persistence.Id
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
+
 @Entity
 @Table(name = "tickers")
 data class Ticker(

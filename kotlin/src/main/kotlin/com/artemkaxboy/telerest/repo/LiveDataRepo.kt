@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
+
 @Repository
 interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
 
@@ -21,4 +22,3 @@ interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
      */
     fun findAllByDate(pageable: Pageable, date: LocalDate = LocalDate.now()): Page<LiveData>
 }
-

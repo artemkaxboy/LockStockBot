@@ -1,11 +1,10 @@
 package com.artemkaxboy.telerest.tool
 
 import mu.KotlinLogging
-import org.springframework.context.ApplicationContext
-import org.springframework.context.ApplicationContextAware
 import org.springframework.context.ConfigurableApplicationContext
 import org.springframework.stereotype.Component
 import kotlin.system.exitProcess
+
 
 @Component
 class Exiter(
@@ -23,6 +22,8 @@ class Exiter(
     }
 
     companion object {
-        private val logger = KotlinLogging.logger { }
+
+        private
+        val logger = KotlinLogging.logger { }
     }
 }
