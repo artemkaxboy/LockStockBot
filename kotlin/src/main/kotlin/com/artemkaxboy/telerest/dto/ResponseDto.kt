@@ -2,8 +2,7 @@ package com.artemkaxboy.telerest.dto
 
 import com.artemkaxboy.telerest.config.CURRENT_API_VERSION
 import com.artemkaxboy.telerest.exception.RequestException
-import io.swagger.annotations.ApiModel
-import io.swagger.annotations.ApiModelProperty
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -11,42 +10,42 @@ import org.springframework.http.server.reactive.ServerHttpResponse
 
 
 // based on https://google.github.io/styleguide/jsoncstyleguide.xml
-@ApiModel(value = "Response", description = "Object contains request information, operation result or occurred errors.")
+@Schema(title = "Response", description = "Object contains request information, operation result or occurred errors.")
 data class ResponseDto(
 
-    @ApiModelProperty(
-        value = "Used API version.",
-        example = "v1",
-        required = false
-    )
+    // @ApiModelProperty(
+    //     value = "Used API version.",
+    //     example = "v1",
+    //     required = false
+    // )
     val apiVersion: String = CURRENT_API_VERSION,
 
-    @ApiModelProperty(
-        value = "Unique request ID.",
-        example = "33a2eec1-2",
-        required = false
-    )
+    // @ApiModelProperty(
+    //     value = "Unique request ID.",
+    //     example = "33a2eec1-2",
+    //     required = false
+    // )
     val id: String? = null,
 
-    @ApiModelProperty(
-        value = "Requested method.",
-        example = "/api/v1/message",
-        required = false
-    )
+    // @ApiModelProperty(
+    //     value = "Requested method.",
+    //     example = "/api/v1/message",
+    //     required = false
+    // )
     val method: String? = null,
 
-    @ApiModelProperty(
-        value = "Occurred error or null.",
-        example = "todo",
-        required = false
-    )
+    // @ApiModelProperty(
+    //     value = "Occurred error or null.",
+    //     example = "todo",
+    //     required = false
+    // )
     val data: DataDto? = null,
 
-    @ApiModelProperty(
-        value = "Occurred error or null.",
-        example = "todo",
-        required = false
-    )
+    // @ApiModelProperty(
+    //     value = "Occurred error or null.",
+    //     example = "todo",
+    //     required = false
+    // )
     val error: ErrorDto? = null
 ) : AbstractDto {
 
