@@ -30,13 +30,11 @@ class LiveDataService(
         val current = findFirstByTickerTickerOrderByDateDesc(ticker)
             ?: throw RuntimeException("Cannot find any data for ticker: $ticker")
 
-        val new = current.copy().apply {
-            days?.takeIf { it != 0 }?.toLong()
-                ?.also { this.date = this.date.plusDays(it) }
-
-            price?.also { this.price = it }
-            consensus?.also { this.consensus = it }
-        }
+        val new = current.let { old -> old.copy(
+            date = days?.takeIf { it != 0 }?.toLong()?.let { old.date.plusDays(it) } ?: old.date,
+            price = price ?: old.price,
+            consensus = consensus ?: old.consensus
+        ) }
 
         // todo compare !!!
         return save(new)

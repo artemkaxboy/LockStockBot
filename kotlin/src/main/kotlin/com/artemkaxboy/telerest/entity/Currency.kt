@@ -11,4 +11,10 @@ data class Currency(
     @Id
     val id: String
 
-): AbstractEntity()
+) : AbstractEntity() {
+
+    companion object {
+
+        val DUMMY = Currency("_\$_")
+    }
+}

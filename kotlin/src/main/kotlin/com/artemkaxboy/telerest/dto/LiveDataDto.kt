@@ -3,24 +3,24 @@ package com.artemkaxboy.telerest.dto
 import java.time.LocalDate
 
 @Suppress("unused") // DTO needs data
-class LiveDataDto(
+data class LiveDataDto(
 
-    var ticker: String = "",
+    val ticker: String = "",
 
-    var url: String = "",
+    val url: String = "",
 
-    var currency: String = "",
+    val currency: String = "",
 
-    var name: String = "",
+    val name: String = "",
 
-    var logo: String = "",
+    val logo: String = "",
 
-    var date: LocalDate = LocalDate.now(),
+    val date: LocalDate = LocalDate.now(),
 
-    var price: Double = 0.0,
+    val price: Double = 0.0,
 
-    var forecast: Double = 0.0,
+    val forecast: Double = 0.0,
 
-    var potential: String = ""
+    val potential: String = ""
 
 ) : AbstractDto

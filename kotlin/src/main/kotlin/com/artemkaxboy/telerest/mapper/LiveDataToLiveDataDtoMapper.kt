@@ -17,17 +17,20 @@ class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
         mapper.createTypeMap(entityClass, dtoClass).apply {
             postConverter = dtoPostConverter()
         }
+
+        // needed for tests to map json HashMap to object
+        mapper.createTypeMap(Map::class.java, dtoClass)
     }
 
     override fun postConvert(source: LiveData, destination: LiveDataDto): LiveDataDto {
-        return destination.apply {
-            this.ticker = source.ticker.ticker
-            this.url = source.ticker.url
-            this.currency = source.ticker.currency.id
-            this.name = source.ticker.name
-            this.logo = source.ticker.logo
-            this.forecast = source.consensus
-            this.potential = ((source.consensus - source.price) / source.price * 100).toString(2) + "%"
-        }
+        return destination.copy(
+            ticker = source.ticker.ticker,
+            url = source.ticker.url,
+            currency = source.ticker.currency.id,
+            name = source.ticker.name,
+            logo = source.ticker.logo,
+            forecast = source.consensus,
+            potential = ((source.consensus - source.price) / source.price * 100).toString(2) + "%"
+        )
     }
 }
