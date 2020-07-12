@@ -83,6 +83,26 @@ class LiveDataControllerTest {
             }
     }
 
+    @Test
+    fun `fail to return error on empty ticker`() {
+
+        val tickerCode = " "
+        val expectedStatus = HttpStatus.NOT_FOUND // todo add error type mapping
+
+        webTestClient.get()
+            .uri("$BASE_URL/liveData/{ticker}", tickerCode)
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectJson(expectedStatus)
+            .expectBody()
+            .jsonPath("$JSON_ERROR_PATH.code")
+            .value<Int> {
+
+                Assertions.assertThat(it)
+                    .isEqualTo(expectedStatus.value())
+            }
+    }
+
     @AfterEach
     fun clearDb() {
         liveDataRepo.deleteAll()

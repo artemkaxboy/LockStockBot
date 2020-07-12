@@ -1,6 +1,7 @@
 package com.artemkaxboy.telerest.dto
 
 import io.swagger.v3.oas.annotations.media.Schema
+import org.springframework.web.server.ResponseStatusException
 
 @Schema(title = "Error Detail", description = "Detailed error information.")
 data class ErrorDetailDto(
@@ -68,9 +69,17 @@ data class ErrorDetailDto(
             throwable: Throwable,
             domain: String? = null
         ): ErrorDetailDto {
+
+            val reason = when (throwable) {
+                is ResponseStatusException ->
+                    throwable.reason
+                else ->
+                    throwable.cause?.message
+            }
+
             return ErrorDetailDto(
                 domain = domain,
-                reason = throwable.cause?.message,
+                reason = reason,
                 message = throwable.message ?: throwable.toString()
             )
         }
