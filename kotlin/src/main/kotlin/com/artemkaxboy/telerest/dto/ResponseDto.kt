@@ -1,12 +1,10 @@
 package com.artemkaxboy.telerest.dto
 
 import com.artemkaxboy.telerest.config.CURRENT_API_VERSION
-import com.artemkaxboy.telerest.exception.RequestException
+import com.artemkaxboy.telerest.tool.errors.ErrorProperties
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
-import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.http.server.reactive.ServerHttpResponse
 
 // based on https://google.github.io/styleguide/jsoncstyleguide.xml
 @Schema(title = "Response", description = "Object contains request information, operation result or occurred errors.")
@@ -35,14 +33,14 @@ data class ResponseDto(
 
     // @ApiModelProperty(
     //     value = "Occurred error or null.",
-    //     example = "todo",
+    //     example = "to-do",
     //     required = false
     // )
     val data: DataDto? = null,
 
     // @ApiModelProperty(
     //     value = "Occurred error or null.",
-    //     example = "todo",
+    //     example = "to-do",
     //     required = false
     // )
     val error: ErrorDto? = null
@@ -52,44 +50,29 @@ data class ResponseDto(
 
         /**
          * Performs given [block] and wraps result into [ResponseDto].[DataDto] object.
-         * If [block] threw any exception wraps it into [ResponseDto].[ErrorDto] object.
          *
          * @return filled [ResponseDto]
          */
         fun getResponse(
             request: ServerHttpRequest,
-            response: ServerHttpResponse? = null,
             block: () -> Any
         ): ResponseDto {
 
-            return runCatching { wrap(request, block()) }
-                .getOrElse { wrapError(request, response, it) }
+            return wrapData(request, block())
         }
 
-        private fun wrapError(
-            request: ServerHttpRequest,
-            response: ServerHttpResponse? = null,
-            error: Throwable
-        ): ResponseDto {
-            val errorCode = ((error as? RequestException)?.code ?: HttpStatus.INTERNAL_SERVER_ERROR)
-                .also { response?.statusCode = it }
-                .value()
+        fun wrapError(errorPropertiesMap: Map<String, Any>, error: Throwable): ResponseDto {
 
-            return ErrorDto(
-                errorCode,
-                error.message ?: error.toString(),
-                errors = ErrorDetailDto.fromThrowable(error)
+            val errorProperties = ErrorProperties.from(errorPropertiesMap)
+
+            return ResponseDto(
+                id = errorProperties.requestId,
+                method = errorProperties.path,
+                error = ErrorDto(errorProperties.status, errorProperties.message, ErrorDetailDto.fromThrowable(error))
             )
-                .let {
-                    ResponseDto(
-                        id = request.id,
-                        method = request.path.value(),
-                        error = it
-                    )
-                }
         }
 
-        private fun wrap(
+        private fun wrapData(
             request: ServerHttpRequest,
             result: Any
         ): ResponseDto {
