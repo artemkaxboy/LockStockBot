@@ -4,20 +4,27 @@ import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.repo.LiveDataRepo
-import java.time.LocalDate
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDate
+
+const val EDITABLE_DAYS_INTERVAL = 365L
 
 @Service
-class LiveDataService(
+data class LiveDataService(
     private val liveDataRepo: LiveDataRepo,
     private val liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
 ) {
 
     fun findFirstByTickerTickerOrderByDateDesc(ticker: String) =
-        liveDataRepo.findFirstByTickerTickerOrderByDateDesc(ticker)
+        liveDataRepo.findFirstByTicker_TickerOrderByDateDesc(ticker)
+
+    fun findByTickerTickerAndDate(ticker: String, date: LocalDate) =
+        liveDataRepo.findByTicker_TickerAndDate(ticker, date)
 
     fun findAllByDate(pageRequest: Pageable = defaultPageRequest, date: LocalDate = LocalDate.now()) =
         liveDataRepo.findAllByDate(pageRequest.fixSorting(), date)
@@ -26,20 +33,36 @@ class LiveDataService(
 
     fun saveAll(list: List<LiveData?>): List<LiveData?> = liveDataRepo.saveAll(list)
 
-    fun postLiveData(ticker: String, days: Int?, price: Double?, consensus: Double?): LiveDataDto {
-        val current = findFirstByTickerTickerOrderByDateDesc(ticker)
-            ?: throw RuntimeException("Cannot find any data for ticker: $ticker")
+    fun postLiveData(
+        ticker: String,
+        days: Int?,
+        price: Double?,
+        consensus: Double?
+    ): LiveDataDto {
 
-        val new = current.let { old -> old.copy(
-            date = days?.takeIf { it != 0 }?.toLong()?.let { old.date.plusDays(it) } ?: old.date,
-            price = price ?: old.price,
-            consensus = consensus ?: old.consensus
-        ) }
+        val date = days?.takeIf { it != 0 }?.toLong()?.let { LocalDate.now().minusDays(it) }
+            ?: LocalDate.now()
 
-        // todo compare !!!
-        return save(new)
+        val current = findByTickerTickerAndDate(ticker, date)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Live data for ticker '$ticker' at $date not found.")
+
+        val new = current
+            .copy(
+                price = price ?: current.price,
+                consensus = consensus ?: current.consensus
+            )
+
+        return (new.takeIf { it != current }
+            ?.let { save(it) }
+            ?: current)
             .let { liveDataToLiveDataDtoMapper.toDto(it) }
             .let { requireNotNull(it) }
+    }
+
+    fun getLiveData(ticker: String): LiveDataDto {
+        return findFirstByTickerTickerOrderByDateDesc(ticker)
+            ?.let { liveDataToLiveDataDtoMapper.toDto(it) }
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ticker '$ticker' not found.")
     }
 }
 

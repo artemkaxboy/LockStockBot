@@ -9,6 +9,7 @@ import javax.persistence.IdClass
 import javax.persistence.JoinColumn
 import javax.persistence.ManyToOne
 import javax.persistence.Table
+import kotlin.random.Random
 
 @Entity
 @IdClass(LiveDataId::class)
@@ -31,10 +32,11 @@ data class LiveData(
 
     companion object {
 
-        val DUMMY = LiveData(
-            ticker = Ticker.DUMMY,
-            price = 10.0,
-            consensus = 11.0
+        fun random() = LiveData(
+            date = LocalDate.now().minusDays(365),
+            ticker = Ticker.random(),
+            price = Random.nextDouble(),
+            consensus = Random.nextDouble()
         )
     }
 }

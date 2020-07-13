@@ -11,27 +11,34 @@ import javax.persistence.Table
 data class Ticker(
 
     @Id
-    var ticker: String,
+    val ticker: String,
 
-    var url: String,
+    val url: String,
 
     @OneToOne(cascade = [CascadeType.ALL])
-    var currency: Currency,
+    val currency: Currency,
 
-    var name: String,
+    val name: String,
 
-    var logo: String
+    val logo: String
 
 ) : AbstractEntity() {
 
     companion object {
-        val DUMMY = Ticker(
-            "TICK",
-            "http://ticker.url/",
-            Currency.DUMMY,
-            "ticker name",
-            "http://ticker.url/logo.png"
-        )
+
+        private val RANDOM_POOL = setOf("BABA", "WB", "JD", "SQ", "AXP", "LUV", "MS", "MAR", "DE", "EBAY", "JPM")
+
+        fun random(): Ticker {
+            val randomTicker = RANDOM_POOL.random()
+
+            return Ticker(
+                ticker = randomTicker,
+                url = "http://$randomTicker.url/",
+                currency = Currency.random(),
+                name = "Company $randomTicker",
+                logo = "http://$randomTicker.url/logo.png"
+            )
+        }
     }
 }
 

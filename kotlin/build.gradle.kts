@@ -21,6 +21,14 @@ val swaggerVersion by extra("1.4.3")
 val modelMapperVersion by extra("2.3.8")
 val tag by extra(System.getenv("TAG") ?: project.version)
 
+sourceSets {
+    test {
+        java {
+            srcDirs("src/test/kotlin", "src/test/kotlin-unit")
+        }
+    }
+}
+
 repositories {
     mavenCentral()
     // telegram bot   https://github.com/elbekD/kt-telegram-bot

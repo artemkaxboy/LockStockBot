@@ -17,6 +17,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.time.Duration
+import java.time.LocalDate
+import kotlin.random.Random
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -38,16 +41,16 @@ class LiveDataControllerTest {
     @Autowired
     private lateinit var modelMapper: ModelMapper
 
-    // @important https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples/
+    // @doc https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples/
     @Test
     fun `fail to return get existing ticker`() {
 
-        val tickerCode = "TICK"
-
-        val liveDataDto = LiveData.DUMMY
-            .let { it.copy(ticker = it.ticker.copy(ticker = tickerCode)) }
+        val liveData = LiveData.random()
             .also { liveDataService.save(it) }
-            .let { liveDataToLiveDataDtoMapper.toDto(it) }
+
+        val tickerCode = liveData.ticker.ticker
+
+        val liveDataDto = liveDataToLiveDataDtoMapper.toDto(liveData)
 
         webTestClient.get()
             .uri("$BASE_URL/liveData/{ticker}", tickerCode)
@@ -56,7 +59,7 @@ class LiveDataControllerTest {
             .expectJson200()
             .expectBody()
             .jsonPath(JSON_FIRST_ITEM_PATH)
-            .value<LinkedHashMap<String, String>> {
+            .value<Map<String, String>> {
 
                 Assertions.assertThat(modelMapper.map(it, LiveDataDto::class.java))
                     .isEqualTo(liveDataDto)
@@ -84,22 +87,53 @@ class LiveDataControllerTest {
     }
 
     @Test
-    fun `fail to return error on empty ticker`() {
+    fun `fail to return error on no ticker`() {
 
-        val tickerCode = " "
-        val expectedStatus = HttpStatus.NOT_FOUND // todo add error type mapping
+        val tickerCode = ""
+        val expectedStatus = HttpStatus.NOT_FOUND
 
         webTestClient.get()
             .uri("$BASE_URL/liveData/{ticker}", tickerCode)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectJson(expectedStatus)
-            .expectBody()
-            .jsonPath("$JSON_ERROR_PATH.code")
-            .value<Int> {
+    }
 
-                Assertions.assertThat(it)
-                    .isEqualTo(expectedStatus.value())
+    @Test
+    fun `fail to change existing live data`() {
+
+        val days = Random.nextInt(365)
+
+        val liveData = LiveData.random()
+            .copy(date = LocalDate.now().minusDays(days.toLong()))
+            .also { liveDataService.save(it) }
+
+        val newConsensus = Random.nextDouble()
+        val newPrice = Random.nextDouble()
+
+        val newDto = liveData
+            .copy(consensus = newConsensus, price = newPrice)
+            .let { liveDataToLiveDataDtoMapper.toDto(it) }
+
+        webTestClient
+            .mutate().responseTimeout(Duration.ofMinutes(5)).build()
+            .post()
+            .uri { uriBuilder ->
+                uriBuilder.path("$BASE_URL/liveData/{ticker}")
+                    .queryParam("days", days)
+                    .queryParam("consensus", newConsensus)
+                    .queryParam("price", newPrice)
+                    .build(liveData.ticker.ticker)
+            }
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectJson200()
+            .expectBody()
+            .jsonPath(JSON_FIRST_ITEM_PATH)
+            .value<Map<String, String>> {
+
+                Assertions.assertThat(modelMapper.map(it, LiveDataDto::class.java))
+                    .isEqualTo(newDto)
             }
     }
 
