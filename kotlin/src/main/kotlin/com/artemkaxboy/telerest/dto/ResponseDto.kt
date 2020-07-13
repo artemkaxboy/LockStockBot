@@ -16,6 +16,7 @@ data class ResponseDto(
     //     example = "v1",
     //     required = false
     // )
+    @Schema(example = "v1", description = "Used API version") // has not implemented for webflux yet
     val apiVersion: String = CURRENT_API_VERSION,
 
     // @ApiModelProperty(

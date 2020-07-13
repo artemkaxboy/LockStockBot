@@ -5,10 +5,8 @@ import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.TickerToTickerDtoMapper
 import com.artemkaxboy.telerest.service.TickerService
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
-import javax.validation.constraints.Max
-import javax.validation.constraints.Min
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
@@ -20,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
 
 /**
  * Maximum API supported value, bytes representation of 1GB.
@@ -46,10 +46,10 @@ class TickerController(
 
         @Min(1, message = "`page` must be integer number between 1 and $MAX_API_INT inclusively.")
         @Max(MAX_PAGE_SIZE, message = "`page` must be integer number between 1 and $MAX_API_INT inclusively.")
-        @Schema(
+        @Parameter(
             description = "Page number to get. Must be integer number between 1 and $MAX_API_INT inclusively.",
-            required = false,
-            minimum = "1"
+            example = "1",
+            required = false
         )
         @RequestParam(defaultValue = "1")
         page: Int,
@@ -59,11 +59,10 @@ class TickerController(
             MAX_PAGE_SIZE,
             message = "`pageSize` must be positive integer number between 1 and $MAX_PAGE_SIZE inclusively."
         )
-        @Schema(
+        @Parameter(
             description = "Page size to get. Must be integer number between 1 and $MAX_API_INT inclusively.",
-            required = false,
-            minimum = "1",
-            maximum = "$MAX_PAGE_SIZE"
+            example = "10",
+            required = false
         )
         @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE")
         pageSize: Int,
