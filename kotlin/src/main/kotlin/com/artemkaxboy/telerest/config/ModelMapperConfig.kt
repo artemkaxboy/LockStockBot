@@ -15,7 +15,6 @@ class ModelMapperConfig {
             configuration.isFieldMatchingEnabled = true
             configuration.isSkipNullEnabled = true
             configuration.fieldAccessLevel = org.modelmapper.config.Configuration.AccessLevel.PRIVATE
-            configuration.isFullTypeMatchingRequired = true
         }
     }
 }

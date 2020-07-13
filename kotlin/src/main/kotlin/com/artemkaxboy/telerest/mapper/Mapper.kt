@@ -11,4 +11,6 @@ interface Mapper<E : AbstractEntity, D : AbstractDto> {
 
     @Contract("null -> null; !null -> !null")
     fun toDto(entity: E?): D?
+
+    fun toDto(map: Map<*, *>): D?
 }

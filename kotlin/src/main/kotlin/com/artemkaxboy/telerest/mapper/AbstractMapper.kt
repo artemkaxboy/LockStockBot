@@ -16,13 +16,7 @@ abstract class AbstractMapper<E : AbstractEntity, D : AbstractDto>(
 
     override fun toDto(entity: E?) = entity?.let { mapper.map(it, dtoClass) }
 
-    fun dtoPostConverter(): Converter<E, D> {
-        return Converter { context: MappingContext<E, D> ->
-            postConvert(context.source, context.destination)
-        }
-    }
-
-    open fun postConvert(source: E, destination: D) = destination
+    override fun toDto(map: Map<*, *>): D = mapper.map(map, dtoClass)
 
     fun entityPostConverter(): Converter<D, E> {
         return Converter { context: MappingContext<D, E> ->
@@ -31,4 +25,12 @@ abstract class AbstractMapper<E : AbstractEntity, D : AbstractDto>(
     }
 
     open fun postConvert(source: D, destination: E) = destination
+
+    fun dtoPostConverter(): Converter<E, D> {
+        return Converter { context: MappingContext<E, D> ->
+            postConvert(context.source, context.destination)
+        }
+    }
+
+    open fun postConvert(source: E, destination: D) = destination
 }

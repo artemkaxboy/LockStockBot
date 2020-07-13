@@ -8,13 +8,16 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
+@Suppress("FunctionName") // jpa search related names
 @Repository
 interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
 
     /**
      * @return latest [LiveData] for provided ticker if it exists, null - otherwise.
      */
-    fun findFirstByTickerTickerOrderByDateDesc(ticker: String): LiveData?
+    fun findFirstByTicker_TickerOrderByDateDesc(ticker: String): LiveData?
+
+    fun findByTicker_TickerAndDate(ticker: String, date: LocalDate): LiveData?
 
     /**
      * @return page of all available [LiveData] by date.

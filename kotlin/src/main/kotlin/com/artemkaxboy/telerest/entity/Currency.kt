@@ -15,6 +15,8 @@ data class Currency(
 
     companion object {
 
-        val DUMMY = Currency("_\$_")
+        private val RANDOM_POOL = setOf("RUB", "USD", "EUR", "GBP", "CAD", "AUD", "BYN")
+
+        fun random() = Currency(id = RANDOM_POOL.random())
     }
 }

@@ -1,10 +1,11 @@
 package com.artemkaxboy.telerest.dto
 
 import com.artemkaxboy.telerest.config.CURRENT_API_VERSION
-import com.artemkaxboy.telerest.tool.errors.ErrorProperties
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
+import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.web.server.ResponseStatusException
 
 // based on https://google.github.io/styleguide/jsoncstyleguide.xml
 @Schema(title = "Response", description = "Object contains request information, operation result or occurred errors.")
@@ -61,15 +62,32 @@ data class ResponseDto(
             return wrapData(request, block())
         }
 
-        fun wrapError(errorPropertiesMap: Map<String, Any>, error: Throwable): ResponseDto {
+        fun wrapError(
+            throwable: Throwable,
+            request: ServerHttpRequest
+        ): ResponseDto {
+            val errorCode = ((throwable as? ResponseStatusException)?.status ?: HttpStatus.INTERNAL_SERVER_ERROR)
+                .value()
 
-            val errorProperties = ErrorProperties.from(errorPropertiesMap)
+            val message = when (throwable) {
+                is ResponseStatusException ->
+                    throwable.reason
+                else ->
+                    throwable.localizedMessage ?: throwable.toString()
+            }
 
-            return ResponseDto(
-                id = errorProperties.requestId,
-                method = errorProperties.path,
-                error = ErrorDto(errorProperties.status, errorProperties.message, ErrorDetailDto.fromThrowable(error))
+            return ErrorDto(
+                errorCode,
+                message,
+                errors = ErrorDetailDto.fromThrowable(throwable)
             )
+                .let {
+                    ResponseDto(
+                        id = request.id,
+                        method = request.path.value(),
+                        error = it
+                    )
+                }
         }
 
         private fun wrapData(
