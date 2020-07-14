@@ -45,24 +45,33 @@ internal class LiveDataControllerTest {
     @Test
     fun `fail to return get existing ticker`() {
 
-        val liveData = LiveData.random()
+        val expected = LiveData.random()
             .also { liveDataService.save(it) }
 
-        val tickerCode = liveData.ticker.ticker
-
-        val liveDataDto = liveDataToLiveDataDtoMapper.toDto(liveData)
-
         webTestClient.get()
-            .uri("$BASE_URL/liveData/{ticker}", tickerCode)
+            .uri("$BASE_URL/liveData/{ticker}", expected.ticker.ticker)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectJson200()
             .expectBody()
             .jsonPath(JSON_FIRST_ITEM_PATH)
-            .value<Map<String, String>> {
+            .value<Map<String, Any>> {
 
-                Assertions.assertThat(modelMapper.map(it, LiveDataDto::class.java))
-                    .isEqualTo(liveDataDto)
+                Assertions.assertThat(it[LiveData::ticker.name] as? String)
+                    .isNotNull()
+                    .isEqualTo(expected.ticker.ticker)
+
+                Assertions.assertThat(it[LiveData::price.name] as? Double)
+                    .isNotNull()
+                    .isEqualTo(expected.price)
+
+                Assertions.assertThat(it[LiveData::consensus.name] as? Double)
+                    .isNotNull()
+                    .isEqualTo(expected.consensus)
+
+                Assertions.assertThat(it[LiveData::date.name] as? String)
+                    .isNotNull()
+                    .isEqualTo(expected.date.toString())
             }
     }
 

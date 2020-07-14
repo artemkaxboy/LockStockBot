@@ -12,10 +12,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
 
-    /**
-     * @return latest [LiveData] for provided ticker if it exists, null - otherwise.
-     */
-    fun findFirstByTicker_TickerOrderByDateDesc(ticker: String): LiveData?
+    fun <T> findByTicker_TickerAndDate(ticker: String, date: LocalDate, clazz: Class<T>?): T?
+
+    fun <T> findByTicker_Ticker(ticker: String, pageable: Pageable, clazz: Class<T>): Page<T>
 
     fun findByTicker_TickerAndDate(ticker: String, date: LocalDate): LiveData?
 

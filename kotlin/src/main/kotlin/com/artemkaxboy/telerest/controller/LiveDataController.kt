@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.validation.annotation.Validated
@@ -53,10 +54,37 @@ class LiveDataController(
 
         @Parameter(description = "Ticker code, e.g. AAPL for Apple or AMZN for Amazon.", example = "AMZN")
         @PathVariable
-        ticker: String
-    ): Mono<ResponseDto> {
+        ticker: String,
 
-        return ResponseDto.getResponse(request) { liveDataService.getLiveData(ticker) }.toMono()
+        @Min(1, message = "`page` must be integer number between 1 and $MAX_API_INT inclusively.")
+        @Max(MAX_API_INT, message = "`page` must be integer number between 1 and $MAX_API_INT inclusively.")
+        @Parameter(
+            description = "Page number to get. Must be integer number between 1 and $MAX_API_INT inclusively.",
+            example = "1",
+            required = false
+        )
+        @RequestParam(defaultValue = "1")
+        page: Int,
+
+        @Min(1, message = "`pageSize` must be positive integer number between 1 and $MAX_PAGE_SIZE inclusively.")
+        @Max(
+            MAX_PAGE_SIZE,
+            message = "`pageSize` must be positive integer number between 1 and $MAX_PAGE_SIZE inclusively."
+        )
+        @Parameter(
+            description = "Page size to get. Must be integer number between 1 and $MAX_PAGE_SIZE inclusively.",
+            example = "10",
+            required = false
+        )
+        @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE")
+        pageSize: Int
+    ): Mono<ResponseDto> {
+        return ResponseDto.getResponse(request) {
+            liveDataService.getLiveData(
+                ticker,
+                PageRequest.of(page - 1, pageSize)
+            )
+        }.toMono()
     }
 
     @PostMapping("/liveData/{ticker}", produces = [MediaType.APPLICATION_JSON_VALUE])

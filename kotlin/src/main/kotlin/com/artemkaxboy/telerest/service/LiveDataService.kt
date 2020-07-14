@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
+import com.artemkaxboy.telerest.entity.LiveDataShallow
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.repo.LiveDataRepo
 import org.springframework.data.domain.PageRequest
@@ -20,14 +21,14 @@ data class LiveDataService(
     private val liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
 ) {
 
-    fun findFirstByTickerTickerOrderByDateDesc(ticker: String) =
-        liveDataRepo.findFirstByTicker_TickerOrderByDateDesc(ticker)
-
     fun findByTickerTickerAndDate(ticker: String, date: LocalDate) =
-        liveDataRepo.findByTicker_TickerAndDate(ticker, date)
+        liveDataRepo.findByTicker_TickerAndDate(ticker, date, LiveData::class.java)
+
+    fun <T> findByTickerTickerAndDate(ticker: String, date: LocalDate, clazz: Class<T>) =
+        liveDataRepo.findByTicker_TickerAndDate(ticker, date, clazz)
 
     fun findAllByDate(pageRequest: Pageable = defaultPageRequest, date: LocalDate = LocalDate.now()) =
-        liveDataRepo.findAllByDate(pageRequest.fixSorting(), date)
+        liveDataRepo.findAllByDate(pageRequest.defaultSortIfUnsorted(), date)
 
     fun save(liveData: LiveData) = liveDataRepo.save(liveData)
 
@@ -59,15 +60,19 @@ data class LiveDataService(
             .let { requireNotNull(it) }
     }
 
-    fun getLiveData(ticker: String): LiveDataDto {
-        return findFirstByTickerTickerOrderByDateDesc(ticker)
-            ?.let { liveDataToLiveDataDtoMapper.toDto(it) }
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Ticker '$ticker' not found.")
-    }
+    fun getLiveData(ticker: String, pageRequest: Pageable = defaultPageRequest) =
+        liveDataRepo.findByTicker_Ticker(
+            ticker,
+            pageRequest.sortByDateDescIfUnsorted(),
+            LiveDataShallow::class.java
+        )
+            .takeIf { it.content.size > 0 }
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Live data for ticker '$ticker' not found.")
 }
 
-private fun Pageable.fixSorting(): Pageable =
-    this.takeUnless { it.sort == Sort.unsorted() }
+private fun Pageable.defaultSortIfUnsorted(): Pageable =
+    this.takeUnless { it == Pageable.unpaged() }
+        ?.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(
             this.pageNumber, this.pageSize, Sort.by(
                 Sort.Order(Sort.Direction.DESC, LiveData::date.name),
@@ -76,3 +81,7 @@ private fun Pageable.fixSorting(): Pageable =
         )
 
 private val defaultPageRequest = PageRequest.of(0, 10)
+
+private fun Pageable.sortByDateDescIfUnsorted(): Pageable =
+    this.takeUnless { it.sort == Sort.unsorted() }
+        ?: PageRequest.of(this.pageNumber, this.pageSize, Sort.Direction.DESC, LiveData::date.name)
