@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
 class UserService(private val userRepo: UserRepo) {
 
     fun findAll(pageRequest: Pageable = defaultPageRequest): Page<User> {
-        return userRepo.findAll(pageRequest.fixSorting())
+        return userRepo.findAll(pageRequest.defaultSortIfUnsorted())
     }
 
     fun findById(id: Long) = userRepo.findByIdOrNull(id)
@@ -21,7 +21,7 @@ class UserService(private val userRepo: UserRepo) {
     fun save(user: User) = userRepo.save(user)
 }
 
-private fun Pageable.fixSorting(): Pageable =
+private fun Pageable.defaultSortIfUnsorted(): Pageable =
     this.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(this.pageNumber, this.pageSize, Sort.by(User::name.name))
 

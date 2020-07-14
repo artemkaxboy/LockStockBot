@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service
 class TickerService(private val tickerRepo: TickerRepo) {
 
     fun findAll(pageable: Pageable = defaultPageRequest) =
-        tickerRepo.findAll(pageable.fixSorting())
+        tickerRepo.findAll(pageable.defaultSortIfUnsorted())
 }
 
-private fun Pageable.fixSorting(): Pageable =
+private fun Pageable.defaultSortIfUnsorted(): Pageable =
     this.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(
             this.pageNumber, this.pageSize, Sort.by(Ticker::ticker.name)

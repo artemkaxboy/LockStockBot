@@ -21,13 +21,6 @@ import reactor.kotlin.core.publisher.toMono
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 
-/**
- * Maximum API supported value, bytes representation of 1GB.
- */
-private const val MAX_API_INT = 1073741824L
-private const val MAX_PAGE_SIZE = 100L
-private const val DEFAULT_PAGE_SIZE = 10L
-
 @RestController
 @Validated
 @RequestMapping(value = ["api/$API_V1"])
@@ -45,7 +38,7 @@ class TickerController(
     fun getTickers(
 
         @Min(1, message = "`page` must be integer number between 1 and $MAX_API_INT inclusively.")
-        @Max(MAX_PAGE_SIZE, message = "`page` must be integer number between 1 and $MAX_API_INT inclusively.")
+        @Max(MAX_API_INT, message = "`page` must be integer number between 1 and $MAX_API_INT inclusively.")
         @Parameter(
             description = "Page number to get. Must be integer number between 1 and $MAX_API_INT inclusively.",
             example = "1",
@@ -60,7 +53,7 @@ class TickerController(
             message = "`pageSize` must be positive integer number between 1 and $MAX_PAGE_SIZE inclusively."
         )
         @Parameter(
-            description = "Page size to get. Must be integer number between 1 and $MAX_API_INT inclusively.",
+            description = "Page size to get. Must be integer number between 1 and $MAX_PAGE_SIZE inclusively.",
             example = "10",
             required = false
         )
