@@ -24,7 +24,7 @@ val tag by extra(System.getenv("TAG") ?: project.version)
 sourceSets {
     test {
         java {
-            srcDirs("src/test/kotlin", "src/test/kotlin-unit")
+            srcDirs("src/test/kotlin", "src/test/kotlinIntegration")
         }
     }
 }

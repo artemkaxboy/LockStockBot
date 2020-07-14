@@ -18,8 +18,10 @@ class ApplicationEventListener(
     fun startApp() {
 
         GlobalScope.launch {
-            if (!telegramBot.start()) {
-                exiter.error("Cannot start Telegram Bot. Shutting down...")
+            try {
+                telegramBot.start()
+            } catch (e: Exception) {
+                exiter.error(e.localizedMessage)
             }
         }
     }
