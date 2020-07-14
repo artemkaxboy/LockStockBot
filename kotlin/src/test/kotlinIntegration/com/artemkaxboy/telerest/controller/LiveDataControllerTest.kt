@@ -24,7 +24,7 @@ import kotlin.random.Random
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
-class LiveDataControllerTest {
+internal class LiveDataControllerTest {
 
     @Autowired
     private lateinit var webTestClient: WebTestClient

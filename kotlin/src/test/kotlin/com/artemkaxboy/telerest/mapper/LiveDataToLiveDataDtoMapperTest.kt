@@ -9,7 +9,7 @@ import java.time.LocalDate
 import kotlin.random.Random
 import kotlin.reflect.full.memberProperties
 
-class LiveDataToLiveDataDtoMapperTest {
+internal class LiveDataToLiveDataDtoMapperTest {
 
     private val modelMapper = ModelMapperConfig().getModelMapper()
 

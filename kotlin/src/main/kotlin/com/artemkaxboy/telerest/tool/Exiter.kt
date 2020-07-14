@@ -12,10 +12,11 @@ class Exiter(
 
     fun error(message: String, status: Int = 1) {
         logger.error { message }
+        logger.error { "Shutting down..." }
         exit(status)
     }
 
-    fun exit(status: Int = 1) {
+    private fun exit(status: Int = 1) {
         context.close()
         exitProcess(status)
     }

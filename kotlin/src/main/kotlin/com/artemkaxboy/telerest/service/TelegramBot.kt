@@ -19,31 +19,35 @@ class TelegramBot(
 
     private lateinit var bot: Bot
 
+    var started = false
+    private set
+
     /**
      * Starts the bot.
      *
-     * @return true if bot started correct or connection disabled, false - bot couldn't start.
+     * @throws RuntimeException couldn't start bot
      */
-    suspend fun start(): Boolean {
+    suspend fun start() {
         if (!enabled) {
             logger.info { "Telegram bot disabled." }
-            return true
+            return
         }
 
         if (token.isEmpty()) {
             logger.warn { "Telegram token is empty. Telegram bot disabled." }
-            return true
+            return
         }
 
         configureBot()
 
         repeat(reconnectionCount) {
             if (startBot()) {
-                return true
+                started = true
+                return
             }
             delay(reconnectionDelay.toMillis())
         }
-        return false
+        throw RuntimeException("Couldn't start telegram bot.")
     }
 
     fun sendMessage(text: String, sendTo: String): Message {
@@ -64,7 +68,7 @@ class TelegramBot(
             logger.info { "Telegram bot started successfully." }
             true
         }.getOrElse {
-            logger.error { "Cannot start Telegram bot: ${it.message}" }
+            logger.error { "Cannot start telegram bot: ${it.message}" }
             false
         }
     }
