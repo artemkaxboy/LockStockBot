@@ -13,4 +13,7 @@ interface LiveDataShallow {
     fun getPrice(): Double
 
     fun getConsensus(): Double
+
+    @Value("#{((target.consensus - target.price) / target.price * 100)}")
+    fun getPotential(): Double
 }

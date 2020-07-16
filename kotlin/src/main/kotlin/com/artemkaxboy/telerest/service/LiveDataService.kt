@@ -66,7 +66,7 @@ data class LiveDataService(
             pageRequest.sortByDateDescIfUnsorted(),
             LiveDataShallow::class.java
         )
-            .takeIf { it.content.size > 0 }
+            .takeIf { it.totalElements > 0 }
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Live data for ticker '$ticker' not found.")
 }
 

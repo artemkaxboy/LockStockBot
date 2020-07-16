@@ -14,10 +14,6 @@ import java.util.Date
 class SecondsDateDeserializer(vc: Class<*>? = null) : StdDeserializer<Date>(vc) {
 
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): Date {
-        try {
-            return Date("${p.text}000".toLong())
-        } catch (e: ParseException) {
-            throw RuntimeException(e)
-        }
+        return Date("${p.text}000".toLongOrNull() ?: 0)
     }
 }
