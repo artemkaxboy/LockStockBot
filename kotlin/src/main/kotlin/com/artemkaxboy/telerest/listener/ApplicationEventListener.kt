@@ -18,11 +18,9 @@ class ApplicationEventListener(
     fun startApp() {
 
         GlobalScope.launch {
-            try {
-                telegramBot.start()
-            } catch (e: Exception) {
-                exiter.error(e.localizedMessage)
-            }
+
+            telegramBot.start()
+                ?.let { exiter.error(it) }
         }
     }
 }

@@ -64,11 +64,11 @@ internal class TelegramBotTest {
         val bot = TelegramBotConfig(botProperties).getTelegramBot()
 
         val (_, out, _) = getOutput {
-            Assertions.assertThatThrownBy {
-                runBlocking {
-                    bot.start()
-                }
-            }.isNotNull()
+            val errorMessage = runBlocking {
+                bot.start()
+            }
+
+            Assertions.assertThat(errorMessage).isNotNull()
         }
 
         Assertions.assertThat(bot.started).isFalse()
@@ -93,11 +93,11 @@ internal class TelegramBotTest {
         val bot = TelegramBotConfig(botProperties).getTelegramBot()
 
         val timeSpent = measureTimeMillis {
-            Assertions.assertThatThrownBy {
-                runBlocking {
-                    bot.start()
-                }
-            }.isNotNull()
+            val errorMessage = runBlocking {
+                bot.start()
+            }
+
+            Assertions.assertThat(errorMessage).isNotNull()
         }
 
         Assertions.assertThat(timeSpent)
