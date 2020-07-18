@@ -14,8 +14,8 @@ abstract class ChangeableEntity : AbstractEntity() {
 
     @CreationTimestamp
     @Column(updatable = false)
-    open val created: LocalDateTime? = null
+    val created: LocalDateTime? = null
 
     @UpdateTimestamp
-    open val updated: LocalDateTime? = null
+    val updated: LocalDateTime? = null
 }

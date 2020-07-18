@@ -3,12 +3,14 @@ package com.artemkaxboy.telerest.schedule
 import com.artemkaxboy.telerest.mapper.LiveDataToSource1TickerDtoMapper
 import com.artemkaxboy.telerest.service.LiveDataService
 import com.artemkaxboy.telerest.service.forecast.impl.ForecastServiceImpl1
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import javax.transaction.Transactional
 
 @Component
 class UpdateForecastsJob(
@@ -17,20 +19,17 @@ class UpdateForecastsJob(
     private val liveDataToSource1TickerDtoMapper: LiveDataToSource1TickerDtoMapper
 ) {
 
+    @Transactional
     @Scheduled(fixedRateString = "#{@forecastSource1Properties.updateInterval.toMillis()}")
     fun update() {
 
-        runBlocking { // todo R2DBC will be perfect here
-            val list = forecastServiceImpl1.getFlow()
-                .map { liveDataToSource1TickerDtoMapper.toEntity(it) }
-                .toList()
-            try {
-                list.forEach { logger.info { it } }
-                val res = liveDataService.saveAll(list)
-                res.forEach { logger.info { it } }
-            } catch (e: Exception) {
-                logger.error(e) { e.message }
-            }
+        runBlocking {
+            forecastServiceImpl1.getFlow()
+                .mapNotNull { liveDataToSource1TickerDtoMapper.toEntity(it) }
+                .onEach { logger.info { it } }
+                .collect {
+                    liveDataService.save(it)
+                }
         }
     }
 
