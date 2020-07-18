@@ -1,20 +1,16 @@
 package com.artemkaxboy.telerest.service
 
+import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.Message
 import com.elbekD.bot.types.Update
-import java.time.Duration
 import kotlinx.coroutines.delay
 import mu.KotlinLogging
 
 private const val COMMAND_START = "/start"
 
 class TelegramBot(
-    private val enabled: Boolean,
-    private val token: String,
-    private val botName: String,
-    private val reconnectionCount: Int,
-    private val reconnectionDelay: Duration
+    private val properties: TelegramBotProperties
 ) {
 
     private lateinit var bot: Bot
@@ -28,34 +24,34 @@ class TelegramBot(
      * @return occurred error message, null if no error
      */
     suspend fun start(): String? {
-        if (!enabled) {
+        if (!properties.enabled) {
             logger.info { "Telegram bot disabled." }
             return null
         }
 
-        if (token.isEmpty()) {
+        if (properties.token.isEmpty()) {
             logger.warn { "Telegram token is empty. Telegram bot disabled." }
             return null
         }
 
         configureBot()
 
-        repeat(reconnectionCount) {
+        repeat(properties.reconnection.count) {
             if (startBot()) {
                 started = true
                 return null
             }
-            delay(reconnectionDelay.toMillis())
+            delay(properties.reconnection.delay.toMillis())
         }
         return "Couldn't start telegram bot."
     }
 
-    fun sendMessage(text: String, sendTo: String): Message {
+    fun sendMessage(text: String, sendTo: String = properties.masterChatId): Message {
         return bot.sendMessage(sendTo, text).get()
     }
 
     private fun configureBot() {
-        bot = Bot.createPolling(botName, token)
+        bot = Bot.createPolling(properties.botName, properties.token)
         bot.onCommand(COMMAND_START, this::onStartCommand)
         bot.onMessage(this::onMessage)
         bot.onAnyUpdate(this::onAnyUpdate)
