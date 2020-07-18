@@ -5,6 +5,7 @@ import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.entity.LiveDataShallow
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.repo.LiveDataRepo
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -14,6 +15,13 @@ import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDate
 
 const val EDITABLE_DAYS_INTERVAL = 365L
+
+private val defaultSorting = Sort.by(
+    Sort.Order(Sort.Direction.DESC, LiveData::date.name),
+    Sort.Order(Sort.Direction.ASC, LiveData::ticker.name)
+)
+
+private val defaultPageRequest = PageRequest.of(0, 10, defaultSorting)
 
 @Service
 data class LiveDataService(
@@ -27,8 +35,17 @@ data class LiveDataService(
     fun <T> findByTickerTickerAndDate(ticker: String, date: LocalDate, clazz: Class<T>) =
         liveDataRepo.findByTicker_TickerAndDate(ticker, date, clazz)
 
-    fun findAllByDate(pageRequest: Pageable = defaultPageRequest, date: LocalDate = LocalDate.now()) =
-        liveDataRepo.findAllByDate(pageRequest.defaultSortIfUnsorted(), date)
+    fun findAllByDate(
+        date: LocalDate = LocalDate.now(),
+        pageRequest: Pageable = defaultPageRequest
+    ): ResultData {
+        if (pageRequest.isPaged)
+            return ResultData.PagedResult(liveDataRepo.findAllByDate(pageRequest.defaultSortIfUnsorted(), date))
+
+        return ResultData.UnpagedResult(liveDataRepo.findAllByDate(defaultSorting, date))
+    }
+
+    fun findAllLatest() = liveDataRepo.findAllLatest()
 
     fun save(liveData: LiveData) = liveDataRepo.save(liveData)
 
@@ -71,17 +88,26 @@ data class LiveDataService(
 }
 
 private fun Pageable.defaultSortIfUnsorted(): Pageable =
-    this.takeUnless { it == Pageable.unpaged() }
+    this.takeIf { it.isPaged }
         ?.takeUnless { it.sort == Sort.unsorted() }
-        ?: PageRequest.of(
-            this.pageNumber, this.pageSize, Sort.by(
-                Sort.Order(Sort.Direction.DESC, LiveData::date.name),
-                Sort.Order(Sort.Direction.ASC, LiveData::ticker.name)
-            )
-        )
-
-private val defaultPageRequest = PageRequest.of(0, 10)
+        ?: PageRequest.of(this.pageNumber, this.pageSize, defaultSorting)
 
 private fun Pageable.sortByDateDescIfUnsorted(): Pageable =
     this.takeUnless { it.sort == Sort.unsorted() }
         ?: PageRequest.of(this.pageNumber, this.pageSize, Sort.Direction.DESC, LiveData::date.name)
+
+// TODO use generic, encapsulate
+sealed class ResultData {
+
+    abstract fun getContent(): List<LiveData?>
+
+    data class PagedResult(val result: Page<LiveData>) : ResultData() {
+
+        override fun getContent(): List<LiveData?> = result.content
+    }
+
+    data class UnpagedResult(val result: List<LiveData?>) : ResultData() {
+
+        override fun getContent() = result
+    }
+}
