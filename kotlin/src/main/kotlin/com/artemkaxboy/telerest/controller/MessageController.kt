@@ -39,7 +39,6 @@ class MessageController(
 
         request: ServerHttpRequest
     ): Mono<ResponseDto> {
-        // Mono comes to API, it will be fixed: https://github.com/springfox/springfox/issues/2858
 
         return ResponseDto
             .getResponse(request) {
