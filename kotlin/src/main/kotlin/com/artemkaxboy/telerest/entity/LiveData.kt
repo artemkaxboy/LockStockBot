@@ -1,12 +1,8 @@
 package com.artemkaxboy.telerest.entity
 
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
 import java.io.Serializable
 import java.time.LocalDate
-import java.time.LocalDateTime
 import javax.persistence.CascadeType
-import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
 import javax.persistence.Id
@@ -29,18 +25,11 @@ data class LiveData(
     @JoinColumn(name = "ticker_fk")
     val ticker: Ticker,
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    val created: LocalDateTime?,
-
-    @UpdateTimestamp
-    val updated: LocalDateTime?,
-
     val price: Double,
 
     val consensus: Double
 
-) : AbstractEntity() {
+) : ChangeableEntity() {
 
     companion object {
 
@@ -48,9 +37,7 @@ data class LiveData(
             date = LocalDate.now().minusDays(Random.nextLong(100, 365)),
             ticker = Ticker.random(),
             price = Random.nextDouble(),
-            consensus = Random.nextDouble(),
-            created = LocalDateTime.now().minusSeconds(5),
-            updated = LocalDateTime.now().minusSeconds(1)
+            consensus = Random.nextDouble()
         )
     }
 
