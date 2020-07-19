@@ -1,7 +1,7 @@
 package com.artemkaxboy.telerest.config
 
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
-import com.artemkaxboy.telerest.service.TelegramBot
+import com.artemkaxboy.telerest.service.TelegramService
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,7 +13,7 @@ class TelegramBotConfig(
 ) {
 
     @Bean
-    fun getTelegramBot(): TelegramBot {
-        return TelegramBot(telegramBotProperties)
+    fun getTelegramBot(): TelegramService {
+        return TelegramService(telegramBotProperties)
     }
 }

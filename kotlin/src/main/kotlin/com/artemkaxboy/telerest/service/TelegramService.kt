@@ -9,7 +9,7 @@ import mu.KotlinLogging
 
 private const val COMMAND_START = "/start"
 
-class TelegramBot(
+class TelegramService(
     private val properties: TelegramBotProperties
 ) {
 
