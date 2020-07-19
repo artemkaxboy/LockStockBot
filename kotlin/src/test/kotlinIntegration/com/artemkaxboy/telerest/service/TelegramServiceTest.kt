@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.system.measureTimeMillis
 
-internal class TelegramBotTest {
+internal class TelegramServiceTest {
 
     @Test
     fun `fail to disable bot`() {

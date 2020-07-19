@@ -1,6 +1,6 @@
 package com.artemkaxboy.telerest.listener
 
-import com.artemkaxboy.telerest.service.TelegramBot
+import com.artemkaxboy.telerest.service.TelegramService
 import com.artemkaxboy.telerest.tool.Exiter
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component
 @Component
 class ApplicationEventListener(
     val exiter: Exiter,
-    val telegramBot: TelegramBot
+    val telegramService: TelegramService
 ) {
 
     @EventListener(ApplicationReadyEvent::class)
@@ -19,7 +19,8 @@ class ApplicationEventListener(
 
         GlobalScope.launch {
 
-            telegramBot.start()
+            // Start the bot or kill the service
+            telegramService.start()
                 ?.let { exiter.error(it) }
         }
     }
