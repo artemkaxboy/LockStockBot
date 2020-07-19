@@ -33,7 +33,15 @@ data class LiveData(
 
 ) : ChangeableEntity() {
 
+    /**
+     * @return growing potential according to the current price and consensus forecast.
+     */
     fun getPotential() = ((consensus - price) / price * 100)
+
+    /**
+     * @return difference between this [LiveData] potential and the [other]'s.
+     */
+    fun getPotentialDifference(other: LiveData) = getPotential() - other.getPotential()
 
     companion object {
 

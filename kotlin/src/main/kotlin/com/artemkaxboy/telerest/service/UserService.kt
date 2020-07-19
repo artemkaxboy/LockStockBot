@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import javax.transaction.Transactional
 
 @Service
 class UserService(private val userRepo: UserRepo) {
@@ -18,7 +19,16 @@ class UserService(private val userRepo: UserRepo) {
 
     fun findById(id: Long) = userRepo.findByIdOrNull(id)
 
+    fun count() = userRepo.count()
+
+    @Transactional
     fun save(user: User) = userRepo.save(user)
+
+    @Transactional
+    fun saveAll(users: List<User>): List<User> = userRepo.saveAll(users)
+
+    @Transactional
+    fun deleteAll() = userRepo.deleteAllInBatch()
 }
 
 private fun Pageable.defaultSortIfUnsorted(): Pageable =
