@@ -47,9 +47,7 @@ class UpdateForecastsJob(
                 .mapNotNull { liveDataToSource1TickerDtoMapper.toEntity(it) }
                 .onEach { newTick ->
                     yesterday[newTick.ticker.ticker]
-                        ?.getPotential()
-                        ?.minus(newTick.getPotential())
-                        ?.takeIf { it.absoluteValue != 0.0 }
+                        ?.takeIf { newTick.getPotential() != it.getPotential() }
                         ?.run {
                             applicationEventPublisher.publishEvent(PotentialChangedEvent(newTick, this))
                         }

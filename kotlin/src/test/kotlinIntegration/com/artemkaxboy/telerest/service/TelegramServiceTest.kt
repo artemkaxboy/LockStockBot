@@ -1,8 +1,8 @@
 package com.artemkaxboy.telerest.service
 
-import com.artemkaxboy.telerest.config.TelegramBotConfig
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.artemkaxboy.telerest.tool.getOutput
+import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
@@ -19,7 +19,7 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramBotConfig(botProperties).getTelegramBot()
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
 
         val (_, out, _) = getOutput {
             runBlocking {
@@ -39,7 +39,7 @@ internal class TelegramServiceTest {
             token = ""
         }
 
-        val bot = TelegramBotConfig(botProperties).getTelegramBot()
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
 
         val (_, out, _) = getOutput {
             runBlocking {
@@ -61,14 +61,15 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramBotConfig(botProperties).getTelegramBot()
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
 
         val (_, out, _) = getOutput {
-            val errorMessage = runBlocking {
+            val result = runBlocking {
                 bot.start()
             }
 
-            Assertions.assertThat(errorMessage).isNotNull()
+
+            Assertions.assertThat(result.isError()).isTrue()
         }
 
         Assertions.assertThat(bot.started).isFalse()
@@ -90,14 +91,14 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramBotConfig(botProperties).getTelegramBot()
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
 
         val timeSpent = measureTimeMillis {
-            val errorMessage = runBlocking {
+            val result = runBlocking {
                 bot.start()
             }
 
-            Assertions.assertThat(errorMessage).isNotNull()
+            Assertions.assertThat(result.isError()).isTrue()
         }
 
         Assertions.assertThat(timeSpent)

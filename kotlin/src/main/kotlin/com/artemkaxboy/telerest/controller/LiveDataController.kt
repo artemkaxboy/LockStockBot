@@ -1,6 +1,9 @@
 package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.config.API_V1
+import com.artemkaxboy.telerest.controller.Constants.DEFAULT_PAGE_SIZE
+import com.artemkaxboy.telerest.controller.Constants.MAX_API_INT
+import com.artemkaxboy.telerest.controller.Constants.MAX_PAGE_SIZE
 import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.service.EDITABLE_DAYS_INTERVAL
 import com.artemkaxboy.telerest.service.LiveDataService

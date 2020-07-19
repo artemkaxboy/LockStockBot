@@ -1,6 +1,9 @@
 package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.config.API_V1
+import com.artemkaxboy.telerest.controller.Constants.DEFAULT_PAGE_SIZE
+import com.artemkaxboy.telerest.controller.Constants.MAX_API_INT
+import com.artemkaxboy.telerest.controller.Constants.MAX_PAGE_SIZE
 import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.TickerToTickerDtoMapper
 import com.artemkaxboy.telerest.service.TickerService
@@ -68,9 +71,9 @@ class TickerController(
 
                 tickerService.findAll(PageRequest.of(page - 1, pageSize)).let {
                     PageImpl(
-                        it.content.map { e -> tickerToTickerDtoMapper.toDto(e) },
-                        it.pageable,
-                        it.totalElements
+                        it.getContent().map { e -> tickerToTickerDtoMapper.toDto(e) },
+                        it.getPageable(),
+                        it.getTotalElements()
                     )
                 }
             }
