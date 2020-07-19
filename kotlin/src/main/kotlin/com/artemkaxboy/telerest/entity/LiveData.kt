@@ -35,6 +35,8 @@ data class LiveData(
 
     fun getPotential() = ((consensus - price) / price * 100)
 
+    fun getPotentialDifference(other: LiveData) = getPotential() - other.getPotential()
+
     companion object {
 
         fun random() = LiveData(

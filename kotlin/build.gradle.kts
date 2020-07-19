@@ -19,6 +19,7 @@ val kotlinLoggingVersion by extra("1.7.10")
 val ktTelegramBotVersion by extra("1.3.0-beta")
 val swaggerVersion by extra("1.4.3")
 val modelMapperVersion by extra("2.3.8")
+val mockkVersion by extra("1.10.0")
 val tag by extra(System.getenv("TAG") ?: project.version)
 
 sourceSets {
@@ -80,6 +81,7 @@ dependencies {
     }
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 
     // kapt
     kapt("org.springframework.boot:spring-boot-configuration-processor")
@@ -99,7 +101,9 @@ jib {
     }
 
     to {
-        image = "artemkaxboy/${rootProject.name}:$tag"
+        image = "server.home:5000/artemkaxboy/${rootProject.name}"
+        tags = setOf(tag as String)
+        setAllowInsecureRegistries(true)
     }
 }
 

@@ -42,6 +42,7 @@ internal class LiveDataControllerTest {
     private lateinit var modelMapper: ModelMapper
 
     // @doc https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples/
+    // todo fix flaky test
     @Test
     fun `fail to return get existing ticker`() {
 
@@ -148,6 +149,6 @@ internal class LiveDataControllerTest {
 
     @AfterEach
     fun clearDb() {
-        liveDataRepo.deleteAll()
+        liveDataRepo.deleteAllInBatch()
     }
 }

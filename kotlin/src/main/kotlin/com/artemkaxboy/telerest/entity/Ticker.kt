@@ -3,6 +3,7 @@ package com.artemkaxboy.telerest.entity
 import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.persistence.OneToMany
 import javax.persistence.OneToOne
 import javax.persistence.Table
 
@@ -20,7 +21,11 @@ data class Ticker(
 
     val name: String,
 
-    val logo: String
+    val logo: String,
+
+    @OneToMany(mappedBy = "ticker")
+    val subscriptions: Set<UserTickerSubscription> = emptySet()
+
 
 ) : AbstractEntity() {
 
@@ -39,6 +44,34 @@ data class Ticker(
                 logo = "http://$randomTicker.url/logo.png"
             )
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Ticker
+
+        if (ticker != other.ticker) return false
+        if (url != other.url) return false
+        if (currency != other.currency) return false
+        if (name != other.name) return false
+        if (logo != other.logo) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = ticker.hashCode()
+        result = 31 * result + url.hashCode()
+        result = 31 * result + currency.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + logo.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "Ticker(ticker='$ticker', url='$url', currency=$currency, name='$name', logo='$logo')"
     }
 }
 

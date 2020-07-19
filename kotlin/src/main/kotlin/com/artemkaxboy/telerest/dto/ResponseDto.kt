@@ -1,6 +1,7 @@
 package com.artemkaxboy.telerest.dto
 
 import com.artemkaxboy.telerest.config.CURRENT_API_VERSION
+import com.artemkaxboy.telerest.tool.Result
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
@@ -63,6 +64,11 @@ data class ResponseDto(
             return wrapData(request, block())
         }
 
+        fun <T : Any> wrapResult(request: ServerHttpRequest, result: Result<T>): ResponseDto {
+            return result.data?.let { wrapData(request, it) }
+                ?: wrapError(request, result.status, result.message)
+        }
+
         fun wrapError(
             throwable: Throwable,
             request: ServerHttpRequest
@@ -81,6 +87,27 @@ data class ResponseDto(
                 errorCode,
                 message,
                 errors = ErrorDetailDto.fromThrowable(throwable)
+            )
+                .let {
+                    ResponseDto(
+                        id = request.id,
+                        method = request.path.value(),
+                        error = it
+                    )
+                }
+        }
+
+        private fun wrapError(
+            request: ServerHttpRequest,
+            status: HttpStatus,
+            message: String,
+            reason: Throwable? = null
+        ): ResponseDto {
+
+            return ErrorDto(
+                status.value(),
+                message,
+                errors = reason?.let { ErrorDetailDto.fromThrowable(it) }
             )
                 .let {
                     ResponseDto(
