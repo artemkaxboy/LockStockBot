@@ -1,22 +1,19 @@
 package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.entity.UserTickerSubscription
-import com.artemkaxboy.telerest.event.PotentialChangedEventObject
-import com.artemkaxboy.telerest.repo.UserTickerSubscriptionRepo
+import com.artemkaxboy.telerest.listener.event.PotentialChangedEventObject
+import com.artemkaxboy.telerest.tool.Emoji
+import com.artemkaxboy.telerest.tool.extensions.round
 import com.artemkaxboy.telerest.tool.extensions.roundIfNeeded
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
+import org.jfree.chart.ChartUtils
 import org.springframework.stereotype.Service
+import java.io.ByteArrayOutputStream
 import kotlin.math.absoluteValue
-
-private const val WHITE_DOWN = "\uD83D\uDD3D"
-private const val WHITE_UP = "\uD83D\uDD3C"
-private const val RED_CROSS = "❌"
-private const val RED_DOWN = "\uD83D\uDD3B"
-private const val RED_UP = "\uD83D\uDD3A"
-private const val RED_CIRCLE = "\uD83D\uDD34"
-private const val GREEN_CIRCLE = "\uD83D\uDFE2"
 
 /**
  * Service to send notifications to users.
@@ -24,7 +21,8 @@ private const val GREEN_CIRCLE = "\uD83D\uDFE2"
 @Service
 class NotificationService(
     private val telegramService: TelegramService,
-    private val userTickerSubscriptionService: UserTickerSubscriptionService
+    private val userTickerSubscriptionService: UserTickerSubscriptionService,
+    private val chartService: ChartService
 ) {
 
     /**
@@ -50,34 +48,45 @@ class NotificationService(
     }
 
     /**
-     * Notifies single user through [TelegramService] and updates [UserTickerSubscription.lastNotificationDate]
+     * Notifies single user through [TelegramService] and updates [UserTickerSubscription.lastNotificationDate].
      */
     private suspend fun notifyUser(update: PotentialChangedEventObject, chatId: Long) {
 
         val yesterday = update.yesterdayData
         val live = update.liveData
-        val currency = live.ticker.currency.id
+        val currency = live.ticker.currency.sign
 
         val msg = "#${live.ticker.ticker} ${live.ticker.name}\n" +
             "\nPrice: $currency ${getDiffPercentString(yesterday.price, live.price)}\n" +
             "\nForecast: $currency ${getDiffPercentString(yesterday.consensus, live.consensus)}\n" +
             "\nPotential: ${getDiffString(yesterday.getPotential(), live.getPotential(), 2)}"
-        telegramService.sendMessage(msg, chatId)
+
+        val chart = chartService.getChart(live)
+
+        withContext(Dispatchers.IO) {
+            val byteOutputStream = ByteArrayOutputStream()
+            ChartUtils.writeChartAsPNG(byteOutputStream, chart, 600, 300)
+
+            telegramService.sendPhoto(chatId, byteOutputStream.toByteArray(), msg)
+                .onSuccess { logger.debug { "Photo sent, file_id: $it" } }
+        }
 
         userTickerSubscriptionService
             .updateLastNotificationDate(chatId, update.liveData.ticker.ticker)
     }
 
     fun getDiffString(from: Double, to: Double, precision: Int = -1): String {
-        val fromRounded = from.takeIf { precision < 0 } ?: from.roundIfNeeded(precision)
-        val toRounded = to.takeIf { precision < 0 } ?: to.roundIfNeeded(precision)
+        val fromRounded = from.roundIfNeeded(precision)
+        val toRounded = to.roundIfNeeded(precision)
 
-        val diff = (to - from).takeIf { it != 0.0 }
-            ?.roundIfNeeded(2)
+        val diff = (to - from)
+            .takeIf { it != 0.0 }
+            ?.round(2)
             ?.let { rounded ->
-                rounded.takeIf { it > 0 }
-                    ?.let { "\n$WHITE_UP $it%" }
-                    ?: "\n$RED_DOWN ${rounded.absoluteValue}%"
+                rounded
+                    .takeIf { it > 0 }
+                    ?.let { "\n${Emoji.WHITE_UP} $it%" }
+                    ?: "\n${Emoji.RED_DOWN} ${rounded.absoluteValue}%"
             }
             ?: ""
 
@@ -85,15 +94,15 @@ class NotificationService(
     }
 
     fun getDiffPercentString(from: Double, to: Double, precision: Int = -1): String {
-        val fromRounded = from.takeIf { precision < 0 } ?: from.roundIfNeeded(precision)
-        val toRounded = to.takeIf { precision < 0 } ?: to.roundIfNeeded(precision)
+        val fromRounded = from.roundIfNeeded(precision)
+        val toRounded = to.roundIfNeeded(precision)
 
         val diff = ((to - from) / from * 100).takeIf { it != 0.0 }
-            ?.roundIfNeeded(2)
+            ?.round(2)
             ?.let { rounded ->
                 rounded.takeIf { it > 0 }
-                    ?.let { "\n$WHITE_UP $it%" }
-                    ?: "\n$RED_DOWN ${rounded.absoluteValue}%"
+                    ?.let { "\n${Emoji.WHITE_UP} $it%" }
+                    ?: "\n${Emoji.RED_DOWN} ${rounded.absoluteValue}%"
             }
             ?: ""
 

@@ -26,7 +26,6 @@ data class Ticker(
     @OneToMany(mappedBy = "ticker")
     val subscriptions: Set<UserTickerSubscription> = emptySet()
 
-
 ) : AbstractEntity() {
 
     companion object {
@@ -71,7 +70,7 @@ data class Ticker(
     }
 
     override fun toString(): String {
-        return "Ticker(ticker='$ticker', url='$url', currency=$currency, name='$name', logo='$logo')"
+        return "$ticker: $name"
     }
 }
 

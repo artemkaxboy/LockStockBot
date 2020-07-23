@@ -130,7 +130,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
      * Checks if the forecast is still actual by comparing its issue date with allowed
      * forecast [ForecastSource1Properties.ttl].
      *
-     * @return true if given forecast is still actual, false - otherwise
+     * @return true if given forecast is still actual, false - otherwise.
      */
     private fun isForecastActual(forecast: Source1ForecastDto): Boolean {
         if (forecastSource1Properties.ttl.isZero) return true

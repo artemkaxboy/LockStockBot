@@ -3,6 +3,7 @@ package com.artemkaxboy.telerest.service
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.tool.Result
+import com.artemkaxboy.telerest.tool.orElse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.Message
 import com.elbekD.bot.types.Update
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Service
 
 private const val COMMAND_START = "/start"
 
-private const val BOT_NULL_ERROR = "Bot is not working"
-
 @Service
 class TelegramService(
     private val properties: TelegramBotProperties,
@@ -25,17 +24,17 @@ class TelegramService(
 
 ) {
 
-    private var bot: Bot? = null
+    private lateinit var bot: Bot
 
     var started: Boolean = false
 
     /**
      * Starts the bot.
      *
-     * @return occurred error message, null if no error
+     * @return occurred error message, null if no error.
      */
     suspend fun start(): Result<Unit> {
-        initDb()
+        fillDbWithInitDataIfNeeded()
 
         if (!properties.enabled) {
             logger.info { "Telegram bot disabled." }
@@ -50,7 +49,7 @@ class TelegramService(
         configureBot()
 
         repeat(properties.reconnection.count) {
-            startBot().data?.let {
+            startBot().onSuccess {
                 started = true
                 return Result.Success(Unit)
             }
@@ -58,7 +57,7 @@ class TelegramService(
             delay(properties.reconnection.delay.toMillis())
         }
 
-        return Result.Err("Couldn't start telegram bot.", HttpStatus.INTERNAL_SERVER_ERROR).log(logger)
+        return Result.failure(HttpStatus.INTERNAL_SERVER_ERROR, "Couldn't start telegram bot.").log(logger)
     }
 
     /**
@@ -68,9 +67,36 @@ class TelegramService(
      * @param sendTo chat ID to send the message to.
      * @return exception safety result of the operation.
      */
-    fun sendMessage(text: String, sendTo: Long) =
-        Result.of { bot?.sendMessage(sendTo, text) }
-            ?: Result.Err("Bot is not working", HttpStatus.BAD_GATEWAY)
+    fun sendMessage(sendTo: Long, text: String): Result<Message> =
+        Result.of { bot.sendMessage(sendTo, text).get() }
+            .orElse { Result.failure(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot send message: $it") }
+
+    /**
+     * Sends photo to telegram chat.
+     *
+     * @param sendTo target chatId. Bot cannot start chat, it can send messages to
+     * already started personal chats or groups which it had been added to.
+     * @param byteArray photo to send.
+     * @param caption text to add to the photo.
+     * @return id of sent file to reuse it in following messages.
+     */
+    fun sendPhoto(sendTo: Long, byteArray: ByteArray, caption: String? = null): Result<String> =
+        Result.of { bot.sendPhoto(sendTo, byteArray, caption).get()?.photo?.get(0)?.file_id }
+            .orElse { Result.failure(HttpStatus.BAD_GATEWAY, "Cannot send photo: $it").log(logger) }
+
+    /**
+     * Sends photo to telegram chat.
+     *
+     * @param sendTo target chatId. Bot cannot start chat, it can send messages to
+     * already started personal chats or groups which it had been added to.
+     * @param fileId telegram file_id to send.
+     * @param caption text to add to the photo.
+     * @return id of sent file to reuse it in following messages.
+     */
+    @Suppress("unused")
+    fun sendPhoto(sendTo: Long, fileId: String, caption: String? = null): Result<String> =
+        Result.of { bot.sendPhoto(sendTo, fileId, caption).get()?.photo?.get(0)?.file_id }
+            .orElse { Result.failure(HttpStatus.BAD_GATEWAY, "Cannot send photo: $it").log(logger) }
 
     private fun configureBot() {
         bot = Bot.createPolling(properties.botName, properties.token).apply {
@@ -81,21 +107,20 @@ class TelegramService(
     }
 
     private fun startBot(): Result<Unit> {
-
-        return try {
+        return Result.of {
             logger.info { "Telegram bot starting..." }
-            bot?.start() ?: return Result.Err(BOT_NULL_ERROR, HttpStatus.INTERNAL_SERVER_ERROR).log(logger)
+            bot.start()
             logger.info { "Telegram bot started successfully." }
-            Result.Success(Unit)
-        } catch (e: Exception) {
-            Result.Err("Cannot start telegram bot: ${e.message}", HttpStatus.INTERNAL_SERVER_ERROR)
+        }.orElse {
+            Result
+                .failure(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot start telegram bot: ${it.message}")
                 .log(logger)
         }
     }
 
     @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER") // signature is fixed to use in Bot.onCommand
     private suspend fun onStartCommand(message: Message, opts: String?) {
-        bot?.sendMessage(message.chat.id, "Hello!")
+        bot.sendMessage(message.chat.id, "Hello!")
     }
 
     @Suppress("RedundantSuspendModifier") // signature is fixed to use in Bot.onMessage
@@ -109,10 +134,8 @@ class TelegramService(
         logger.info { "any: $update" }
     }
 
-    /*
-     * First initialization with only one main chat (temporary function).
-     */
-    private fun initDb() {
+    // todo delete after making subscribing mechanism
+    private fun fillDbWithInitDataIfNeeded() {
         if (properties.mainChatId.isEmpty()) return
 
         if (userService.count() > 0) return

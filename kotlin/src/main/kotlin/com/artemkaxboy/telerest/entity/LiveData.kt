@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.entity
 
+import com.artemkaxboy.telerest.tool.extensions.round
 import java.time.LocalDate
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -43,13 +44,24 @@ data class LiveData(
      */
     fun getPotentialDifference(other: LiveData) = getPotential() - other.getPotential()
 
+    fun equalsTo(liveDataShallow: LiveDataShallow?): Boolean {
+        if (liveDataShallow == null) return false
+
+        if (date != liveDataShallow.getDate()) return false
+        if (ticker.ticker != liveDataShallow.getTicker()) return false
+        if (price != liveDataShallow.getPrice()) return false
+        if (consensus != liveDataShallow.getConsensus()) return false
+
+        return true
+    }
+
     companion object {
 
         fun random() = LiveData(
             date = LocalDate.now().minusDays(Random.nextLong(100, 365)),
             ticker = Ticker.random(),
-            price = Random.nextDouble(),
-            consensus = Random.nextDouble()
+            price = Random.nextDouble().round(4),
+            consensus = Random.nextDouble().round(4)
         )
     }
 }

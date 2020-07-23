@@ -1,7 +1,7 @@
-package com.artemkaxboy.telerest.event.listener
+package com.artemkaxboy.telerest.listener
 
-import com.artemkaxboy.telerest.event.PotentialChangedEvent
-import com.artemkaxboy.telerest.event.PotentialChangedEventObject
+import com.artemkaxboy.telerest.listener.event.PotentialChangedEvent
+import com.artemkaxboy.telerest.listener.event.PotentialChangedEventObject
 import com.artemkaxboy.telerest.service.NotificationService
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

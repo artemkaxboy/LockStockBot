@@ -69,11 +69,19 @@ dependencies {
     // locally fixed https://github.com/modelmapper/modelmapper/issues/553
     implementation(files("libs/modelmapper-2.3.9-SNAPSHOT.jar"))
 
-    // telegram bot   https://github.com/elbekD/kt-telegram-bot
-    implementation("com.github.elbekD:kt-telegram-bot:$ktTelegramBotVersion") {
+    /*--------------------- telegram bot ---------------------------------------*/
+    // @source https://github.com/elbekD/kt-telegram-bot
+    // implementation("com.github.elbekD:kt-telegram-bot:$ktTelegramBotVersion") {
         // it's conflicting with netty, and we don't need webhook mode
-        exclude("org.eclipse.jetty")
-    }
+    //    exclude("org.eclipse.jetty")
+    // }
+    // own fork while https://github.com/elbekD/kt-telegram-bot/pull/31 not released
+    implementation(files("libs/kt-telegram-bot-1.3.4-SNAPSHOT.jar"))
+    implementation("com.google.code.gson:gson:2.8.5")
+    implementation("com.squareup.okhttp3:okhttp:3.10.0")
+    /*--------------------- end of telegram bot ---------------------------------------*/
+
+    implementation("org.jfree:jfreechart:1.5.0")
 
     // spring test
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
