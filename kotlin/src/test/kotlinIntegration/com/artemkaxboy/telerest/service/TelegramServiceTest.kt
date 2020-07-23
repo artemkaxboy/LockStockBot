@@ -68,8 +68,7 @@ internal class TelegramServiceTest {
                 bot.start()
             }
 
-
-            Assertions.assertThat(result.isError()).isTrue()
+            Assertions.assertThat(result.isFailure()).isTrue()
         }
 
         Assertions.assertThat(bot.started).isFalse()
@@ -98,7 +97,7 @@ internal class TelegramServiceTest {
                 bot.start()
             }
 
-            Assertions.assertThat(result.isError()).isTrue()
+            Assertions.assertThat(result.isFailure()).isTrue()
         }
 
         Assertions.assertThat(timeSpent)

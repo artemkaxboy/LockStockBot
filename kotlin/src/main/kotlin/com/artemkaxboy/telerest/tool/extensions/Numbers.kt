@@ -13,12 +13,18 @@ import kotlin.math.roundToLong
  */
 fun Double.roundIfNeeded(digits: Int) =
     this.takeIf { digits < 0 }
-        ?: round(this, digits)
+        ?: round(digits)
 
-private fun round(number: Double, digits: Int): Double {
+/**
+ * Rounds this [Double] value with needed precision.
+ *
+ * @param digits needed precision, must be 0 or positive.
+ * @return rounded value.
+ */
+fun Double.round(digits: Int): Double {
     require(digits >= 0)
     return 10.0.pow(digits).let { factor ->
-        (number * factor).roundToLong().toDouble() / factor
+        (this * factor).roundToLong().toDouble() / factor
     }
 }
 

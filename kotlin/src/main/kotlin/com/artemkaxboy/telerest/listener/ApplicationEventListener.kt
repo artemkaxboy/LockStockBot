@@ -20,10 +20,8 @@ class ApplicationEventListener(
         GlobalScope.launch {
 
             // Start the bot or kill the service
-            with(telegramService.start()) {
-                if (this.isError()) {
-                    exiter.error(this.toString())
-                }
+            telegramService.start().onFailure {
+                exiter.error(it.toString())
             }
         }
     }

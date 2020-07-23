@@ -22,8 +22,8 @@ class CustomControllerAdvice {
         request: ServerHttpRequest
     ): ResponseDto {
         return ResponseDto.wrapError(
-            ResponseStatusException(HttpStatus.BAD_REQUEST, exception.localizedMessage, exception),
-            request
+            request,
+            ResponseStatusException(HttpStatus.BAD_REQUEST, exception.localizedMessage, exception)
         )
     }
 
@@ -37,8 +37,8 @@ class CustomControllerAdvice {
 
         response.statusCode = exception.status
         return ResponseDto.wrapError(
-            exception,
-            request
+            request,
+            exception
         )
     }
 }

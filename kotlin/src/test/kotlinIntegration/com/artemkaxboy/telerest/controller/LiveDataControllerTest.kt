@@ -42,9 +42,9 @@ internal class LiveDataControllerTest {
     private lateinit var modelMapper: ModelMapper
 
     // @doc https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples/
-    // todo fix flaky test
+    // todo fix flaky test. Always works in debug mode. TimeZone problem??
     @Test
-    fun `fail to return get existing ticker`() {
+    fun `fail to return existing ticker`() {
 
         val expected = LiveData.random()
             .also { liveDataService.save(it) }
@@ -110,6 +110,7 @@ internal class LiveDataControllerTest {
     }
 
     @Test
+    // todo fix flaky test. Always works in debug mode. TimeZone problem??
     fun `fail to change existing live data`() {
 
         val days = Random.nextInt(365)

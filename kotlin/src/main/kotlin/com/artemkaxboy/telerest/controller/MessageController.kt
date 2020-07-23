@@ -41,7 +41,7 @@ class MessageController(
     ): Mono<ResponseDto> {
 
         return ResponseDto
-            .wrapResult(request, telegramService.sendMessage(message.text, message.chatId))
+            .wrapResult(request, telegramService.sendMessage(message.chatId, message.text))
             .toMono()
     }
 }

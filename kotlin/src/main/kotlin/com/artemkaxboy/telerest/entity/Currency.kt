@@ -9,14 +9,25 @@ import javax.persistence.Table
 data class Currency(
 
     @Id
-    val id: String
+    val id: String,
+
+    @Transient
+    val sign: String = KNOWN_CURRENCIES.getOrDefault(id, id)
 
 ) : AbstractEntity() {
 
     companion object {
 
-        private val RANDOM_POOL = setOf("RUB", "USD", "EUR", "GBP", "CAD", "AUD", "BYN")
+        private val KNOWN_CURRENCIES = mapOf(
+            "RUB" to "₽",
+            "USD" to "$",
+            "EUR" to "€",
+            "GBP" to "£",
+            "CAD" to "$",
+            "AUD" to "$",
+            "BYN" to "Br"
+        )
 
-        fun random() = Currency(id = RANDOM_POOL.random())
+        fun random() = KNOWN_CURRENCIES.keys.random().let { Currency(id = it) }
     }
 }

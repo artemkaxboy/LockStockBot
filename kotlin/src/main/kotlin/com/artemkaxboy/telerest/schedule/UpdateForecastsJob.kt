@@ -1,6 +1,6 @@
 package com.artemkaxboy.telerest.schedule
 
-import com.artemkaxboy.telerest.event.PotentialChangedEvent
+import com.artemkaxboy.telerest.listener.event.PotentialChangedEvent
 import com.artemkaxboy.telerest.mapper.LiveDataToSource1TickerDtoMapper
 import com.artemkaxboy.telerest.service.LiveDataService
 import com.artemkaxboy.telerest.service.forecast.impl.ForecastServiceImpl1
@@ -16,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import javax.transaction.Transactional
-import kotlin.math.absoluteValue
 
 @Component
 class UpdateForecastsJob(
@@ -49,11 +48,16 @@ class UpdateForecastsJob(
                     yesterday[newTick.ticker.ticker]
                         ?.takeIf { newTick.getPotential() != it.getPotential() }
                         ?.run {
-                            applicationEventPublisher.publishEvent(PotentialChangedEvent(newTick, this))
+                            applicationEventPublisher.publishEvent(
+                                PotentialChangedEvent(
+                                    newTick,
+                                    this
+                                )
+                            )
                         }
                 }
                 .filter { lastTick[it.ticker.ticker] != it }
-                .onEach { logger.debug { "Update ${it.ticker.ticker}" } }
+                .onEach { logger.debug { "Update live data: ${it.ticker.ticker}" } }
                 .collect {
                     liveDataService.save(it)
                 }

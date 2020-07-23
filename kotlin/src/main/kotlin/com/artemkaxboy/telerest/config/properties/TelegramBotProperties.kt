@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Configuration
 import java.time.Duration
 import java.time.temporal.ChronoUnit
 
-/** Amount of attempts to initially connect to Telegram API */
+/** Amount of attempts to initially connect to Telegram API. */
 private const val DEFAULT_RECONNECTION_COUNT = 10
 
-/** Default delay between connection attempts */
+/** Default delay between connection attempts. */
 private const val DEFAULT_RECONNECTION_DELAY_SECONDS = 3L
 
 @Configuration

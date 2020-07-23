@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.dto
 
 import com.artemkaxboy.telerest.config.CURRENT_API_VERSION
 import com.artemkaxboy.telerest.tool.Result
+import com.artemkaxboy.telerest.tool.getOrElse
 import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
@@ -66,16 +67,17 @@ data class ResponseDto(
 
         /**
          * Wraps [Result] object to [ResponseDto] according to the specialization
-         * [Result.Success] or [Result.Err].
+         * [Result.Success] or [Result.Failure].
          */
         fun <T : Any> wrapResult(request: ServerHttpRequest, result: Result<T>): ResponseDto {
-            return result.data?.let { wrapData(request, it) }
-                ?: wrapError(request, result.status, result.message)
+            return result
+                .getOrElse { return wrapError(request, it) }
+                .let { wrapData(request, it) }
         }
 
         fun wrapError(
-            throwable: Throwable,
-            request: ServerHttpRequest
+            request: ServerHttpRequest,
+            throwable: Throwable
         ): ResponseDto {
             val errorCode = ((throwable as? ResponseStatusException)?.status ?: HttpStatus.INTERNAL_SERVER_ERROR)
                 .value()
@@ -91,27 +93,6 @@ data class ResponseDto(
                 errorCode,
                 message,
                 errors = ErrorDetailDto.fromThrowable(throwable)
-            )
-                .let {
-                    ResponseDto(
-                        id = request.id,
-                        method = request.path.value(),
-                        error = it
-                    )
-                }
-        }
-
-        private fun wrapError(
-            request: ServerHttpRequest,
-            status: HttpStatus,
-            message: String,
-            reason: Throwable? = null
-        ): ResponseDto {
-
-            return ErrorDto(
-                status.value(),
-                message,
-                errors = reason?.let { ErrorDetailDto.fromThrowable(it) }
             )
                 .let {
                     ResponseDto(

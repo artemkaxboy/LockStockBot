@@ -32,8 +32,12 @@ data class LiveDataService(
     fun findByTickerTickerAndDate(ticker: String, date: LocalDate) =
         liveDataRepo.findByTicker_TickerAndDate(ticker, date, LiveData::class.java)
 
+    @Suppress("unused") // future
     fun <T> findByTickerTickerAndDate(ticker: String, date: LocalDate, clazz: Class<T>) =
         liveDataRepo.findByTicker_TickerAndDate(ticker, date, clazz)
+
+    fun findByTickerTickerAndDateBetweenOrderByDate(ticker: String, from: LocalDate, till: LocalDate) =
+        liveDataRepo.findByTicker_TickerAndDateBetweenOrderByDate(ticker, from, till)
 
     fun findAllByDate(
         date: LocalDate = LocalDate.now(),
@@ -49,6 +53,7 @@ data class LiveDataService(
 
     fun save(liveData: LiveData) = liveDataRepo.save(liveData)
 
+    @Suppress("unused") // future
     fun saveAll(list: List<LiveData?>): List<LiveData?> = liveDataRepo.saveAll(list)
 
     fun postLiveData(
