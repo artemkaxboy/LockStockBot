@@ -1,7 +1,8 @@
 package com.artemkaxboy.telerest.tool
 
-@Suppress("unused") // future
-object Constants
+object Constants {
+    const val UNKNOWN_ERROR = "Unknown error"
+}
 
 /**
  * Different useful emoji

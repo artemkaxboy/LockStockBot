@@ -9,12 +9,11 @@ import javax.persistence.Table
 data class Currency(
 
     @Id
-    val id: String,
-
-    @Transient
-    val sign: String = KNOWN_CURRENCIES.getOrDefault(id, id)
+    val id: String
 
 ) : AbstractEntity() {
+
+    fun getSign() = KNOWN_CURRENCIES.getOrDefault(id, id)
 
     companion object {
 

@@ -46,7 +46,7 @@ class UpdateForecastsJob(
                 .mapNotNull { liveDataToSource1TickerDtoMapper.toEntity(it) }
                 .onEach { newTick ->
                     yesterday[newTick.ticker.ticker]
-                        ?.takeIf { newTick.getPotential() != it.getPotential() }
+                        ?.takeIf { newTick.getPotentialDifference(it) != 0.0 }
                         ?.run {
                             applicationEventPublisher.publishEvent(
                                 PotentialChangedEvent(
@@ -57,7 +57,7 @@ class UpdateForecastsJob(
                         }
                 }
                 .filter { lastTick[it.ticker.ticker] != it }
-                .onEach { logger.debug { "Update live data: ${it.ticker.ticker}" } }
+                .onEach { logger.trace { "Update live data: ${it.ticker.ticker}" } }
                 .collect {
                     liveDataService.save(it)
                 }
