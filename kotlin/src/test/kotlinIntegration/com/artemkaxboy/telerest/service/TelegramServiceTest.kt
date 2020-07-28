@@ -19,7 +19,7 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
 
         val (_, out, _) = getOutput {
             runBlocking {
@@ -39,7 +39,7 @@ internal class TelegramServiceTest {
             token = ""
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
 
         val (_, out, _) = getOutput {
             runBlocking {
@@ -61,7 +61,7 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
 
         val (_, out, _) = getOutput {
             val result = runBlocking {
@@ -90,7 +90,7 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
 
         val timeSpent = measureTimeMillis {
             val result = runBlocking {

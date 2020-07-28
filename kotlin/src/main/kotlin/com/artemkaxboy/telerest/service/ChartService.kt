@@ -1,6 +1,8 @@
 package com.artemkaxboy.telerest.service
 
+import com.artemkaxboy.telerest.business.ChartMessage
 import com.artemkaxboy.telerest.entity.LiveData
+import com.artemkaxboy.telerest.tool.Result
 import com.artemkaxboy.telerest.tool.extensions.toDate
 import org.jfree.chart.JFreeChart
 import org.jfree.chart.axis.DateAxis
@@ -20,40 +22,54 @@ import java.awt.Color
 import java.time.LocalDate
 import kotlin.math.PI
 
-const val CHART_GRID_COLOR = 0xcccccc
-const val CHART_BACKGROUND_COLOR = 0xffffff
+private const val CHART_GRID_COLOR = 0xcccccc
+private const val CHART_BACKGROUND_COLOR = 0xffffff
 
-const val PRICE_COLOR = 0xff0000
-const val PRICE_STROKE = 3.0f
-const val PRICE_LEGEND = "price"
+private const val PRICE_COLOR = 0xff0000
+private const val PRICE_STROKE = 3.0f
+private const val PRICE_LEGEND = "price"
 
-const val FORECAST_COLOR = 0x0000ff
-const val FORECAST_STROKE = 2.0f
-const val FORECAST_LEGEND = "forecast"
+private const val FORECAST_COLOR = 0x0000ff
+private const val FORECAST_STROKE = 2.0f
+private const val FORECAST_LEGEND = "forecast"
 
-const val POTENTIAL_COLOR = 0xf4b40d
-const val POTENTIAL_STROKE = 3.0f
-const val POTENTIAL_LEGEND = "potential"
+private const val POTENTIAL_COLOR = 0xf4b40d
+private const val POTENTIAL_STROKE = 3.0f
+private const val POTENTIAL_LEGEND = "potential"
 
-const val DEFAULT_HISTORY_DAYS = 100
+private const val DEFAULT_HISTORY_DAYS = 100
 
-const val CHARTS_GAP = 10.0
-const val MAIN_CHART_WEIGHT = 3
-const val SECONDARY_CHART_WEIGHT = 2
+private const val CHARTS_GAP = 10.0
+private const val MAIN_CHART_WEIGHT = 3
+private const val SECONDARY_CHART_WEIGHT = 2
+
+private const val CHART_HEIGHT = 300
+private const val CHART_WIDTH = 600
 
 @Service
-class ChartService(private val liveDataService: LiveDataService) {
+class ChartService(
+    private val liveDataService: LiveDataService,
+    private val tickerService: TickerService
+) {
 
     private val dateAxis = DateAxis()
 
-    fun getChart(todayData: LiveData): JFreeChart {
-        val liveData = fetchLiveDataHistoryTillYesterday(todayData.ticker.ticker)
-            .apply { add(todayData) }
+    fun getChartMessage(ticker: String? = null, todayData: LiveData? = null): Result<ChartMessage> = Result.of {
+
+        val resolvedTicker = todayData?.ticker
+            ?: ticker?.let { tickerService.findById(it) }
+            ?: return Result.failure("Ticker not found")
+
+        val liveData = fetchLiveDataHistory(resolvedTicker.ticker)
+            /* add the latest tick instead of last saved in DB */
+            .let { history ->
+                todayData?.let { history.dropLast(1) + it } ?: history
+            }
 
         val datasets = generateChartDataCollections(liveData)
 
         val priceAndForecastXyPlot = generateTickerPriceAndForecastXyPlot(
-            axisLabel = todayData.ticker.currency.sign,
+            axisLabel = resolvedTicker.currency.getSign(),
             dataset = datasets.values
         )
 
@@ -61,17 +77,20 @@ class ChartService(private val liveDataService: LiveDataService) {
 
         val combinedPlot = generateCombinedXyPlot(priceAndForecastXyPlot, potentialXyPlot)
 
-        return generateChart(todayData.ticker.toString(), combinedPlot)
+        val chart = generateChart(resolvedTicker.toString(), combinedPlot)
+
+        val lastPair = liveData.takeLast(2)
+        ChartMessage(chart, CHART_WIDTH, CHART_HEIGHT, lastPair.firstOrNull(), lastPair.lastOrNull())
     }
 
-    private fun fetchLiveDataHistoryTillYesterday(ticker: String, days: Int = DEFAULT_HISTORY_DAYS):
+    private fun fetchLiveDataHistory(ticker: String, days: Int = DEFAULT_HISTORY_DAYS):
         MutableList<LiveData> {
 
-        val yesterday = LocalDate.now().minusDays(1)
-        val periodStart = LocalDate.now().minusDays(days.toLong())
+        val now = LocalDate.now()
+        val periodStart = now.minusDays(days.toLong())
 
         return liveDataService
-            .findByTickerTickerAndDateBetweenOrderByDate(ticker, periodStart, yesterday)
+            .findByTickerTickerAndDateBetweenOrderByDate(ticker, periodStart, now)
     }
 
     private fun generateChartDataCollections(data: List<LiveData>): ChartCollections {

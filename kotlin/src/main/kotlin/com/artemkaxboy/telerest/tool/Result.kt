@@ -11,9 +11,10 @@ import org.springframework.web.server.ResponseStatusException
  */
 sealed class Result<out T : Any>(
     protected val value: T? = null,
-    protected val exception: Throwable? = null
+    protected val exception: Exception? = null
 ) {
-    fun isSuccess() = !isFailure()
+    abstract fun isSuccess(): Boolean
+
     fun getOrNull() = value
 
     inline fun onSuccess(action: (value: T) -> Unit): Result<T> {
@@ -23,7 +24,7 @@ sealed class Result<out T : Any>(
         return this
     }
 
-    fun isFailure() = this is Failure
+    fun isFailure() = !isSuccess()
     fun exceptionOrNull() = exception
 
     inline fun onFailure(action: (exception: Throwable) -> Unit): Result<T> {
@@ -34,13 +35,18 @@ sealed class Result<out T : Any>(
     }
 
     class Success<U : Any> internal constructor(data: U) : Result<U>(data) {
+
+        override fun isSuccess() = true
+
         override fun toString(): String {
             return "Success[$value]"
         }
     }
 
-    class Failure internal constructor(exception: ResponseStatusException) :
+    class Failure internal constructor(exception: Exception) :
         Result<Nothing>(exception = exception) {
+
+        override fun isSuccess() = false
 
         fun log(logger: KLogger): Failure {
             logger.error { exception.toString() }
@@ -54,15 +60,12 @@ sealed class Result<out T : Any>(
 
     companion object {
 
+        fun failure(message: String) = Failure(Exception(message))
+
         fun failure(status: HttpStatus, message: String): Failure =
             Failure(ResponseStatusException(status, message))
 
-        fun failure(exception: Throwable): Failure =
-            if (exception is ResponseStatusException) {
-                Failure(exception)
-            } else {
-                Failure(ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, exception.message, exception))
-            }
+        fun failure(exception: Exception): Failure = Failure(exception)
 
         fun <R : Any> success(value: R) = Success(value)
 

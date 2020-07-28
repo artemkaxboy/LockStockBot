@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
 private val defaultSorting = Sort.by(Ticker::ticker.name)
@@ -28,6 +29,10 @@ class TickerService(private val tickerRepo: TickerRepo) {
 
         return tickerRepo.findAll(defaultSorting)
             .let { TickerResultData.UnpagedTickerResult(it) }
+    }
+
+    fun findById(tickerId: String): Ticker? {
+        return tickerRepo.findByIdOrNull(tickerId)
     }
 }
 

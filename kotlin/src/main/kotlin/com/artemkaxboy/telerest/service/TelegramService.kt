@@ -2,7 +2,9 @@ package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.artemkaxboy.telerest.entity.User
+import com.artemkaxboy.telerest.tool.ExceptionUtils
 import com.artemkaxboy.telerest.tool.Result
+import com.artemkaxboy.telerest.tool.getOrElse
 import com.artemkaxboy.telerest.tool.orElse
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.Message
@@ -18,6 +20,7 @@ private const val COMMAND_START = "/start"
 @Service
 class TelegramService(
     private val properties: TelegramBotProperties,
+    private val chartService: ChartService,
     private val userService: UserService, // todo delete after adding proper user management
     private val tickerService: TickerService, // todo delete after adding proper user management
     private val subscriptionService: UserTickerSubscriptionService // todo delete after adding proper user management
@@ -68,8 +71,11 @@ class TelegramService(
      * @return exception safety result of the operation.
      */
     fun sendMessage(sendTo: Long, text: String): Result<Message> =
-        Result.of { bot.sendMessage(sendTo, text).get() }
-            .orElse { Result.failure(HttpStatus.INTERNAL_SERVER_ERROR, "Cannot send message: $it") }
+        Result.of {
+            bot.sendMessage(sendTo, text).get()
+        }.orElse {
+            Result.failure("Cannot send message: $it")
+        }
 
     /**
      * Sends photo to telegram chat.
@@ -81,8 +87,11 @@ class TelegramService(
      * @return id of sent file to reuse it in following messages.
      */
     fun sendPhoto(sendTo: Long, byteArray: ByteArray, caption: String? = null): Result<String> =
-        Result.of { bot.sendPhoto(sendTo, byteArray, caption).get()?.photo?.get(0)?.file_id }
-            .orElse { Result.failure(HttpStatus.BAD_GATEWAY, "Cannot send photo: $it").log(logger) }
+        Result.of {
+            bot.sendPhoto(sendTo, byteArray, caption).get()?.photo?.get(0)?.file_id
+        }.orElse {
+            Result.failure("Cannot send photo: $it")
+        }
 
     /**
      * Sends photo to telegram chat.
@@ -95,8 +104,11 @@ class TelegramService(
      */
     @Suppress("unused")
     fun sendPhoto(sendTo: Long, fileId: String, caption: String? = null): Result<String> =
-        Result.of { bot.sendPhoto(sendTo, fileId, caption).get()?.photo?.get(0)?.file_id }
-            .orElse { Result.failure(HttpStatus.BAD_GATEWAY, "Cannot send photo: $it").log(logger) }
+        Result.of {
+            bot.sendPhoto(sendTo, fileId, caption).get()?.photo?.get(0)?.file_id
+        }.orElse {
+            Result.failure("Cannot send photo: $it")
+        }
 
     private fun configureBot() {
         bot = Bot.createPolling(properties.botName, properties.token).apply {
@@ -118,16 +130,48 @@ class TelegramService(
         }
     }
 
-    @Suppress("RedundantSuspendModifier", "UNUSED_PARAMETER") // signature is fixed to use in Bot.onCommand
+    // ENTRYPOINT
+    @Suppress("UNUSED_PARAMETER")
     private suspend fun onStartCommand(message: Message, opts: String?) {
         bot.sendMessage(message.chat.id, "Hello!")
     }
 
-    @Suppress("RedundantSuspendModifier") // signature is fixed to use in Bot.onMessage
+    private suspend fun sendChart(chatId: Long, ticker: String): Result<String> {
+
+        if (ticker.isEmpty()) {
+            return Result.failure("Specify ticker. Example: /chart AAPL")
+        }
+
+        val chartMessage = chartService.getChartMessage(ticker)
+            .getOrElse { exception ->
+                return ExceptionUtils.messageOrDefault(exception, prefix = "Cannot get chart for $ticker: ")
+                    .let { Result.failure(it) }
+            }
+
+        return chartMessage.getByteArray()
+            .getOrElse { exception ->
+                return ExceptionUtils.messageOrDefault(exception, prefix = ("Cannot generate byte array to send: "))
+                    .let { Result.failure(it) }
+            }
+            .let {
+                sendPhoto(chatId, it, chartMessage.caption)
+            }
+    }
+
+    // ENTRYPOINT
     private suspend fun onMessage(message: Message) {
+        message.text?.let { messageText ->
+            if (messageText.startsWith("#")) {
+
+                sendChart(message.chat.id, messageText.drop(1).toUpperCase())
+                    .onFailure { sendMessage(message.chat.id, ExceptionUtils.messageOrEmpty(it)) }
+                return
+            }
+        }
         logger.info { message }
     }
 
+    // ENTRYPOINT
     @Suppress("RedundantSuspendModifier") // signature is fixed to use in Bot.onCommand
     private suspend fun onAnyUpdate(update: Update) {
         // bot.sendMessage(update.message?.from?.id, "WOW! I didn't expect this!")

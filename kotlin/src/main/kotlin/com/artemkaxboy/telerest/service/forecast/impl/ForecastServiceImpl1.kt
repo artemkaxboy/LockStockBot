@@ -5,8 +5,9 @@ import com.artemkaxboy.telerest.converter.toLocalDateTime
 import com.artemkaxboy.telerest.dto.Source1ForecastDto
 import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.service.forecast.ForecastService
-import java.time.LocalDateTime
-import kotlin.math.absoluteValue
+import com.artemkaxboy.telerest.tool.ExceptionUtils
+import com.artemkaxboy.telerest.tool.Result
+import com.artemkaxboy.telerest.tool.orElse
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
@@ -17,28 +18,29 @@ import kotlinx.coroutines.flow.onEach
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
+import java.io.IOException
+import java.time.LocalDateTime
+import kotlin.math.absoluteValue
 
 @Service
 class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource1Properties) :
     ForecastService {
 
-    /**
-     * Returns forecasts page from source 1.
-     *
-     * @param page needed page of values, starts from 0.
-     * @return array of [Source1TickerDto] with size equals to [ForecastSource1Properties.pageSize]
-     * or less if it's the last page.
-     */
-    private fun getPage(page: Int): Array<Source1TickerDto> {
+    private fun fetchPageFromSource(page: Int): Result<Array<Source1TickerDto>> {
 
         val url = forecastSource1Properties.baseUrl +
             "?type=share" +
             "&limit=${forecastSource1Properties.pageSize}" +
             "&offset=${forecastSource1Properties.pageSize * page}"
 
-        return RestTemplate().getForObject(url, Array<Source1TickerDto>::class.java)
-            .also { logger.debug { "Got source1 page: $page" } }
-            ?: throw IllegalStateException("Cannot fetch tickers page from $url")
+        return Result.of {
+            RestTemplate().getForObject(url, Array<Source1TickerDto>::class.java)
+                .also { logger.trace { "Got source1 page: $page" } }
+        }.orElse {
+            Result.failure(
+                IOException(ExceptionUtils.messageOrDefault(it, prefix = "Cannot fetch data from url $url: "), it)
+            )
+        }
     }
 
     /**
@@ -49,7 +51,20 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
         return flow {
             for (i in 0.until(forecastSource1Properties.maxPages)) {
-                val page = getPage(i)
+                val pageResult = fetchPageFromSource(i)
+
+                if (pageResult.isFailure()) {
+                    logger.error {
+                        ExceptionUtils.messageOrDefault(
+                            pageResult.exceptionOrNull(),
+                            prefix = "Cannot fetch tickers, page $i: "
+                        )
+                    }
+                    break // break doesn't work from scope functions
+                }
+
+                val page = requireNotNull(pageResult.getOrNull())
+
                 emitAll(page.asFlow())
 
                 /* break if last page */
@@ -73,11 +88,11 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
     private suspend fun filterByForecasts(ticker: Source1TickerDto): Boolean {
 
         return ticker.forecasts
-            .takeIf(this::hasQuorum)
+            .takeIf { hasQuorum(it, ticker.title) }
 
             /* filter out old forecasts */
             ?.filter(this::isForecastActual)
-            ?.takeIf(this::hasQuorum)
+            ?.takeIf { hasQuorum(it, ticker.title) }
 
             /* map to prices */
             ?.map { it.sharePrice }
@@ -85,12 +100,12 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
             /* cut extremely low forecast */
             ?.let { cutExtremeLow(it, ticker.price) }
-            ?.takeIf(this::hasQuorum)
+            ?.takeIf { hasQuorum(it, ticker.title) }
 
             /* cut extremely high forecast */
             ?.reversed()
             ?.let { cutExtremeLow(it, ticker.price) }
-            ?.takeIf(this::hasQuorum)
+            ?.takeIf { hasQuorum(it, ticker.title) }
 
             ?.also { logger.trace { "Filtering ${ticker.company.title} forecasts finished, count: ${it.size}" } }
             ?.let { true }
@@ -117,10 +132,10 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
 
     private fun isQuorumEnabled() = forecastSource1Properties.quorum > 0
 
-    private fun hasQuorum(forecasts: Collection<Any>): Boolean {
+    private fun hasQuorum(forecasts: Collection<Any>, ticker: String): Boolean {
 
         if (isQuorumEnabled() && forecasts.size < forecastSource1Properties.quorum) {
-            logger.debug { "Ticker dropped: no forecasts quorum" }
+            logger.trace { "$ticker dropped: no forecasts quorum" }
             return false
         }
         return true
