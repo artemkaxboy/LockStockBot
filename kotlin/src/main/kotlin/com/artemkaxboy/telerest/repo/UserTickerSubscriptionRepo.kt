@@ -21,7 +21,7 @@ interface UserTickerSubscriptionRepo : JpaRepository<UserTickerSubscription, Lon
         ticker: String,
         notificationThreshold: Double,
         lastNotificationDate: LocalDate
-    ): List<UserTickerSubscription?>
+    ): List<UserTickerSubscription>
 
     /**
      * Updates subscription notification date to prevent multiple notifications.

@@ -49,12 +49,12 @@ data class LiveDataService(
         return ResultData.UnpagedResult(liveDataRepo.findAllByDate(defaultSorting, date))
     }
 
-    fun findAllLatest() = liveDataRepo.findAllLatest()
+    fun findAllLatest(): List<LiveData> = liveDataRepo.findAllLatest()
 
     fun save(liveData: LiveData) = liveDataRepo.save(liveData)
 
     @Suppress("unused") // future
-    fun saveAll(list: List<LiveData?>): List<LiveData?> = liveDataRepo.saveAll(list)
+    fun saveAll(list: List<LiveData>): List<LiveData> = liveDataRepo.saveAll(list)
 
     fun postLiveData(
         ticker: String,
@@ -104,14 +104,14 @@ private fun Pageable.sortByDateDescIfUnsorted(): Pageable =
 // TODO use generic, encapsulate
 sealed class ResultData {
 
-    abstract fun getContent(): List<LiveData?>
+    abstract fun getContent(): List<LiveData>
 
     data class PagedResult(val result: Page<LiveData>) : ResultData() {
 
-        override fun getContent(): List<LiveData?> = result.content
+        override fun getContent(): List<LiveData> = result.content
     }
 
-    data class UnpagedResult(val result: List<LiveData?>) : ResultData() {
+    data class UnpagedResult(val result: List<LiveData>) : ResultData() {
 
         override fun getContent() = result
     }

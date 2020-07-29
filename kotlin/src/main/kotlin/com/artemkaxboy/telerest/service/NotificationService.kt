@@ -26,12 +26,15 @@ class NotificationService(
      */
     suspend fun notify(eventObject: PotentialChangedEventObject) {
 
+        /* check input */
+        val diff = eventObject.liveData.getPotentialDifferenceOrNull(eventObject.yesterdayData)?.absoluteValue
+            ?: return
+
         userTickerSubscriptionService
             .findAllUnnotified(
                 eventObject.liveData.ticker.ticker,
-                eventObject.liveData.getPotentialDifference(eventObject.yesterdayData).absoluteValue
+                diff
             )
-            .filterNotNull()
             .onEach { logger.debug { "Notify ${it.user.name} about ${it.ticker.ticker}" } }
             .forEach { user ->
                 GlobalScope.launch {
@@ -47,29 +50,31 @@ class NotificationService(
     private suspend fun notifyUser(update: PotentialChangedEventObject, chatId: Long): Result<Unit> = Result.of {
 
         val live = update.liveData
+        val tickerId = live.ticker.ticker
+        val info = "user: $chatId, ticker: $tickerId"
 
         val chartMessage = chartService.getChartMessage(todayData = live).getOrElse {
-            return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot get chart: "))
+            return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot get chart ($info): "))
         }
 
         chartMessage.getByteArray()
             .getOrElse {
                 return Result.failure(
-                    ExceptionUtils.messageOrDefault(it, "Cannot generate byte array to send: ")
+                    ExceptionUtils.messageOrDefault(it, "Cannot generate byte array to send ($info): ")
                 )
             }
             .let {
                 telegramService.sendPhoto(chatId, it, chartMessage.caption)
             }
             .getOrElse {
-                return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot send photo: "))
+                return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot send graph ($info): "))
             }
             .also {
-                logger.trace { "Chart sent, file_id: $it" }
+                logger.trace { "Chart sent ($info), file_id: $it" }
             }
 
         userTickerSubscriptionService
-            .updateLastNotificationDate(chatId, update.liveData.ticker.ticker)
+            .updateLastNotificationDate(chatId, tickerId)
     }
 
     companion object {

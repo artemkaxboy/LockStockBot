@@ -144,13 +144,13 @@ class TelegramService(
 
         val chartMessage = chartService.getChartMessage(ticker)
             .getOrElse { exception ->
-                return ExceptionUtils.messageOrDefault(exception, prefix = "Cannot get chart for $ticker: ")
+                return ExceptionUtils.messageOrDefault(exception, "Cannot get chart for $ticker: ")
                     .let { Result.failure(it) }
             }
 
         return chartMessage.getByteArray()
             .getOrElse { exception ->
-                return ExceptionUtils.messageOrDefault(exception, prefix = ("Cannot generate byte array to send: "))
+                return ExceptionUtils.messageOrDefault(exception, "Cannot generate byte array to send: ")
                     .let { Result.failure(it) }
             }
             .let {

@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.mapper
 
 import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
+import com.artemkaxboy.telerest.tool.NumberUtils
 import com.artemkaxboy.telerest.tool.extensions.toString
 import org.modelmapper.ModelMapper
 import org.modelmapper.spi.MappingContext
@@ -33,7 +34,9 @@ class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
             name = source.ticker.name,
             logo = source.ticker.logo,
             forecast = source.consensus,
-            potential = ((source.consensus - source.price) / source.price * 100).toString(2) + "%"
+            potential = NumberUtils.getDiffOrNull(source.price, source.consensus)
+                ?.let { "${it.toString(2)}%" }
+                ?: ""
         )
     }
 }

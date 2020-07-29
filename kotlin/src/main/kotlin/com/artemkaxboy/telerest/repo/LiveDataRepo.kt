@@ -59,7 +59,7 @@ interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
      *
      * @return list of all available [LiveData] by date, empty list if nothing found.
      */
-    fun findAllByDate(sort: Sort, date: LocalDate = LocalDate.now()): List<LiveData?>
+    fun findAllByDate(sort: Sort, date: LocalDate = LocalDate.now()): List<LiveData>
 
     // @doc https://stackoverflow.com/questions/1313120/retrieving-the-last-record-in-each-group-mysql
     // Solution 1
@@ -73,5 +73,5 @@ interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
      */
     @Query(value = "FROM LiveData L1 LEFT JOIN LiveData L2 ON L1.ticker = L2.ticker AND L1.date < L2.date " +
         "WHERE L2.date IS NULL ORDER BY L1.ticker.ticker ASC")
-    fun findAllLatest(): List<LiveData?>
+    fun findAllLatest(): List<LiveData>
 }
