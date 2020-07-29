@@ -16,7 +16,7 @@ class UserTickerSubscriptionService(
     /**
      * Finds all subscriptions that crossed threshold but are still unnotified today.
      */
-    fun findAllUnnotified(ticker: String, difference: Double) =
+    fun findAllUnnotified(ticker: String, difference: Double): List<UserTickerSubscription> =
         userTickerSubscriptionRepo
             .findAllByTicker_TickerAndThresholdLessThanAndLastNotificationDateBefore(
                 ticker, difference, LocalDate.now()
@@ -40,9 +40,9 @@ class UserTickerSubscriptionService(
      * Subscribe all users to all tickers. Test purposes only.
      */
     @Transactional
-    fun allToAll(users: List<User>, tickers: List<Ticker?>) {
+    fun allToAll(users: List<User>, tickers: List<Ticker>) {
         users.flatMap { user ->
-            tickers.filterNotNull()
+            tickers
                 .map { ticker ->
                     UserTickerSubscription(
                         user = user,

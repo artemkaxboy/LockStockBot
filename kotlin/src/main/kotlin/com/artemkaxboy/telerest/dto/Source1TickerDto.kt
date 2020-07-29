@@ -23,7 +23,7 @@ data class Source1TickerDto(
 
 ) : AbstractDto {
 
-    var consensus: Double = 0.0
+    var consensus: Double? = null
 }
 
 data class Source1CompanyDto(

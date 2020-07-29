@@ -42,18 +42,18 @@ private fun Pageable.defaultSortIfUnsorted(): Pageable =
 
 sealed class TickerResultData {
 
-    abstract fun getContent(): List<Ticker?>
+    abstract fun getContent(): List<Ticker>
     abstract fun getPageable(): Pageable
     abstract fun getTotalElements(): Long
 
     data class PagedTickerResult(val result: Page<Ticker>) : TickerResultData() {
 
-        override fun getContent(): List<Ticker?> = result.content
+        override fun getContent(): List<Ticker> = result.content
         override fun getPageable() = result.pageable
         override fun getTotalElements() = result.totalElements
     }
 
-    data class UnpagedTickerResult(val result: List<Ticker?>) : TickerResultData() {
+    data class UnpagedTickerResult(val result: List<Ticker>) : TickerResultData() {
 
         override fun getContent() = result
         override fun getPageable() = Pageable.unpaged()

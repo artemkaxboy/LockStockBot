@@ -19,7 +19,7 @@ data class LiveDataDto(
 
     val price: Double = 0.0,
 
-    val forecast: Double = 0.0,
+    val forecast: Double? = null,
 
     val potential: String = ""
 

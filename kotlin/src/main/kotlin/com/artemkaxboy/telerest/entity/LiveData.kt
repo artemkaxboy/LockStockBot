@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.entity
 
+import com.artemkaxboy.telerest.tool.NumberUtils
 import com.artemkaxboy.telerest.tool.extensions.round
 import java.time.LocalDate
 import javax.persistence.CascadeType
@@ -30,19 +31,21 @@ data class LiveData(
     val price: Double,
 
     @Column(precision = 5)
-    val consensus: Double
+    val consensus: Double?
 
 ) : ChangeableEntity() {
 
     /**
      * @return growing potential according to the current price and consensus forecast.
      */
-    fun getPotential() = ((consensus - price) / price * 100)
+    fun getPotential() = consensus?.let { NumberUtils.getPercent(it - price, price) }
 
     /**
      * @return difference between this [LiveData] potential and the [other]'s.
      */
-    fun getPotentialDifference(other: LiveData) = getPotential() - other.getPotential()
+    fun getPotentialDifferenceOrNull(other: LiveData): Double? {
+        return other.getPotential()?.let { getPotential()?.minus(it) }
+    }
 
     fun equalsTo(liveDataShallow: LiveDataShallow?): Boolean {
         if (liveDataShallow == null) return false

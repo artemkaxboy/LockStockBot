@@ -4,18 +4,16 @@ import com.artemkaxboy.telerest.listener.event.PotentialChangedEvent
 import com.artemkaxboy.telerest.mapper.LiveDataToSource1TickerDtoMapper
 import com.artemkaxboy.telerest.service.LiveDataService
 import com.artemkaxboy.telerest.service.forecast.impl.ForecastServiceImpl1
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import java.time.LocalDate
-import javax.transaction.Transactional
 
 @Component
 class UpdateForecastsJob(
@@ -25,28 +23,29 @@ class UpdateForecastsJob(
     private val liveDataToSource1TickerDtoMapper: LiveDataToSource1TickerDtoMapper
 ) {
 
-    @Transactional
     @Scheduled(fixedRateString = "#{@forecastSource1Properties.updateInterval.toMillis()}")
     fun update() {
 
+        /* it needs to save only changed tickers */
         val lastTick = liveDataService
             .findAllLatest()
-            .filterNotNull()
             .map { it.ticker.ticker to it }
             .toMap()
 
+        /* it needs to calc potential diff */
         val yesterday = liveDataService
             .findAllByDate(LocalDate.now().minusDays(1), Pageable.unpaged()).getContent()
-            .filterNotNull()
             .map { it.ticker.ticker to it }
             .toMap()
 
         runBlocking {
+            
             forecastServiceImpl1.getFlow()
                 .mapNotNull { liveDataToSource1TickerDtoMapper.toEntity(it) }
                 .onEach { newTick ->
+
                     yesterday[newTick.ticker.ticker]
-                        ?.takeIf { newTick.getPotentialDifference(it) != 0.0 }
+                        ?.takeIf { it.getPotential() != newTick.getPotential() }
                         ?.run {
                             applicationEventPublisher.publishEvent(
                                 PotentialChangedEvent(
@@ -57,14 +56,8 @@ class UpdateForecastsJob(
                         }
                 }
                 .filter { lastTick[it.ticker.ticker] != it }
-                .onEach { logger.trace { "Update live data: ${it.ticker.ticker}" } }
-                .collect {
-                    liveDataService.save(it)
-                }
+                .toList()
+                .let { liveDataService.saveAll(it) }
         }
-    }
-
-    companion object {
-        private val logger = KotlinLogging.logger { }
     }
 }
