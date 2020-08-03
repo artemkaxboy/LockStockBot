@@ -9,7 +9,7 @@ interface LiveDataShallow {
 
     fun getDate(): LocalDate
 
-    @Value("#{target.ticker.ticker}")
+    @Value("#{target.ticker.id}")
     fun getTicker(): String
 
     fun getPrice(): Double

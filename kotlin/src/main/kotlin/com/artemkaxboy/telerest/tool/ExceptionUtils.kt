@@ -22,4 +22,24 @@ object ExceptionUtils {
         throwable?.message
             ?.let { StringUtils.wrap(it, prefix, postfix) }
             ?: ""
+
+    fun getDeepestMessageOrDefault(throwable: Throwable?, default: String = UNKNOWN_ERROR): String {
+
+        return getThrowableStack(throwable).asReversed()
+            .mapNotNull { it.message }
+            .firstOrNull() ?: default
+    }
+
+    private fun getThrowableStack(throwable: Throwable?): List<Throwable> {
+        val stack = throwable?.let { mutableListOf(throwable) }
+            ?: return emptyList()
+
+        var next = stack.last().cause
+        while (next != null && next !== stack.last()) {
+            stack.add(next)
+            next = next.cause
+        }
+
+        return stack
+    }
 }

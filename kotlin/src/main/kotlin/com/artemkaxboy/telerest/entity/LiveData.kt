@@ -6,7 +6,6 @@ import java.time.LocalDate
 import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
-import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.IdClass
 import javax.persistence.JoinColumn
@@ -22,12 +21,13 @@ data class LiveData(
     @Id
     val date: LocalDate = LocalDate.now(),
 
+    // need MERGE here to add unknown tickets at the same time when liveData appears
     @Id
-    @ManyToOne(cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    @JoinColumn(name = "ticker_fk")
+    @ManyToOne(cascade = [CascadeType.MERGE])
+    @JoinColumn(name = "ticker_id")
     val ticker: Ticker,
 
-    @Column(precision = 5)
+    @Column(precision = 5, nullable = false)
     val price: Double,
 
     @Column(precision = 5)
@@ -51,11 +51,37 @@ data class LiveData(
         if (liveDataShallow == null) return false
 
         if (date != liveDataShallow.getDate()) return false
-        if (ticker.ticker != liveDataShallow.getTicker()) return false
+        if (ticker.id != liveDataShallow.getTicker()) return false
         if (price != liveDataShallow.getPrice()) return false
         if (consensus != liveDataShallow.getConsensus()) return false
 
         return true
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as LiveData
+
+        if (date != other.date) return false
+        if (ticker.id != other.ticker.id) return false
+        if (price != other.price) return false
+        if (consensus != other.consensus) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = date.hashCode()
+        result = 31 * result + ticker.id.hashCode()
+        result = 31 * result + price.hashCode()
+        result = 31 * result + (consensus?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "LiveData(date=$date, ticker=${ticker.id}, price=$price, consensus=$consensus)"
     }
 
     companion object {

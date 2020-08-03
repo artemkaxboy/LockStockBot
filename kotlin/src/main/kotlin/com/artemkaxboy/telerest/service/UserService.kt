@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.repo.UserRepo
+import com.artemkaxboy.telerest.tool.Result
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -19,16 +20,16 @@ class UserService(private val userRepo: UserRepo) {
 
     fun findById(id: Long) = userRepo.findByIdOrNull(id)
 
-    fun count() = userRepo.count()
+    fun count() = Result.of { userRepo.count() }
 
     @Transactional
-    fun save(user: User) = userRepo.save(user)
+    fun save(user: User) = Result.of { userRepo.save(user) }
 
     @Transactional
-    fun saveAll(users: List<User>): List<User> = userRepo.saveAll(users)
+    fun saveAll(users: List<User>): Result<MutableList<User>> = Result.of { userRepo.saveAll(users) }
 
     @Transactional
-    fun deleteAll() = userRepo.deleteAllInBatch()
+    fun deleteAll() = Result.of { userRepo.deleteAllInBatch() }
 }
 
 private fun Pageable.defaultSortIfUnsorted(): Pageable =

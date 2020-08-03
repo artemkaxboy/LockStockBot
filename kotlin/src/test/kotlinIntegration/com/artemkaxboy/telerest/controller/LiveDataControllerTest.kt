@@ -19,10 +19,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.Duration
 import java.time.LocalDate
+import java.util.TimeZone
 import kotlin.random.Random
 
 @ExtendWith(SpringExtension::class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = ["application.time-zone=UTC"]
+)
 @AutoConfigureWebTestClient
 internal class LiveDataControllerTest {
 
@@ -50,7 +54,7 @@ internal class LiveDataControllerTest {
             .also { liveDataService.save(it) }
 
         webTestClient.get()
-            .uri("$BASE_URL/liveData/{ticker}", expected.ticker.ticker)
+            .uri(LIVE_DATA_URL, expected.ticker.id)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectJson200()
@@ -60,7 +64,7 @@ internal class LiveDataControllerTest {
 
                 Assertions.assertThat(it[LiveData::ticker.name] as? String)
                     .isNotNull()
-                    .isEqualTo(expected.ticker.ticker)
+                    .isEqualTo(expected.ticker.id)
 
                 Assertions.assertThat(it[LiveData::price.name] as? Double)
                     .isNotNull()
@@ -83,7 +87,7 @@ internal class LiveDataControllerTest {
         val expectedStatus = HttpStatus.NOT_FOUND
 
         webTestClient.get()
-            .uri("$BASE_URL/liveData/{ticker}", tickerCode)
+            .uri(LIVE_DATA_URL, tickerCode)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectJson(expectedStatus)
@@ -103,7 +107,7 @@ internal class LiveDataControllerTest {
         val expectedStatus = HttpStatus.NOT_FOUND
 
         webTestClient.get()
-            .uri("$BASE_URL/liveData/{ticker}", tickerCode)
+            .uri(LIVE_DATA_URL, tickerCode)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectJson(expectedStatus)
@@ -130,11 +134,11 @@ internal class LiveDataControllerTest {
             .mutate().responseTimeout(Duration.ofMinutes(5)).build()
             .post()
             .uri { uriBuilder ->
-                uriBuilder.path("$BASE_URL/liveData/{ticker}")
+                uriBuilder.path(LIVE_DATA_URL)
                     .queryParam("days", days)
                     .queryParam("consensus", newConsensus)
                     .queryParam("price", newPrice)
-                    .build(liveData.ticker.ticker)
+                    .build(liveData.ticker.id)
             }
             .accept(MediaType.APPLICATION_JSON)
             .exchange()

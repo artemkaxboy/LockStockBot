@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
+import java.time.Duration
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -32,7 +33,11 @@ internal class TickerControllerTest {
         val expected = Ticker.random()
             .also { tickerRepo.save(it) }
 
-        webTestClient.get()
+        webTestClient
+            // .mutate()
+            // .responseTimeout(Duration.ofMinutes(5)) // @example timeout for webClient
+            // .build()
+            .get()
             .uri { uriBuilder ->
                 uriBuilder.path("$BASE_URL/tickers")
                     .queryParam("page", 1)
@@ -46,9 +51,9 @@ internal class TickerControllerTest {
             .jsonPath(JSON_FIRST_ITEM_PATH)
             .value<Map<String, Any>> {
 
-                Assertions.assertThat(it[Ticker::ticker.name] as? String)
+                Assertions.assertThat(it[Ticker::id.name] as? String)
                     .isNotNull()
-                    .isEqualTo(expected.ticker)
+                    .isEqualTo(expected.id)
             }
     }
 

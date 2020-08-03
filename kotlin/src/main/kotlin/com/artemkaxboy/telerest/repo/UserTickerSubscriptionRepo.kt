@@ -1,23 +1,25 @@
 package com.artemkaxboy.telerest.repo
 
 import com.artemkaxboy.telerest.entity.UserTickerSubscription
+import com.artemkaxboy.telerest.entity.UserTickerSubscriptionId
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.time.LocalDate
+import javax.transaction.Transactional
 
 /**
  * Subscriptions repository.
  */
 @Suppress("FunctionName") // jpa naming template
 @Repository
-interface UserTickerSubscriptionRepo : JpaRepository<UserTickerSubscription, Long> {
+interface UserTickerSubscriptionRepo : JpaRepository<UserTickerSubscription, UserTickerSubscriptionId> {
 
     /**
      * Works mostly with [LocalDate.now]. Finds all subscriptions that crossed threshold but are still unnotified today.
      */
-    fun findAllByTicker_TickerAndThresholdLessThanAndLastNotificationDateBefore(
+    fun findAllByTicker_IdAndThresholdLessThanAndLastNotificationDateBefore(
         ticker: String,
         notificationThreshold: Double,
         lastNotificationDate: LocalDate
@@ -27,10 +29,11 @@ interface UserTickerSubscriptionRepo : JpaRepository<UserTickerSubscription, Lon
      * Updates subscription notification date to prevent multiple notifications.
      */
     @Modifying
-    @Query("UPDATE UserTickerSubscription SET lastNotificationDate = :lastNotificationDate WHERE user.chatId = :userChatId AND ticker.ticker = :ticker")
-    fun updateLastNotificationDateByUser_ChatIdAndTicker_Ticker(
+    @Query("UPDATE UserTickerSubscription SET lastNotificationDate = :lastNotificationDate " +
+        "WHERE user.id = :userId AND ticker.id = :tickerId")
+    fun updateLastNotificationDateByUser_IdAndTicker_Id(
         lastNotificationDate: LocalDate,
-        userChatId: Long,
-        ticker: String
+        userId: Long,
+        tickerId: String
     )
 }

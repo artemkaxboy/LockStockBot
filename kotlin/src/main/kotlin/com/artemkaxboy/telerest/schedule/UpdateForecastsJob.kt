@@ -27,24 +27,24 @@ class UpdateForecastsJob(
     fun update() {
 
         /* it needs to save only changed tickers */
-        val lastTick = liveDataService
-            .findAllLatest()
-            .map { it.ticker.ticker to it }
+        val today = liveDataService
+            .findAllByDate(LocalDate.now(), Pageable.unpaged()).getContent()
+            .map { it.ticker.id to it }
             .toMap()
 
         /* it needs to calc potential diff */
         val yesterday = liveDataService
             .findAllByDate(LocalDate.now().minusDays(1), Pageable.unpaged()).getContent()
-            .map { it.ticker.ticker to it }
+            .map { it.ticker.id to it }
             .toMap()
 
         runBlocking {
-            
+
             forecastServiceImpl1.getFlow()
                 .mapNotNull { liveDataToSource1TickerDtoMapper.toEntity(it) }
                 .onEach { newTick ->
 
-                    yesterday[newTick.ticker.ticker]
+                    yesterday[newTick.ticker.id]
                         ?.takeIf { it.getPotential() != newTick.getPotential() }
                         ?.run {
                             applicationEventPublisher.publishEvent(
@@ -55,7 +55,8 @@ class UpdateForecastsJob(
                             )
                         }
                 }
-                .filter { lastTick[it.ticker.ticker] != it }
+                .filter { today[it.ticker.id] != it }
+                // .collect { liveDataService.save(it) } // test purposes
                 .toList()
                 .let { liveDataService.saveAll(it) }
         }

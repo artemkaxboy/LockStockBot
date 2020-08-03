@@ -60,7 +60,7 @@ class ChartService(
             ?: ticker?.let { tickerService.findById(it) }
             ?: return Result.failure("Ticker not found")
 
-        val liveData = fetchLiveDataHistory(resolvedTicker.ticker)
+        val liveData = fetchLiveDataHistory(resolvedTicker.id)
             /* add the latest tick instead of last saved in DB */
             .let { history ->
                 todayData?.let { history.dropLast(1) + it } ?: history
@@ -69,7 +69,7 @@ class ChartService(
         val datasets = generateChartDataCollections(liveData)
 
         val priceAndForecastXyPlot = generateTickerPriceAndForecastXyPlot(
-            axisLabel = resolvedTicker.currency.getSign(),
+            axisLabel = resolvedTicker.currency.sign,
             dataset = datasets.values
         )
 
@@ -77,7 +77,7 @@ class ChartService(
 
         val combinedPlot = generateCombinedXyPlot(priceAndForecastXyPlot, potentialXyPlot)
 
-        val chart = generateChart(resolvedTicker.toString(), combinedPlot)
+        val chart = generateChart("${resolvedTicker.id}: ${resolvedTicker.name}", combinedPlot)
 
         val lastPair = liveData.takeLast(2)
         ChartMessage(chart, CHART_WIDTH, CHART_HEIGHT, lastPair.firstOrNull(), lastPair.lastOrNull())

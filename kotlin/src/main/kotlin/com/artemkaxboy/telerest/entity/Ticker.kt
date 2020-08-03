@@ -2,9 +2,11 @@ package com.artemkaxboy.telerest.entity
 
 import javax.persistence.CascadeType
 import javax.persistence.Entity
+import javax.persistence.FetchType
 import javax.persistence.Id
+import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
-import javax.persistence.OneToOne
 import javax.persistence.Table
 
 @Entity
@@ -12,19 +14,29 @@ import javax.persistence.Table
 data class Ticker(
 
     @Id
-    val ticker: String,
+    val id: String,
 
     val url: String,
 
-    @OneToOne(cascade = [CascadeType.ALL])
+    // need MERGE here to add unknown tickets at the same time when liveData appears
+    @ManyToOne(cascade = [CascadeType.MERGE])
+    @JoinColumn(nullable = false)
     val currency: Currency,
 
     val name: String,
 
     val logo: String,
 
-    @OneToMany(mappedBy = "ticker")
-    val subscriptions: Set<UserTickerSubscription> = emptySet()
+    @OneToMany(
+        mappedBy = "ticker",
+        cascade = [CascadeType.REMOVE],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    val subscriptions: Set<UserTickerSubscription> = emptySet(),
+
+    @OneToMany(mappedBy = "ticker", orphanRemoval = true)
+    val liveData: Set<LiveData> = emptySet()
 
 ) : AbstractEntity() {
 
@@ -36,7 +48,7 @@ data class Ticker(
             val randomTicker = RANDOM_POOL.random()
 
             return Ticker(
-                ticker = randomTicker,
+                id = randomTicker,
                 url = "http://$randomTicker.url/",
                 currency = Currency.random(),
                 name = "Company $randomTicker",
@@ -51,7 +63,7 @@ data class Ticker(
 
         other as Ticker
 
-        if (ticker != other.ticker) return false
+        if (id != other.id) return false
         if (url != other.url) return false
         if (currency != other.currency) return false
         if (name != other.name) return false
@@ -61,7 +73,7 @@ data class Ticker(
     }
 
     override fun hashCode(): Int {
-        var result = ticker.hashCode()
+        var result = id.hashCode()
         result = 31 * result + url.hashCode()
         result = 31 * result + currency.hashCode()
         result = 31 * result + name.hashCode()
@@ -70,7 +82,7 @@ data class Ticker(
     }
 
     override fun toString(): String {
-        return "$ticker: $name"
+        return "Ticker(id='$id', url='$url', currency=$currency, name='$name', logo='$logo')"
     }
 }
 

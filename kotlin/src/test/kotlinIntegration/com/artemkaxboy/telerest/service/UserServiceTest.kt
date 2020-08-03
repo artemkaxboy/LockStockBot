@@ -32,11 +32,11 @@ internal class UserServiceTest {
 
     @Test
     fun save() {
-        val alex = User(123, "alex")
-        entityManager.persist(alex)
+        val alex = User(chatId = 123, name = "alex")
+        val insertedId = entityManager.persist(alex).id
         entityManager.flush()
 
-        val found = userRepo.findByIdOrNull(alex.chatId)
+        val found = userRepo.findByIdOrNull(insertedId)
 
         Assertions.assertEquals(alex, found)
     }
