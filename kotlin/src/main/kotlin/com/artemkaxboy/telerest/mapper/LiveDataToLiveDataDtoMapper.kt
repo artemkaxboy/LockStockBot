@@ -28,7 +28,7 @@ class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
 
     override fun postConvert(source: LiveData, destination: LiveDataDto): LiveDataDto {
         return destination.copy(
-            ticker = source.ticker.ticker,
+            ticker = source.ticker.id,
             url = source.ticker.url,
             currency = source.ticker.currency.id,
             name = source.ticker.name,

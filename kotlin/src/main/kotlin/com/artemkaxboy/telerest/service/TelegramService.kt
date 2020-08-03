@@ -182,13 +182,35 @@ class TelegramService(
     private fun fillDbWithInitDataIfNeeded() {
         if (properties.mainChatId.isEmpty()) return
 
-        if (userService.count() > 0) return
+        userService.count()
+            .getOrElse {
+                logger.error {
+                    ExceptionUtils.messageOrDefault(
+                        it,
+                        "Cannot count existing users: "
+                    )
+                }
+                return
+            }
+            .takeIf { it > 0 }
+            ?.let {
+                logger.info { "Users already exist, count: $it" }
+                return
+            }
 
         subscriptionService.deleteAll()
         userService.deleteAll()
 
         val users = properties.mainChatId.zip(properties.mainChatName)
-            .map { User(it.first, it.second) }
+            .map {
+                User(
+                    chatId = it.first,
+                    name = it.second,
+                    allowCommonSubscription = true,
+                    allowCustomRead = true,
+                    allowCustomSubscription = true
+                )
+            }
             .toList()
             .also { userService.saveAll(it) }
 

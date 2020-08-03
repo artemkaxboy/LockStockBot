@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.entity
 
 import javax.persistence.Entity
 import javax.persistence.Id
+import javax.persistence.OneToMany
 import javax.persistence.Table
 
 @Entity
@@ -9,11 +10,13 @@ import javax.persistence.Table
 data class Currency(
 
     @Id
-    val id: String
+    val id: String,
 
+    val sign: String = KNOWN_CURRENCIES.getOrDefault(id, id),
+
+    @OneToMany(mappedBy = "currency")
+    val subscriptions: Set<Ticker> = emptySet()
 ) : AbstractEntity() {
-
-    fun getSign() = KNOWN_CURRENCIES.getOrDefault(id, id)
 
     companion object {
 
@@ -28,5 +31,27 @@ data class Currency(
         )
 
         fun random() = KNOWN_CURRENCIES.keys.random().let { Currency(id = it) }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Currency
+
+        if (id != other.id) return false
+        if (sign != other.sign) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + sign.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "Currency(id='$id', sign='$sign')"
     }
 }

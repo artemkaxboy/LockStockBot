@@ -55,9 +55,9 @@ private fun generateChartMessage(prevTick: LiveData?, lastTick: LiveData?): Stri
         lastTick.getPotential(),
         2)
 
-    return "#${ticker.ticker} ${ticker.name}\n" +
-        "\nPrice, ${ticker.currency.getSign()}: ${priceNiceDiffString}\n" +
-        "\nForecast, ${ticker.currency.getSign()}: ${forecastNiceDiffString}\n" +
+    return "#${ticker.id} ${ticker.name}\n" +
+        "\nPrice, ${ticker.currency.sign}: ${priceNiceDiffString}\n" +
+        "\nForecast, ${ticker.currency.sign}: ${forecastNiceDiffString}\n" +
         "\nPotential, %: $potentialNiceDiffString"
 }
 

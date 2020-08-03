@@ -20,32 +20,32 @@ interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
      *
      * @return found entity or null if nothing found.
      */
-    fun <T> findByTicker_TickerAndDate(ticker: String, date: LocalDate, clazz: Class<T>?): T?
-
-    /**
-     * Finds given class projections of [LiveData] by ticker paged.
-     *
-     * @return page of found entities, empty page if nothing found.
-     */
-    fun <T> findByTicker_Ticker(ticker: String, pageable: Pageable, clazz: Class<T>): Page<T>
-
-    /**
-     * Finds [LiveData] by ticker code between given dates inclusively.
-     *
-     * @return list of found entities, empty list if nothing found.
-     */
-    fun findByTicker_TickerAndDateBetweenOrderByDate(
-        ticker_ticker: String,
-        fromInclusive: LocalDate,
-        toInclusive: LocalDate
-    ): MutableList<LiveData>
+    fun <T> findByTicker_IdAndDate(ticker: String, date: LocalDate, clazz: Class<T>): T?
 
     /**
      * Finds [LiveData] by ticker code and date.
      *
      * @return found entity or null if nothing found.
      */
-    fun findByTicker_TickerAndDate(ticker: String, date: LocalDate): LiveData?
+    fun findByTicker_IdAndDate(ticker: String, date: LocalDate): LiveData?
+
+    /**
+     * Finds given class projections of [LiveData] by ticker paged.
+     *
+     * @return page of found entities, empty page if nothing found.
+     */
+    fun <T> findByTicker_Id(ticker: String, pageable: Pageable, clazz: Class<T>): Page<T>
+
+    /**
+     * Finds [LiveData] by ticker code between given dates inclusively.
+     *
+     * @return list of found entities, empty list if nothing found.
+     */
+    fun findByTicker_IdAndDateBetweenOrderByDate(
+        ticker: String,
+        fromInclusive: LocalDate,
+        toInclusive: LocalDate
+    ): MutableList<LiveData>
 
     /**
      * Finds all tickers [LiveData] by date paged.
@@ -72,6 +72,6 @@ interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
      * @return list of all available [Ticker]'s [LiveData] sorted by ticker code.
      */
     @Query(value = "FROM LiveData L1 LEFT JOIN LiveData L2 ON L1.ticker = L2.ticker AND L1.date < L2.date " +
-        "WHERE L2.date IS NULL ORDER BY L1.ticker.ticker ASC")
+        "WHERE L2.date IS NULL ORDER BY L1.ticker.id ASC")
     fun findAllLatest(): List<LiveData>
 }

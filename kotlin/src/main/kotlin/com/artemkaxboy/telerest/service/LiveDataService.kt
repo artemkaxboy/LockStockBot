@@ -5,6 +5,7 @@ import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.entity.LiveDataShallow
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.repo.LiveDataRepo
+import com.artemkaxboy.telerest.tool.Result
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -29,15 +30,15 @@ data class LiveDataService(
     private val liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
 ) {
 
-    fun findByTickerTickerAndDate(ticker: String, date: LocalDate) =
-        liveDataRepo.findByTicker_TickerAndDate(ticker, date, LiveData::class.java)
+    fun findByTickerIdAndDate(ticker: String, date: LocalDate) =
+        liveDataRepo.findByTicker_IdAndDate(ticker, date, LiveData::class.java)
 
     @Suppress("unused") // future
-    fun <T> findByTickerTickerAndDate(ticker: String, date: LocalDate, clazz: Class<T>) =
-        liveDataRepo.findByTicker_TickerAndDate(ticker, date, clazz)
+    fun <T> findByTickerIdAndDate(ticker: String, date: LocalDate, clazz: Class<T>) =
+        liveDataRepo.findByTicker_IdAndDate(ticker, date, clazz)
 
     fun findByTickerTickerAndDateBetweenOrderByDate(ticker: String, from: LocalDate, till: LocalDate) =
-        liveDataRepo.findByTicker_TickerAndDateBetweenOrderByDate(ticker, from, till)
+        liveDataRepo.findByTicker_IdAndDateBetweenOrderByDate(ticker, from, till)
 
     fun findAllByDate(
         date: LocalDate = LocalDate.now(),
@@ -49,7 +50,8 @@ data class LiveDataService(
         return ResultData.UnpagedResult(liveDataRepo.findAllByDate(defaultSorting, date))
     }
 
-    fun findAllLatest(): List<LiveData> = liveDataRepo.findAllLatest()
+    fun findAllLatest(): Result<List<LiveData>> =
+        Result.of { liveDataRepo.findAllLatest() }
 
     fun save(liveData: LiveData) = liveDataRepo.save(liveData)
 
@@ -66,7 +68,7 @@ data class LiveDataService(
         val date = days?.takeIf { it != 0 }?.toLong()?.let { LocalDate.now().minusDays(it) }
             ?: LocalDate.now()
 
-        val current = findByTickerTickerAndDate(ticker, date)
+        val current = findByTickerIdAndDate(ticker, date)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Live data for ticker '$ticker' at $date not found.")
 
         val new = current
@@ -83,7 +85,7 @@ data class LiveDataService(
     }
 
     fun getLiveData(ticker: String, pageRequest: Pageable = defaultPageRequest) =
-        liveDataRepo.findByTicker_Ticker(
+        liveDataRepo.findByTicker_Id(
             ticker,
             pageRequest.sortByDateDescIfUnsorted(),
             LiveDataShallow::class.java

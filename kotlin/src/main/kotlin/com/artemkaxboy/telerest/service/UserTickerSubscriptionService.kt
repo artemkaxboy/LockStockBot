@@ -18,7 +18,7 @@ class UserTickerSubscriptionService(
      */
     fun findAllUnnotified(ticker: String, difference: Double): List<UserTickerSubscription> =
         userTickerSubscriptionRepo
-            .findAllByTicker_TickerAndThresholdLessThanAndLastNotificationDateBefore(
+            .findAllByTicker_IdAndThresholdLessThanAndLastNotificationDateBefore(
                 ticker, difference, LocalDate.now()
             )
 
@@ -28,7 +28,7 @@ class UserTickerSubscriptionService(
     @Transactional
     fun updateLastNotificationDate(user: Long, ticker: String) =
         userTickerSubscriptionRepo
-            .updateLastNotificationDateByUser_ChatIdAndTicker_Ticker(LocalDate.now(), user, ticker)
+            .updateLastNotificationDateByUser_IdAndTicker_Id(LocalDate.now(), user, ticker)
 
     /**
      * Deletes all subscriptions. Test purposes only.
@@ -47,7 +47,7 @@ class UserTickerSubscriptionService(
                     UserTickerSubscription(
                         user = user,
                         ticker = ticker,
-                        threshold = 5.0,
+                        threshold = 7.5,
                         lastNotificationDate = LocalDate.now().minusDays(1)
                     )
                 }

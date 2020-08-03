@@ -13,9 +13,10 @@ import javax.persistence.MappedSuperclass
 abstract class ChangeableEntity : AbstractEntity() {
 
     @CreationTimestamp
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     val created: LocalDateTime? = null
 
     @UpdateTimestamp
+    @Column(nullable = false)
     val updated: LocalDateTime? = null
 }

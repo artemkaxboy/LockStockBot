@@ -9,7 +9,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
-private val defaultSorting = Sort.by(Ticker::ticker.name)
+private val defaultSorting = Sort.by(Ticker::id.name)
 
 private val defaultPageRequest = PageRequest.of(0, 10)
 

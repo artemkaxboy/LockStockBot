@@ -25,7 +25,7 @@ class LiveDataToSource1TickerDtoMapper(mapper: ModelMapper) :
         return destination.copy(
             date = LocalDate.now(),
             ticker = Ticker(
-                ticker = source.title,
+                id = source.title,
                 url = source.frontUrl,
                 currency = Currency(source.currency),
                 name = source.company.title,
