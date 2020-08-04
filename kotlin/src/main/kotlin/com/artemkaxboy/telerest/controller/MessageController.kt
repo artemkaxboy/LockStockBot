@@ -3,7 +3,7 @@ package com.artemkaxboy.telerest.controller
 import com.artemkaxboy.telerest.config.API_V1
 import com.artemkaxboy.telerest.dto.MessageDto
 import com.artemkaxboy.telerest.dto.ResponseDto
-import com.artemkaxboy.telerest.service.TelegramService
+import com.artemkaxboy.telerest.service.telegram.TelegramSendService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -22,7 +22,7 @@ import reactor.kotlin.core.publisher.toMono
 @RequestMapping(value = ["api/$API_V1"])
 @Tag(name = "Message controller", description = "Perform messages operation")
 class MessageController(
-    val telegramService: TelegramService
+    val telegramSendService: TelegramSendService
 ) {
 
     @PostMapping(
@@ -41,7 +41,7 @@ class MessageController(
     ): Mono<ResponseDto> {
 
         return ResponseDto
-            .wrapResult(request, telegramService.sendMessage(message.chatId, message.text))
+            .wrapResult(request, telegramSendService.sendMessage(message.chatId, message.text))
             .toMono()
     }
 }

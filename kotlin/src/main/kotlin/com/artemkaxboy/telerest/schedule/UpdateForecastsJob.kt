@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Pageable
 import org.springframework.scheduling.annotation.Scheduled
@@ -29,36 +30,37 @@ class UpdateForecastsJob(
         /* it needs to save only changed tickers */
         val today = liveDataService
             .findAllByDate(LocalDate.now(), Pageable.unpaged()).getContent()
-            .map { it.ticker.id to it }
-            .toMap()
+            .associateBy { it.ticker.id }
 
         /* it needs to calc potential diff */
         val yesterday = liveDataService
             .findAllByDate(LocalDate.now().minusDays(1), Pageable.unpaged()).getContent()
-            .map { it.ticker.id to it }
-            .toMap()
+            .associateBy { it.ticker.id }
 
         runBlocking {
 
-            forecastServiceImpl1.getFlow()
-                .mapNotNull { liveDataToSource1TickerDtoMapper.toEntity(it) }
-                .onEach { newTick ->
+            forecastServiceImpl1.takeIf { it.isEnabled() }
+                ?.getFlow()
+                ?.mapNotNull { liveDataToSource1TickerDtoMapper.toEntity(it) }
+                ?.onEach { newTick ->
 
                     yesterday[newTick.ticker.id]
                         ?.takeIf { it.getPotential() != newTick.getPotential() }
                         ?.run {
                             applicationEventPublisher.publishEvent(
-                                PotentialChangedEvent(
-                                    newTick,
-                                    this
-                                )
+                                PotentialChangedEvent(newTick, this)
                             )
                         }
                 }
-                .filter { today[it.ticker.id] != it }
-                // .collect { liveDataService.save(it) } // test purposes
-                .toList()
-                .let { liveDataService.saveAll(it) }
+                ?.filter { today[it.ticker.id] != it }
+                // ?.collect { liveDataService.save(it) } // test purposes
+                ?.toList()
+                ?.let { liveDataService.saveAll(it) }
+                ?: logger.info { "ForecastService Source1 disabled." }
         }
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger { }
     }
 }

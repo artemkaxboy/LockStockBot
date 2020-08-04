@@ -41,6 +41,7 @@ class UserTickerSubscriptionService(
      */
     @Transactional
     fun allToAll(users: List<User>, tickers: List<Ticker>) {
+
         users.flatMap { user ->
             tickers
                 .map { ticker ->
@@ -51,8 +52,6 @@ class UserTickerSubscriptionService(
                         lastNotificationDate = LocalDate.now().minusDays(1)
                     )
                 }
-        }.forEach {
-            userTickerSubscriptionRepo.save(it)
-        }
+        }.also { userTickerSubscriptionRepo.saveAll(it) }
     }
 }

@@ -1,8 +1,6 @@
 package com.artemkaxboy.telerest.tool
 
 import mu.KLogger
-import org.springframework.http.HttpStatus
-import org.springframework.web.server.ResponseStatusException
 
 // @doc https://stackoverflow.com/a/59168658/1452052
 
@@ -61,9 +59,6 @@ sealed class Result<out T : Any>(
     companion object {
 
         fun failure(message: String) = Failure(Exception(message))
-
-        fun failure(status: HttpStatus, message: String): Failure =
-            Failure(ResponseStatusException(status, message))
 
         fun failure(exception: Exception): Failure = Failure(exception)
 

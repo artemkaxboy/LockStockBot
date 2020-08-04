@@ -20,7 +20,7 @@ class ChartMessage(
     val caption: String = generateChartMessage(prevTick, lastTick)
 ) {
 
-    fun getByteArray(): Result<ByteArray> {
+    fun generateByteArray(): Result<ByteArray> {
         val byteOutputStream = ByteArrayOutputStream()
 
         Result.of {

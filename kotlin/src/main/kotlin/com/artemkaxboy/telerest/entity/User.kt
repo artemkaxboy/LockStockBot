@@ -23,17 +23,18 @@ data class User(
     @Column(nullable = false)
     val name: String,
 
-    val allowCustomRead: Boolean = false,
+    val customReadAllowed: Boolean = false,
 
-    val allowCustomSubscription: Boolean = false,
+    val customSubscriptionAllowed: Boolean = false,
 
-    val allowCommonSubscription: Boolean = false,
+    val commonSubscriptionAllowed: Boolean = false,
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE], orphanRemoval = true)
     val subscriptions: Set<UserTickerSubscription> = emptySet()
 
 ) : AbstractEntity() {
 
+    @Suppress("DuplicatedCode") // equals is supposed to be similar
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -43,9 +44,9 @@ data class User(
         if (id != other.id) return false
         if (chatId != other.chatId) return false
         if (name != other.name) return false
-        if (allowCustomRead != other.allowCustomRead) return false
-        if (allowCustomSubscription != other.allowCustomSubscription) return false
-        if (allowCommonSubscription != other.allowCommonSubscription) return false
+        if (customReadAllowed != other.customReadAllowed) return false
+        if (customSubscriptionAllowed != other.customSubscriptionAllowed) return false
+        if (commonSubscriptionAllowed != other.commonSubscriptionAllowed) return false
 
         return true
     }
@@ -54,14 +55,15 @@ data class User(
         var result = id.hashCode()
         result = 31 * result + chatId.hashCode()
         result = 31 * result + name.hashCode()
-        result = 31 * result + allowCustomRead.hashCode()
-        result = 31 * result + allowCustomSubscription.hashCode()
-        result = 31 * result + allowCommonSubscription.hashCode()
+        result = 31 * result + customReadAllowed.hashCode()
+        result = 31 * result + customSubscriptionAllowed.hashCode()
+        result = 31 * result + commonSubscriptionAllowed.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "User(id=$id, chatId=$chatId, name='$name', allowCustomRead=$allowCustomRead, " +
-            "allowCustomSubscription=$allowCustomSubscription, allowCommonSubscription=$allowCommonSubscription)"
+        return "User(id=$id, chatId=$chatId, name='$name', customReadAllowed=$customReadAllowed, " +
+            "customSubscriptionAllowed=$customSubscriptionAllowed, " +
+            "commonSubscriptionAllowed=$commonSubscriptionAllowed)"
     }
 }
