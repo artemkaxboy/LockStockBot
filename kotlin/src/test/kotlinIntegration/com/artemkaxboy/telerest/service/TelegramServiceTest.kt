@@ -1,6 +1,8 @@
 package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
+import com.artemkaxboy.telerest.service.telegram.BotState
+import com.artemkaxboy.telerest.service.telegram.TelegramService
 import com.artemkaxboy.telerest.tool.getOutput
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
@@ -19,15 +21,15 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk())
 
         val (_, out, _) = getOutput {
             runBlocking {
-                bot.start()
+                bot.startIfNeeded()
             }
         }
 
-        Assertions.assertThat(bot.started).isFalse()
+        org.junit.jupiter.api.Assertions.assertEquals(BotState.OFF, bot.state)
         Assertions.assertThat(out).contains("Telegram bot disabled.")
     }
 
@@ -39,15 +41,15 @@ internal class TelegramServiceTest {
             token = ""
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk())
 
         val (_, out, _) = getOutput {
             runBlocking {
-                bot.start()
+                bot.startIfNeeded()
             }
         }
 
-        Assertions.assertThat(bot.started).isFalse()
+        org.junit.jupiter.api.Assertions.assertEquals(BotState.OFF, bot.state)
         Assertions.assertThat(out).contains("Telegram token is empty.")
         Assertions.assertThat(out).contains("Telegram bot disabled.")
     }
@@ -61,7 +63,7 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk())
 
         val (_, out, _) = getOutput {
             val result = runBlocking {
@@ -71,7 +73,7 @@ internal class TelegramServiceTest {
             Assertions.assertThat(result.isFailure()).isTrue()
         }
 
-        Assertions.assertThat(bot.started).isFalse()
+        org.junit.jupiter.api.Assertions.assertEquals(BotState.OFF, bot.state)
 
         out.split("\n")
             .count { it.contains("bot starting...") }
@@ -90,7 +92,7 @@ internal class TelegramServiceTest {
             token = "DUMMY_TOKEN"
         }
 
-        val bot = TelegramService(botProperties, mockk(), mockk(), mockk(), mockk())
+        val bot = TelegramService(botProperties, mockk())
 
         val timeSpent = measureTimeMillis {
             val result = runBlocking {

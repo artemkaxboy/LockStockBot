@@ -57,6 +57,7 @@ data class Ticker(
         }
     }
 
+    @Suppress("DuplicatedCode") // equals is supposed to be similar
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

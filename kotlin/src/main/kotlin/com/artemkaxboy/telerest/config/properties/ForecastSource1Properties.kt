@@ -8,13 +8,13 @@ import org.springframework.boot.convert.DurationUnit
 import org.springframework.context.annotation.Configuration
 import org.springframework.validation.annotation.Validated
 
-private const val DEFAULT_TTL_PERIOD_DAYS = 30L
+private const val DEFAULT_TTL_PERIOD_DAYS = 30
 private const val DEFAULT_QUORUM = 3
 private const val DEFAULT_THRESHOLD_PERCENT = 5
 private const val DEFAULT_PAGE_SIZE = 15
 private const val DEFAULT_MAX_PAGES = 20
 private const val DEFAULT_BUFFER_PAGES = 3
-private const val DEFAULT_UPDATE_INTERVAL_MINUTES = 15L
+private const val DEFAULT_UPDATE_INTERVAL_MINUTES = 15
 
 @Configuration
 @ConfigurationProperties("forecast.source1")
@@ -28,7 +28,7 @@ class ForecastSource1Properties {
     @Suppress("unused") // used in UpdateForecastsJob.update @Scheduled.fixedRateString
     @DurationUnit(ChronoUnit.MINUTES)
     @DurationMin(minutes = 1, message = "Update interval cannot be less than one minute.")
-    var updateInterval: Duration = Duration.ofMinutes(DEFAULT_UPDATE_INTERVAL_MINUTES)
+    var updateInterval: Duration = Duration.ofMinutes(DEFAULT_UPDATE_INTERVAL_MINUTES.toLong())
 
     /** Max page number. Fuse property in order not to fall in endless loop. */
     var maxPages: Int = DEFAULT_MAX_PAGES
@@ -50,7 +50,7 @@ class ForecastSource1Properties {
 
     /** Time to live for forecasts. */
     @DurationUnit(ChronoUnit.DAYS)
-    var ttl: Duration = Duration.ofDays(DEFAULT_TTL_PERIOD_DAYS)
+    var ttl: Duration = Duration.ofDays(DEFAULT_TTL_PERIOD_DAYS.toLong())
 
     /** Base url to perform requests. */
     // @NotBlank(message = "Source1 base url cannot be empty.")

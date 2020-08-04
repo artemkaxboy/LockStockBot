@@ -5,7 +5,6 @@ import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.entity.LiveDataShallow
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.repo.LiveDataRepo
-import com.artemkaxboy.telerest.tool.Result
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -49,9 +48,6 @@ data class LiveDataService(
 
         return ResultData.UnpagedResult(liveDataRepo.findAllByDate(defaultSorting, date))
     }
-
-    fun findAllLatest(): Result<List<LiveData>> =
-        Result.of { liveDataRepo.findAllLatest() }
 
     fun save(liveData: LiveData) = liveDataRepo.save(liveData)
 

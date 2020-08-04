@@ -19,7 +19,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.Duration
 import java.time.LocalDate
-import java.util.TimeZone
 import kotlin.random.Random
 
 @ExtendWith(SpringExtension::class)

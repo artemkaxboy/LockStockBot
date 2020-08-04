@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.listener.event.PotentialChangedEventObject
+import com.artemkaxboy.telerest.service.telegram.TelegramSendService
 import com.artemkaxboy.telerest.tool.ExceptionUtils
 import com.artemkaxboy.telerest.tool.Result
 import com.artemkaxboy.telerest.tool.getOrElse
@@ -16,7 +17,7 @@ import kotlin.math.absoluteValue
  */
 @Service
 class NotificationService(
-    private val telegramService: TelegramService,
+    private val telegramSendService: TelegramSendService,
     private val userTickerSubscriptionService: UserTickerSubscriptionService,
     private val chartService: ChartService
 ) {
@@ -31,21 +32,16 @@ class NotificationService(
         val diff = eventObject.liveData.getPotentialDifferenceOrNull(eventObject.yesterdayData)?.absoluteValue
             ?: return
 
-        if (!telegramService.started) {
-            logger.trace { "Telegram service has not been started. Notification canceled." }
-            return
-        }
-
         GlobalScope.launch {
             userTickerSubscriptionService
                 .findAllUnnotified(
                     eventObject.liveData.ticker.id,
                     diff
                 )
-                .onEach { logger.debug { "Notify ${it.user.name} about ${it.ticker.id}" } }
+                .onEach { logger.info { "Notify ${it.user.name} about ${it.ticker.id}" } }
                 .forEach { user ->
                     notifyUser(eventObject, user.user).onFailure {
-                        logger.error {
+                        logger.warn {
                             ExceptionUtils.messageOrDefault(it, "Cannot notify ${user.user.name}: ")
                         }
                     }
@@ -63,14 +59,14 @@ class NotificationService(
             return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot get chart ($info): "))
         }
 
-        chartMessage.getByteArray()
+        chartMessage.generateByteArray()
             .getOrElse {
                 return Result.failure(
                     ExceptionUtils.messageOrDefault(it, "Cannot generate byte array to send ($info): ")
                 )
             }
             .let {
-                telegramService.sendPhoto(user.chatId, it, chartMessage.caption)
+                telegramSendService.sendPhoto(user.chatId, it, chartMessage.caption)
             }
             .getOrElse {
                 return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot send graph ($info): "))

@@ -3,7 +3,6 @@ package com.artemkaxboy.telerest.entity
 import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.Entity
-import javax.persistence.FetchType
 import javax.persistence.Id
 import javax.persistence.IdClass
 import javax.persistence.JoinColumn
