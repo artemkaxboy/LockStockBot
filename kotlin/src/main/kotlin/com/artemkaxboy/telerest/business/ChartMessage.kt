@@ -38,7 +38,8 @@ private fun generateChartMessage(prevTick: LiveData?, lastTick: LiveData?): Stri
 
     if (prevTick == null || lastTick == null) return ""
 
-    val ticker = lastTick.ticker
+    val ticker = requireNotNull(lastTick.ticker)
+
     val priceNiceDiffString = getNiceDiffStringOrEmpty(
         prevTick.price,
         lastTick.price,

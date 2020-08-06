@@ -7,6 +7,6 @@ data class LiveDataId(
 
     var date: LocalDate = LocalDate.now(),
 
-    var ticker: String = ""
+    var tickerId: String = ""
 
 ) : Serializable

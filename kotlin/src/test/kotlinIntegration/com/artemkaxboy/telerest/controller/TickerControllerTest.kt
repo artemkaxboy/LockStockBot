@@ -2,7 +2,7 @@ package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.controller.Constants.MAX_API_INT
 import com.artemkaxboy.telerest.entity.Ticker
-import com.artemkaxboy.telerest.repo.TickerRepo
+import com.artemkaxboy.telerest.service.storage.TickerService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -24,13 +24,13 @@ internal class TickerControllerTest {
     private lateinit var webTestClient: WebTestClient
 
     @Autowired
-    private lateinit var tickerRepo: TickerRepo
+    private lateinit var tickerService: TickerService
 
     @Test
     fun `fail to get existing ticker`() {
 
         val expected = Ticker.random()
-            .also { tickerRepo.save(it) }
+            .also { tickerService.save(it) }
 
         webTestClient
             // .mutate()
@@ -130,6 +130,6 @@ internal class TickerControllerTest {
 
     @AfterEach
     fun clearDb() {
-        tickerRepo.deleteAllInBatch()
+        tickerService.deleteAll()
     }
 }

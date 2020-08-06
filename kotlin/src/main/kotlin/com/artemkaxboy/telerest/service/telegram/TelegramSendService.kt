@@ -65,7 +65,9 @@ class TelegramSendService(
      */
     fun sendPhoto(sendTo: Long, byteArray: ByteArray, caption: String? = null): Result<String> =
         Result.of {
-            telegramService.bot?.sendPhoto(sendTo, byteArray, caption)?.get()?.photo?.get(0)?.file_id
+            val bot = telegramService.bot
+                ?: return Result.failure("Telegram bot is not started. Current state: ${telegramService.state}")
+            bot.sendPhoto(sendTo, byteArray, caption).get()?.photo?.get(0)?.file_id
         }.orElse {
             Result.failure("Cannot send photo: $it")
         }
@@ -82,7 +84,9 @@ class TelegramSendService(
     @Suppress("unused")
     fun sendPhoto(sendTo: Long, fileId: String, caption: String? = null): Result<String> =
         Result.of {
-            telegramService.bot?.sendPhoto(sendTo, fileId, caption)?.get()?.photo?.get(0)?.file_id
+            val bot = telegramService.bot
+                ?: return Result.failure("Telegram bot is not started. Current state: ${telegramService.state}")
+            bot.sendPhoto(sendTo, fileId, caption).get()?.photo?.get(0)?.file_id
         }.orElse {
             Result.failure("Cannot send photo: $it")
         }

@@ -35,7 +35,7 @@ class NotificationService(
         GlobalScope.launch {
             userTickerSubscriptionService
                 .findAllUnnotified(
-                    eventObject.liveData.ticker.id,
+                    eventObject.liveData.tickerId,
                     diff
                 )
                 .onEach { logger.info { "Notify ${it.user.name} about ${it.ticker.id}" } }
@@ -52,7 +52,7 @@ class NotificationService(
     private suspend fun notifyUser(update: PotentialChangedEventObject, user: User): Result<Unit> = Result.of {
 
         val live = update.liveData
-        val tickerId = live.ticker.id
+        val tickerId = live.tickerId
         val info = "user: ${user.name}, ticker: $tickerId"
 
         val chartMessage = chartService.getChartMessage(todayData = live).getOrElse {

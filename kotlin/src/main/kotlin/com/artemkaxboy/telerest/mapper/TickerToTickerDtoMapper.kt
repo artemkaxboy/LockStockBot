@@ -8,17 +8,20 @@ import org.springframework.stereotype.Component
 
 @Component
 class TickerToTickerDtoMapper(mapper: ModelMapper) :
-    AbstractMapper<Ticker, TickerDto>(mapper, Ticker::class.java, TickerDto::class.java) {
+    AbstractMapper<Ticker, TickerDto>(mapper) {
 
     @PostConstruct
     fun setupMapper() {
-
-        mapper.createTypeMap(entityClass, dtoClass).apply {
-            postConverter = dtoPostConverter()
-        }
+        createTypeMaps()
+        instance = this
     }
 
     override fun postConvert(source: Ticker, destination: TickerDto): TickerDto {
         return destination.copy(currency = source.currency.id)
+    }
+
+    companion object {
+
+        lateinit var instance: TickerToTickerDtoMapper private set
     }
 }

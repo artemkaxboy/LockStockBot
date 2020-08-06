@@ -12,21 +12,23 @@ import javax.annotation.PostConstruct
 
 @Component
 class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
-    AbstractMapper<LiveData, LiveDataDto>(mapper, LiveData::class.java, LiveDataDto::class.java) {
+    AbstractMapper<LiveData, LiveDataDto>(mapper) {
 
     @PostConstruct
     fun setupMapper() {
-
-        mapper.createTypeMap(entityClass, dtoClass).apply {
-            postConverter = dtoPostConverter()
-        }
+        createTypeMaps()
 
         mapper.addConverter { context: MappingContext<String, LocalDate> ->
             LocalDate.parse(context.source)
         }
+
+        instance = this
     }
 
     override fun postConvert(source: LiveData, destination: LiveDataDto): LiveDataDto {
+
+        requireNotNull(source.ticker)
+
         return destination.copy(
             ticker = source.ticker.id,
             url = source.ticker.url,
@@ -38,5 +40,10 @@ class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
                 ?.let { "${it.toString(2)}%" }
                 ?: ""
         )
+    }
+
+    companion object {
+
+        lateinit var instance: LiveDataToLiveDataDtoMapper private set
     }
 }
