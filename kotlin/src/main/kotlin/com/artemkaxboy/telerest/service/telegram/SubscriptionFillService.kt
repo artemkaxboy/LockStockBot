@@ -2,7 +2,7 @@ package com.artemkaxboy.telerest.service.telegram
 
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.artemkaxboy.telerest.entity.User
-import com.artemkaxboy.telerest.service.TickerService
+import com.artemkaxboy.telerest.service.storage.TickerService
 import com.artemkaxboy.telerest.service.UserService
 import com.artemkaxboy.telerest.service.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.tool.ExceptionUtils

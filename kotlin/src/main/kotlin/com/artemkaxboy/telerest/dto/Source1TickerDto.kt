@@ -43,8 +43,11 @@ data class Source1ForecastDto(
     val publishDate: Date,
 
     @JsonProperty("expiration_date")
-    val expiationDate: Date,
+    val expirationDate: Date,
 
     @JsonProperty("share_price")
-    val sharePrice: Double
+    val sharePrice: Double,
+
+    @JsonProperty("fronturl")
+    val url: String
 ) : AbstractDto

@@ -1,12 +1,9 @@
 package com.artemkaxboy.telerest.service.forecast.impl
 
 import com.artemkaxboy.telerest.config.properties.ForecastSource1Properties
-import com.artemkaxboy.telerest.converter.toLocalDateTime
-import com.artemkaxboy.telerest.dto.Source1ForecastDto
 import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.service.forecast.ForecastService
 import com.artemkaxboy.telerest.tool.ExceptionUtils
-import com.artemkaxboy.telerest.tool.NumberUtils.getPercent
 import com.artemkaxboy.telerest.tool.Result
 import com.artemkaxboy.telerest.tool.orElse
 import kotlinx.coroutines.Dispatchers
@@ -16,14 +13,11 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 import java.io.IOException
-import java.time.LocalDateTime
-import kotlin.math.absoluteValue
 
 @Service
 class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource1Properties) :
@@ -83,8 +77,6 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
         }
             .buffer(forecastSource1Properties.pageSize * forecastSource1Properties.bufferPages)
             .filter(this::dropIncorrect)
-            // .onEach { delay(50) }
-            .onEach(this::calculateConsensus)
     }
 
     private suspend fun dropIncorrect(ticker: Source1TickerDto): Boolean {
@@ -93,59 +85,6 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             return false
         }
         return true
-    }
-
-    suspend fun calculateConsensus(ticker: Source1TickerDto) {
-        ticker.consensus = ticker.forecasts
-            .takeIf { hasQuorum(it, ticker.title) }
-
-            /* filter out old forecasts */
-            ?.filter(::isForecastWithinTtl)
-            ?.takeIf { hasQuorum(it, ticker.title) }
-
-            /* map DTOs to prices */
-            ?.map { it.sharePrice }
-            ?.sorted()
-
-            /* drop extremely low forecast */
-            ?.let { dropLowestIfGapExceededThreshold(it, ticker.price, ticker.title) }
-            ?.takeIf { hasQuorum(it, ticker.title) }
-
-            /* drop extremely high forecast */
-            ?.reversed()
-            ?.let { dropLowestIfGapExceededThreshold(it, ticker.price, ticker.title) }
-            ?.takeIf { hasQuorum(it, ticker.title) }
-
-            ?.average()
-    }
-
-    private fun dropLowestIfGapExceededThreshold(list: List<Double>, basePrice: Double, ticker: String): List<Double> {
-
-        return list.takeIf { it.size > 2 }
-            ?.let { getPercent((it[0] - it[1]).absoluteValue, basePrice) }
-            ?.takeIf { it > forecastSource1Properties.extremeThreshold }
-            ?.also { logger.trace { "$ticker: extreme value dropped ${list[0]}" } }
-            ?.let { list.drop(1) }
-            ?: list
-    }
-
-    private fun isQuorumEnabled() = forecastSource1Properties.quorum > 0
-
-    private fun hasQuorum(forecasts: Collection<Any>, ticker: String): Boolean {
-
-        if (isQuorumEnabled() && forecasts.size < forecastSource1Properties.quorum) {
-            logger.trace { "$ticker dropped: no forecasts quorum" }
-            return false
-        }
-        return true
-    }
-
-    private fun isForecastWithinTtl(forecast: Source1ForecastDto): Boolean {
-        if (forecastSource1Properties.ttl.isZero) return true
-
-        return forecast.publishDate
-            .toLocalDateTime()
-            .isAfter(LocalDateTime.now().minus(forecastSource1Properties.ttl))
     }
 
     companion object {

@@ -2,6 +2,8 @@ package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.business.ChartMessage
 import com.artemkaxboy.telerest.entity.LiveData
+import com.artemkaxboy.telerest.service.storage.LiveDataService
+import com.artemkaxboy.telerest.service.storage.TickerService
 import com.artemkaxboy.telerest.tool.Result
 import com.artemkaxboy.telerest.tool.extensions.toDate
 import org.jfree.chart.JFreeChart

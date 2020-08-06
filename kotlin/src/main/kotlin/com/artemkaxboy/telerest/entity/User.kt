@@ -34,7 +34,7 @@ data class User(
 
 ) : AbstractEntity() {
 
-    @Suppress("DuplicatedCode") // equals is supposed to be similar
+    @Suppress("DuplicatedCode") // supposed to be similar
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

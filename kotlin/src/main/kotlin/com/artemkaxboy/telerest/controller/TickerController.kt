@@ -6,7 +6,8 @@ import com.artemkaxboy.telerest.controller.Constants.MAX_API_INT
 import com.artemkaxboy.telerest.controller.Constants.MAX_PAGE_SIZE
 import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.TickerToTickerDtoMapper
-import com.artemkaxboy.telerest.service.TickerService
+import com.artemkaxboy.telerest.mapper.toDto
+import com.artemkaxboy.telerest.service.storage.TickerService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -29,8 +30,7 @@ import javax.validation.constraints.Min
 @RequestMapping(value = ["api/$API_V1"])
 @Tag(name = "Ticker controller", description = "Perform tickers operation")
 class TickerController(
-    private val tickerService: TickerService,
-    private val tickerToTickerDtoMapper: TickerToTickerDtoMapper
+    private val tickerService: TickerService
 ) {
 
     @GetMapping(
@@ -71,7 +71,7 @@ class TickerController(
 
                 tickerService.findAll(PageRequest.of(page - 1, pageSize)).let {
                     PageImpl(
-                        it.getContent().map { e -> tickerToTickerDtoMapper.toDto(e) },
+                        it.getContent().map { e -> TickerToTickerDtoMapper.instance.toDto(e) },
                         it.getPageable(),
                         it.getTotalElements()
                     )

@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.entity
 
+import com.artemkaxboy.telerest.tool.RandomUtils
 import javax.persistence.CascadeType
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -18,8 +19,7 @@ data class Ticker(
 
     val url: String,
 
-    // need MERGE here to add unknown tickets at the same time when liveData appears
-    @ManyToOne(cascade = [CascadeType.MERGE])
+    @ManyToOne
     @JoinColumn(nullable = false)
     val currency: Currency,
 
@@ -35,29 +35,42 @@ data class Ticker(
     )
     val subscriptions: Set<UserTickerSubscription> = emptySet(),
 
-    @OneToMany(mappedBy = "ticker", orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "ticker",
+        cascade = [CascadeType.REMOVE],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
+    val forecasts: Set<Forecast> = emptySet(),
+
+    @OneToMany(
+        mappedBy = "ticker",
+        cascade = [CascadeType.REMOVE],
+        orphanRemoval = true,
+        fetch = FetchType.LAZY
+    )
     val liveData: Set<LiveData> = emptySet()
 
-) : AbstractEntity() {
+) : ChangeableEntity() {
 
     companion object {
 
         private val RANDOM_POOL = setOf("BABA", "WB", "JD", "SQ", "AXP", "LUV", "MS", "MAR", "DE", "EBAY", "JPM")
 
         fun random(): Ticker {
-            val randomTicker = RANDOM_POOL.random()
+            val randomTickerId = RANDOM_POOL.random()
 
             return Ticker(
-                id = randomTicker,
-                url = "http://$randomTicker.url/",
+                id = randomTickerId,
+                url = RandomUtils.url(randomTickerId),
                 currency = Currency.random(),
-                name = "Company $randomTicker",
-                logo = "http://$randomTicker.url/logo.png"
+                name = RandomUtils.company(randomTickerId),
+                logo = RandomUtils.url(randomTickerId, "logo.png")
             )
         }
     }
 
-    @Suppress("DuplicatedCode") // equals is supposed to be similar
+    @Suppress("DuplicatedCode") // supposed to be similar
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

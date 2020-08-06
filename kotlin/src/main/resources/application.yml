@@ -12,6 +12,11 @@ spring:
     hikari:
       connection-timeout: 1000
 
+# suppress ticker immutability warning
+logging:
+  level:
+    org.hibernate.persister.entity.AbstractEntityPersister: error
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html

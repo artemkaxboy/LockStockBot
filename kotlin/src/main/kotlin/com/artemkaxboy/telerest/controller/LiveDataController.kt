@@ -5,8 +5,8 @@ import com.artemkaxboy.telerest.controller.Constants.DEFAULT_PAGE_SIZE
 import com.artemkaxboy.telerest.controller.Constants.MAX_API_INT
 import com.artemkaxboy.telerest.controller.Constants.MAX_PAGE_SIZE
 import com.artemkaxboy.telerest.dto.ResponseDto
-import com.artemkaxboy.telerest.service.EDITABLE_DAYS_INTERVAL
-import com.artemkaxboy.telerest.service.LiveDataService
+import com.artemkaxboy.telerest.service.storage.EDITABLE_DAYS_INTERVAL
+import com.artemkaxboy.telerest.service.storage.LiveDataService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -83,7 +83,7 @@ class LiveDataController(
         pageSize: Int
     ): Mono<ResponseDto> {
         return ResponseDto.getResponse(request) {
-            liveDataService.getLiveData(
+            liveDataService.findByTickerId(
                 ticker,
                 PageRequest.of(page - 1, pageSize)
             )

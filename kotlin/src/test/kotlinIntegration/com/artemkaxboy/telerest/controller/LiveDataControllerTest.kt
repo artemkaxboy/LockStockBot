@@ -3,8 +3,9 @@ package com.artemkaxboy.telerest.controller
 import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
+import com.artemkaxboy.telerest.mapper.toDto
 import com.artemkaxboy.telerest.repo.LiveDataRepo
-import com.artemkaxboy.telerest.service.LiveDataService
+import com.artemkaxboy.telerest.service.storage.LiveDataService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -39,9 +40,6 @@ internal class LiveDataControllerTest {
     private lateinit var liveDataRepo: LiveDataRepo
 
     @Autowired
-    private lateinit var liveDataToLiveDataDtoMapper: LiveDataToLiveDataDtoMapper
-
-    @Autowired
     private lateinit var modelMapper: ModelMapper
 
     // @doc https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples/
@@ -53,7 +51,7 @@ internal class LiveDataControllerTest {
             .also { liveDataService.save(it) }
 
         webTestClient.get()
-            .uri(LIVE_DATA_URL, expected.ticker.id)
+            .uri(LIVE_DATA_URL, expected.tickerId)
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectJson200()
@@ -61,9 +59,9 @@ internal class LiveDataControllerTest {
             .jsonPath(JSON_FIRST_ITEM_PATH)
             .value<Map<String, Any>> {
 
-                Assertions.assertThat(it[LiveData::ticker.name] as? String)
+                Assertions.assertThat(it[LiveData::tickerId.name] as? String)
                     .isNotNull()
-                    .isEqualTo(expected.ticker.id)
+                    .isEqualTo(expected.tickerId)
 
                 Assertions.assertThat(it[LiveData::price.name] as? Double)
                     .isNotNull()
@@ -127,7 +125,7 @@ internal class LiveDataControllerTest {
 
         val newDto = liveData
             .copy(consensus = newConsensus, price = newPrice)
-            .let { liveDataToLiveDataDtoMapper.toDto(it) }
+            .let { LiveDataToLiveDataDtoMapper.instance.toDto(it) }
 
         webTestClient
             .mutate().responseTimeout(Duration.ofMinutes(5)).build()
@@ -137,7 +135,7 @@ internal class LiveDataControllerTest {
                     .queryParam("days", days)
                     .queryParam("consensus", newConsensus)
                     .queryParam("price", newPrice)
-                    .build(liveData.ticker.id)
+                    .build(liveData.tickerId)
             }
             .accept(MediaType.APPLICATION_JSON)
             .exchange()

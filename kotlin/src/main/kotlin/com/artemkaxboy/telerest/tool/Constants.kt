@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.tool
 
 object Constants {
     const val UNKNOWN_ERROR = "Unknown error"
+    const val ROUND_PRECISION = 4
 }
 
 /**
