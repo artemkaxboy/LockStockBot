@@ -1,6 +1,5 @@
 package com.artemkaxboy.telerest.entity
 
-import java.io.Serializable
 import java.time.LocalDate
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -21,12 +20,14 @@ data class UserTickerSubscription(
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(nullable = false)
     val user: User,
+
+    // TODO make userId, tickerId fields
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "ticker_id", nullable = false)
+    @JoinColumn(nullable = false)
     val ticker: Ticker,
 
     val lastNotificationDate: LocalDate,
@@ -34,11 +35,3 @@ data class UserTickerSubscription(
     val threshold: Double
 
 ) : AbstractEntity()
-
-data class UserTickerSubscriptionId(
-
-    var user: Long = 0,
-
-    var ticker: String = ""
-
-) : Serializable

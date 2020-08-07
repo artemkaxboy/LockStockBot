@@ -17,12 +17,11 @@ class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
     @PostConstruct
     fun setupMapper() {
         createTypeMaps()
+        instance = this
 
         mapper.addConverter { context: MappingContext<String, LocalDate> ->
             LocalDate.parse(context.source)
         }
-
-        instance = this
     }
 
     override fun postConvert(source: LiveData, destination: LiveDataDto): LiveDataDto {
@@ -32,7 +31,7 @@ class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
         return destination.copy(
             ticker = source.ticker.id,
             url = source.ticker.url,
-            currency = source.ticker.currency.id,
+            currency = source.ticker.currencyId,
             name = source.ticker.name,
             logo = source.ticker.logo,
             forecast = source.consensus,

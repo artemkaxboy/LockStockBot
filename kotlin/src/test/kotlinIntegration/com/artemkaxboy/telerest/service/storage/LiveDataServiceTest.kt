@@ -1,61 +1,33 @@
-package com.artemkaxboy.telerest.repo
+package com.artemkaxboy.telerest.service.storage
 
 import com.artemkaxboy.telerest.entity.LiveData
-import com.artemkaxboy.telerest.entity.LiveDataShallow
-import com.artemkaxboy.telerest.service.storage.LiveDataService
+import com.artemkaxboy.telerest.repo.LiveDataRepo
+import com.artemkaxboy.telerest.tool.paging.SinglePage
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
 import kotlin.random.Random
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) // To make @BeforeAll non-static
 internal class LiveDataServiceTest {
 
     @Autowired
     private lateinit var liveDataService: LiveDataService
 
-    @Test
-    fun `fail to find tick by ticker and date`() {
-
-        /* save a few tickers and get one of them randomly */
-        val expected = (0..10)
-            .map { LiveData.random() }
-            .also { liveDataService.saveAll(it) }
-            .random()
-
-        /* find one by gotten id and date */
-        val actual = liveDataService.findByTickerIdAndDate(expected.tickerId, expected.date)
-        Assertions.assertEquals(expected, actual)
-    }
-
-    @Test
-    fun `fail to find ticks projected by ticker and date`() {
-
-        /* save a few tickers and get one of them randomly */
-        val expected = (0..10)
-            .map { LiveData.random() }
-            .also { liveDataService.saveAll(it) }
-            .random()
-
-        /* find one by gotten id and date */
-        val actualLiveData = liveDataService
-            .findByTickerIdAndDate(expected.tickerId, expected.date, LiveData::class.java)
-        Assertions.assertEquals(expected, actualLiveData)
-
-        /* find one by gotten id and date */
-        val actualLiveDataShallow = liveDataService
-            .findByTickerIdAndDate(expected.tickerId, expected.date, LiveDataShallow::class.java)
-        Assertions.assertTrue(expected.equalTo(actualLiveDataShallow))
-    }
+    @Autowired
+    private lateinit var liveDataRepo: LiveDataRepo
 
     @Test
     fun `fail to find all ticks by ticker`() {
@@ -69,7 +41,7 @@ internal class LiveDataServiceTest {
             .distinct()
             .map { liveData.copy(date = date.minusDays(it)) }
             .also { liveDataService.saveAll(it) }
-            .sortedBy { it.date }
+            .sortedWith(liveDataService.defaultComparator)
 
         /* save a few ticks of different tickers */
         (0..10)
@@ -78,7 +50,7 @@ internal class LiveDataServiceTest {
             .also { liveDataService.saveAll(it) }
 
         /* find all ticks by ticker */
-        val pageable = PageRequest.of(0, 100, Sort.by(LiveData::date.name))
+        val pageable = PageRequest.of(0, 100, liveDataService.defaultSort)
         val actual = liveDataService.findByTickerId(liveData.tickerId, pageable).content
 
         Assertions.assertEquals(expected.size, actual.size)
@@ -98,7 +70,7 @@ internal class LiveDataServiceTest {
             .sortedBy { it.date }
 
         /* find last week ticks */
-        val week = liveDataService.findByTickerTickerAndDateBetweenOrderByDate(
+        val week = liveDataService.findByTickerIdAndDateBetweenOrderByDate(
             liveData.tickerId,
             today.minusDays(6),
             today
@@ -106,7 +78,7 @@ internal class LiveDataServiceTest {
         Assertions.assertEquals(expected.takeLast(7), week)
 
         /* find partly unavailable ticks */
-        val four = liveDataService.findByTickerTickerAndDateBetweenOrderByDate(
+        val four = liveDataService.findByTickerIdAndDateBetweenOrderByDate(
             liveData.tickerId,
             today.minusDays(3),
             today.plusDays(3)
@@ -114,12 +86,17 @@ internal class LiveDataServiceTest {
         Assertions.assertEquals(expected.takeLast(4), four)
 
         /* find unavailable ticks */
-        val never = liveDataService.findByTickerTickerAndDateBetweenOrderByDate(
+        val never = liveDataService.findByTickerIdAndDateBetweenOrderByDate(
             liveData.tickerId,
             today.plusDays(1),
             today.plusDays(3)
         )
         Assertions.assertTrue(never.isEmpty())
+    }
+
+    @Test
+    fun `fail to find all ticks unpaged`() {
+        assertThrows<IllegalArgumentException> { liveDataService.findAllByDate(pageable = Pageable.unpaged()) }
     }
 
     @Test
@@ -137,17 +114,10 @@ internal class LiveDataServiceTest {
             .also { list ->
                 liveDataService.saveAll(list.map { it.copy(date.plusDays(Random.nextLong(1, 365))) })
             }
-            .sortedBy { it.tickerId }
+            .sortedWith(liveDataService.defaultComparator)
 
-        val sort = Sort.by(LiveData::tickerId.name)
-
-        /* find ticks of all tickers by date */
-        val actual1 = liveDataService.findAllByDate(date, Pageable.unpaged()).getContent()
+        val actual1 = liveDataService.findAllByDate(date, SinglePage.of(liveDataService.defaultSort)).content
         Assertions.assertEquals(expected, actual1)
-
-        /* find ticks of all tickers by date paged */
-        val actual2 = liveDataService.findAllByDate(date, PageRequest.of(0, 100, sort)).getContent()
-        Assertions.assertEquals(expected, actual2)
     }
 
     @Test
@@ -156,12 +126,12 @@ internal class LiveDataServiceTest {
         val liveData = LiveData.random()
 
         /* save tick */
-        val (unexpectedUpdated, unexpectedPrice) = liveDataService.save(liveData)
+        val (unexpectedUpdated, unexpectedPrice) = liveDataRepo.save(liveData)
             .also { Assertions.assertNotNull(it.created) }
             .let { it.updated to it.price }
 
         /* update tick */
-        val (actualUpdated, actualPrice) = liveDataService.save(liveData.copy(price = liveData.price * .9))
+        val (actualUpdated, actualPrice) = liveDataRepo.save(liveData.copy(price = liveData.price * .9))
             .also { Assertions.assertNull(it.created) }
             .let { it.updated to it.price }
 
@@ -171,7 +141,8 @@ internal class LiveDataServiceTest {
     }
 
     @AfterEach
+    @BeforeAll
     fun clean() {
-        liveDataService.deleteAll()
+        liveDataRepo.deleteAll()
     }
 }

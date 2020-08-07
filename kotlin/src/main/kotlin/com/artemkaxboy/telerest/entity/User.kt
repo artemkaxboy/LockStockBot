@@ -30,7 +30,7 @@ data class User(
     val commonSubscriptionAllowed: Boolean = false,
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.REMOVE], orphanRemoval = true)
-    val subscriptions: Set<UserTickerSubscription> = emptySet()
+    val subscriptions: List<UserTickerSubscription> = emptyList()
 
 ) : AbstractEntity() {
 

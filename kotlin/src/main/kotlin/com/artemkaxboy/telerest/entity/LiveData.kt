@@ -5,6 +5,7 @@ import com.artemkaxboy.telerest.tool.NumberUtils
 import com.artemkaxboy.telerest.tool.RandomUtils
 import com.artemkaxboy.telerest.tool.extensions.round
 import java.time.LocalDate
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -22,8 +23,9 @@ data class LiveData(
     @Id
     val date: LocalDate = LocalDate.now(),
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ticker_id", nullable = false, updatable = false, insertable = false)
+    // MERGE - to save new tickers if needed
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE])
+    @JoinColumn(nullable = false, updatable = false, insertable = false)
     val ticker: Ticker? = null,
 
     @Id
@@ -31,10 +33,10 @@ data class LiveData(
     val tickerId: String = ticker?.id ?: "",
 
     @Column(precision = 5, nullable = false)
-    val price: Double,
+    val price: Double = Double.NaN,
 
     @Column(precision = 5)
-    val consensus: Double?
+    val consensus: Double? = null
 
 ) : ChangeableEntity() {
 

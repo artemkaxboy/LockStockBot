@@ -3,9 +3,9 @@ package com.artemkaxboy.telerest.mapper
 import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.entity.Currency
 import com.artemkaxboy.telerest.entity.Ticker
-import javax.annotation.PostConstruct
 import org.modelmapper.ModelMapper
 import org.springframework.stereotype.Component
+import javax.annotation.PostConstruct
 
 @Component
 class TickerToSource1TickerDtoMapper(mapper: ModelMapper) :
@@ -17,13 +17,25 @@ class TickerToSource1TickerDtoMapper(mapper: ModelMapper) :
         instance = this
     }
 
+    override fun postConvert(source: Ticker, destination: Source1TickerDto): Source1TickerDto {
+        val reason = "We never send Source1TickerDto anywhere"
+        throw NotImplementedError("An operation is not implemented: $reason")
+    }
+
     override fun postConvert(source: Source1TickerDto, destination: Ticker): Ticker {
-        return Ticker(
-            id = source.title,
+
+        val currency = Currency(source.currency)
+        val tickerId = source.title
+
+        return destination.copy(
+            id = tickerId,
             url = source.frontUrl,
-            currency = Currency(source.currency),
+            currency = currency,
+            currencyId = currency.id,
             name = source.company.title,
-            logo = source.company.logoLink
+            logo = source.company.logoLink,
+            forecasts = destination.forecasts
+                ?.map { it.copy(tickerId = tickerId) }
         )
     }
 

@@ -8,4 +8,10 @@ data class ForecastId(
 
     val source: Int = 1
 
-) : Serializable
+) : Serializable {
+
+    companion object {
+
+        fun of(entity: Forecast): ForecastId = ForecastId(entity.upstreamId, entity.source)
+    }
+}

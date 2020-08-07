@@ -15,23 +15,8 @@ data class Currency(
     val sign: String = KNOWN_CURRENCIES.getOrDefault(id, id),
 
     @OneToMany(mappedBy = "currency")
-    val subscriptions: Set<Ticker> = emptySet()
+    val tickers: List<Ticker>? = null
 ) : AbstractEntity() {
-
-    companion object {
-
-        private val KNOWN_CURRENCIES = mapOf(
-            "RUB" to "₽",
-            "USD" to "$",
-            "EUR" to "€",
-            "GBP" to "£",
-            "CAD" to "$",
-            "AUD" to "$",
-            "BYN" to "Br"
-        )
-
-        fun random() = KNOWN_CURRENCIES.keys.random().let { Currency(id = it) }
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -53,5 +38,22 @@ data class Currency(
 
     override fun toString(): String {
         return "Currency(id='$id', sign='$sign')"
+    }
+
+    companion object {
+
+        private val KNOWN_CURRENCIES = mapOf(
+            "RUB" to "₽",
+            "USD" to "$",
+            "EUR" to "€",
+            "GBP" to "£",
+            "CAD" to "$",
+            "AUD" to "$",
+            "BYN" to "Br"
+        )
+
+        fun random() = KNOWN_CURRENCIES.keys.random().let { Currency(id = it) }
+
+        fun getSignOrDefault(currency: Currency?, default: String) = currency?.sign ?: default
     }
 }

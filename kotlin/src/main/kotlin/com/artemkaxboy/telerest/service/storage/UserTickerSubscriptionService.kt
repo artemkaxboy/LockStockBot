@@ -1,9 +1,10 @@
-package com.artemkaxboy.telerest.service
+package com.artemkaxboy.telerest.service.storage
 
 import com.artemkaxboy.telerest.entity.Ticker
 import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.entity.UserTickerSubscription
 import com.artemkaxboy.telerest.repo.UserTickerSubscriptionRepo
+import com.artemkaxboy.telerest.tool.sorting.Sorting
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import javax.transaction.Transactional
@@ -11,7 +12,15 @@ import javax.transaction.Transactional
 @Service
 class UserTickerSubscriptionService(
     private val userTickerSubscriptionRepo: UserTickerSubscriptionRepo
+) : BaseStorageService(
+    listOf(Sorting(UserTickerSubscription::user))
 ) {
+
+    /**
+     * Deletes all subscriptions. Test purposes only.
+     */
+    @Transactional
+    fun deleteAll() = userTickerSubscriptionRepo.deleteAll()
 
     /**
      * Finds all subscriptions that crossed threshold but are still unnotified today.
@@ -29,12 +38,6 @@ class UserTickerSubscriptionService(
     fun updateLastNotificationDate(user: Long, ticker: String) =
         userTickerSubscriptionRepo
             .updateLastNotificationDateByUser_IdAndTicker_Id(LocalDate.now(), user, ticker)
-
-    /**
-     * Deletes all subscriptions. Test purposes only.
-     */
-    @Transactional
-    fun deleteAll() = userTickerSubscriptionRepo.deleteAllInBatch()
 
     /**
      * Subscribe all users to all tickers. Test purposes only.

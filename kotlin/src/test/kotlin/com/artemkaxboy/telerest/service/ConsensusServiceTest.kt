@@ -139,7 +139,6 @@ internal class ConsensusServiceTest {
             forecast.copy(targetPrice = forecast.targetPrice * (1 - extremeThreshold * 1.1)) +
             forecast.copy(targetPrice = forecast.targetPrice * (1 + extremeThreshold * 1.05))
 
-
         val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
 
         assertEquals(forecast.targetPrice, actual)

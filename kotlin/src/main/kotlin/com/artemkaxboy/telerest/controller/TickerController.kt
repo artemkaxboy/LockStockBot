@@ -8,10 +8,10 @@ import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.TickerToTickerDtoMapper
 import com.artemkaxboy.telerest.mapper.toDto
 import com.artemkaxboy.telerest.service.storage.TickerService
+import com.artemkaxboy.telerest.tool.paging.mapContent
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
@@ -69,13 +69,8 @@ class TickerController(
         return ResponseDto
             .getResponse(request) {
 
-                tickerService.findAll(PageRequest.of(page - 1, pageSize)).let {
-                    PageImpl(
-                        it.getContent().map { e -> TickerToTickerDtoMapper.instance.toDto(e) },
-                        it.getPageable(),
-                        it.getTotalElements()
-                    )
-                }
+                tickerService.findAll(PageRequest.of(page - 1, pageSize))
+                    .mapContent { TickerToTickerDtoMapper.instance.toDto(it) }
             }
             .toMono()
     }
