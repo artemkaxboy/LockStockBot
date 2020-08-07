@@ -5,8 +5,13 @@ import java.time.LocalDate
 
 data class LiveDataId(
 
-    var date: LocalDate = LocalDate.now(),
+    var tickerId: String = "",
 
-    var tickerId: String = ""
+    var date: LocalDate = LocalDate.now()
+) : Serializable {
 
-) : Serializable
+    companion object {
+
+        fun of(entity: LiveData): LiveDataId = LiveDataId(entity.tickerId, entity.date)
+    }
+}

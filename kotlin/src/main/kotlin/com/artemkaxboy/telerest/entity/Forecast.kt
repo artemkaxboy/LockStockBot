@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.entity
 
 import com.artemkaxboy.telerest.tool.RandomUtils
 import java.time.LocalDateTime
+import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.FetchType
@@ -32,8 +33,9 @@ data class Forecast(
 
     val url: String = "",
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ticker_id", nullable = false, updatable = false, insertable = false)
+    // MERGE - create tickers when forecasts comes with new one
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.MERGE])
+    @JoinColumn(nullable = false, updatable = false, insertable = false)
     val ticker: Ticker?,
 
     @Column(name = "ticker_id")
@@ -43,10 +45,16 @@ data class Forecast(
 
     companion object {
 
-        fun random(): Forecast {
+        fun random(tickerId: String? = null): Forecast {
+
+            // No need to generate Ticker object when tickerId provided
+            val (tickerIdToAdd, tickerToAdd) = if (tickerId == null) {
+                Ticker.random().let { it.id to it }
+            } else {
+                tickerId to null
+            }
 
             val upstreamId = RandomUtils.forecastId()
-            val ticker = Ticker.random()
 
             return Forecast(
                 upstreamId = upstreamId,
@@ -55,8 +63,8 @@ data class Forecast(
                 expirationDate = RandomUtils.timeAfter(),
                 targetPrice = RandomUtils.price(),
                 url = RandomUtils.url(upstreamId),
-                ticker = ticker,
-                tickerId = ticker.id
+                ticker = tickerToAdd,
+                tickerId = tickerIdToAdd
             )
         }
     }

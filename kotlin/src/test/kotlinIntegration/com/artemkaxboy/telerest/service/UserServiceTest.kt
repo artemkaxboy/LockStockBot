@@ -19,18 +19,6 @@ internal class UserServiceTest {
     private lateinit var userRepo: UserRepo
 
     @Test
-    fun findAll() {
-    }
-
-    @Test
-    fun testFindAll() {
-    }
-
-    @Test
-    fun findById() {
-    }
-
-    @Test
     fun save() {
         val alex = User(chatId = 123, name = "alex")
         val insertedId = entityManager.persist(alex).id

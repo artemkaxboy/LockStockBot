@@ -5,7 +5,6 @@ import com.artemkaxboy.telerest.controller.Constants.DEFAULT_PAGE_SIZE
 import com.artemkaxboy.telerest.controller.Constants.MAX_API_INT
 import com.artemkaxboy.telerest.controller.Constants.MAX_PAGE_SIZE
 import com.artemkaxboy.telerest.dto.ResponseDto
-import com.artemkaxboy.telerest.service.storage.EDITABLE_DAYS_INTERVAL
 import com.artemkaxboy.telerest.service.storage.LiveDataService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -19,7 +18,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -88,52 +86,5 @@ class LiveDataController(
                 PageRequest.of(page - 1, pageSize)
             )
         }.toMono()
-    }
-
-    @PostMapping("/liveData/{ticker}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    @Operation(
-        summary = "Post ticker live data",
-        responses = [
-            ApiResponse(responseCode = "202"),
-            // code 400 does not extends common MediaType and Schema
-            ApiResponse(
-                responseCode = "400",
-                content = [Content(
-                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                    schema = Schema(implementation = ResponseDto::class)
-                )]
-            ),
-            ApiResponse(responseCode = "404")
-        ]
-    )
-    fun postLiveData(
-        request: ServerHttpRequest,
-
-        @Parameter(description = "Ticker code, e.g. AAPL for Apple or AMZN for Amazon.", example = "AMZN")
-        @PathVariable
-        ticker: String,
-
-        @Min(0)
-        @Max(EDITABLE_DAYS_INTERVAL)
-        @Parameter(
-            description = "Days back to edit data. E.g. 0 - today, 1 - yesterday, 7 - week ago, 30 - month ago. " +
-                "Must be an integer unsigned number between 0 and 365 inclusively.",
-            example = "0"
-        )
-        @RequestParam(required = false)
-        days: Int?,
-
-        @Parameter(description = "Stock price to set.", example = "10.0")
-        @RequestParam(required = false)
-        price: Double?,
-
-        @Parameter(description = "Consensus forecast to set.", example = "10.0")
-        @RequestParam(required = false)
-        consensus: Double?
-
-    ): Mono<ResponseDto> {
-
-        return ResponseDto.getResponse(request) { liveDataService.postLiveData(ticker, days, price, consensus) }
-            .toMono()
     }
 }

@@ -71,7 +71,7 @@ class ChartService(
         val datasets = generateChartDataCollections(liveData)
 
         val priceAndForecastXyPlot = generateTickerPriceAndForecastXyPlot(
-            axisLabel = resolvedTicker.currency.sign,
+            axisLabel = resolvedTicker.getCurrencySign(),
             dataset = datasets.values
         )
 
@@ -85,14 +85,12 @@ class ChartService(
         ChartMessage(chart, CHART_WIDTH, CHART_HEIGHT, lastPair.firstOrNull(), lastPair.lastOrNull())
     }
 
-    private fun fetchLiveDataHistory(ticker: String, days: Int = DEFAULT_HISTORY_DAYS):
-        MutableList<LiveData> {
+    private fun fetchLiveDataHistory(ticker: String, days: Int = DEFAULT_HISTORY_DAYS): List<LiveData> {
 
         val now = LocalDate.now()
         val periodStart = now.minusDays(days.toLong())
 
-        return liveDataService
-            .findByTickerTickerAndDateBetweenOrderByDate(ticker, periodStart, now)
+        return liveDataService.findByTickerIdAndDateBetweenOrderByDate(ticker, periodStart, now)
     }
 
     private fun generateChartDataCollections(data: List<LiveData>): ChartCollections {

@@ -57,6 +57,7 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
     fun getFlow(): Flow<Source1TickerDto> {
 
         return flow {
+            logger.info { "Fetching source 1 tickers" }
             for (i in 0.until(forecastSource1Properties.maxPages)) {
                 val pageResult = fetchPageFromSource(i)
 

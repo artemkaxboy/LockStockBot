@@ -1,6 +1,6 @@
 package com.artemkaxboy.telerest.service.telegram
 
-import com.artemkaxboy.telerest.service.UserService
+import com.artemkaxboy.telerest.service.storage.UserService
 import com.artemkaxboy.telerest.tool.ExceptionUtils
 import com.elbekD.bot.Bot
 import com.elbekD.bot.types.Message

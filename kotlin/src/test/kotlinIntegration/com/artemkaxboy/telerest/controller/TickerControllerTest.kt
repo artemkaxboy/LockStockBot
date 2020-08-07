@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.controller
 
 import com.artemkaxboy.telerest.controller.Constants.MAX_API_INT
 import com.artemkaxboy.telerest.entity.Ticker
+import com.artemkaxboy.telerest.repo.TickerRepo
 import com.artemkaxboy.telerest.service.storage.TickerService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
@@ -22,6 +23,9 @@ internal class TickerControllerTest {
 
     @Autowired
     private lateinit var webTestClient: WebTestClient
+
+    @Autowired
+    private lateinit var tickerRepo: TickerRepo
 
     @Autowired
     private lateinit var tickerService: TickerService
@@ -129,7 +133,7 @@ internal class TickerControllerTest {
     }
 
     @AfterEach
-    fun clearDb() {
-        tickerService.deleteAll()
+    fun clean() {
+        tickerRepo.deleteAll()
     }
 }

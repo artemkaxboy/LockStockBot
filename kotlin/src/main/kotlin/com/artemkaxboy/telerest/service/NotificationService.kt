@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.listener.event.PotentialChangedEventObject
+import com.artemkaxboy.telerest.service.storage.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.service.telegram.TelegramSendService
 import com.artemkaxboy.telerest.tool.ExceptionUtils
 import com.artemkaxboy.telerest.tool.Result

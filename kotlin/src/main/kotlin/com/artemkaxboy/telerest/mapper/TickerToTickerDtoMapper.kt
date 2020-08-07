@@ -17,7 +17,7 @@ class TickerToTickerDtoMapper(mapper: ModelMapper) :
     }
 
     override fun postConvert(source: Ticker, destination: TickerDto): TickerDto {
-        return destination.copy(currency = source.currency.id)
+        return destination.copy(currency = source.currencyId)
     }
 
     companion object {

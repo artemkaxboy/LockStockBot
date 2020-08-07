@@ -1,16 +1,11 @@
 package com.artemkaxboy.telerest.controller
 
-import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
-import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
-import com.artemkaxboy.telerest.mapper.toDto
 import com.artemkaxboy.telerest.repo.LiveDataRepo
-import com.artemkaxboy.telerest.service.storage.LiveDataService
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.modelmapper.ModelMapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
@@ -18,9 +13,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
-import java.time.Duration
-import java.time.LocalDate
-import kotlin.random.Random
 
 @ExtendWith(SpringExtension::class)
 @SpringBootTest(
@@ -34,21 +26,14 @@ internal class LiveDataControllerTest {
     private lateinit var webTestClient: WebTestClient
 
     @Autowired
-    private lateinit var liveDataService: LiveDataService
-
-    @Autowired
     private lateinit var liveDataRepo: LiveDataRepo
 
-    @Autowired
-    private lateinit var modelMapper: ModelMapper
-
     // @doc https://www.callicoder.com/spring-5-reactive-webclient-webtestclient-examples/
-    // todo fix flaky test. Always works in debug mode. TimeZone problem??
     @Test
     fun `fail to return existing ticker`() {
 
         val expected = LiveData.random()
-            .also { liveDataService.save(it) }
+            .also { liveDataRepo.save(it) }
 
         webTestClient.get()
             .uri(LIVE_DATA_URL, expected.tickerId)
@@ -110,47 +95,8 @@ internal class LiveDataControllerTest {
             .expectJson(expectedStatus)
     }
 
-    @Test
-    // todo fix flaky test. Always works in debug mode. TimeZone problem??
-    fun `fail to change existing live data`() {
-
-        val days = Random.nextInt(365)
-
-        val liveData = LiveData.random()
-            .copy(date = LocalDate.now().minusDays(days.toLong()))
-            .also { liveDataService.save(it) }
-
-        val newConsensus = Random.nextDouble()
-        val newPrice = Random.nextDouble()
-
-        val newDto = liveData
-            .copy(consensus = newConsensus, price = newPrice)
-            .let { LiveDataToLiveDataDtoMapper.instance.toDto(it) }
-
-        webTestClient
-            .mutate().responseTimeout(Duration.ofMinutes(5)).build()
-            .post()
-            .uri { uriBuilder ->
-                uriBuilder.path(LIVE_DATA_URL)
-                    .queryParam("days", days)
-                    .queryParam("consensus", newConsensus)
-                    .queryParam("price", newPrice)
-                    .build(liveData.tickerId)
-            }
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectJson200()
-            .expectBody()
-            .jsonPath(JSON_FIRST_ITEM_PATH)
-            .value<Map<String, String>> {
-
-                Assertions.assertThat(modelMapper.map(it, LiveDataDto::class.java))
-                    .isEqualTo(newDto)
-            }
-    }
-
     @AfterEach
-    fun clearDb() {
-        liveDataRepo.deleteAllInBatch()
+    fun clean() {
+        liveDataRepo.deleteAll()
     }
 }

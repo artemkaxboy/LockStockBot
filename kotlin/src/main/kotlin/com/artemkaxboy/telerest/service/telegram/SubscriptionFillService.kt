@@ -2,15 +2,15 @@ package com.artemkaxboy.telerest.service.telegram
 
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.artemkaxboy.telerest.entity.User
+import com.artemkaxboy.telerest.service.storage.UserService
+import com.artemkaxboy.telerest.service.storage.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.service.storage.TickerService
-import com.artemkaxboy.telerest.service.UserService
-import com.artemkaxboy.telerest.service.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.tool.ExceptionUtils
 import com.artemkaxboy.telerest.tool.getOrElse
+import com.artemkaxboy.telerest.tool.paging.SinglePage
 import mu.KotlinLogging
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -57,7 +57,7 @@ class SubscriptionFillService(
             }
             .also { userService.saveAll(it) }
 
-        val tickers = tickerService.findAll(Pageable.unpaged()).getContent()
+        val tickers = tickerService.findAll(SinglePage.unsorted()).content
         subscriptionService.allToAll(users, tickers)
     }
 

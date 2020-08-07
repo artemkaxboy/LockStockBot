@@ -3,52 +3,46 @@ package com.artemkaxboy.telerest.service.storage
 import com.artemkaxboy.telerest.config.properties.ForecastSource1Properties
 import com.artemkaxboy.telerest.entity.Forecast
 import com.artemkaxboy.telerest.repo.ForecastRepo
-import org.springframework.data.domain.Sort
-import org.springframework.data.jpa.repository.JpaRepository
+import com.artemkaxboy.telerest.service.ConsensusService
+import com.artemkaxboy.telerest.tool.sorting.Sorting
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
-private val defaultSorting = Sort.by(Forecast::publishDate.name)
-
 @Service
 class ForecastService(
     private val forecastRepo: ForecastRepo,
-    private val tickerService: TickerService,
+    private val consensusService: ConsensusService,
     forecastSource1Properties: ForecastSource1Properties
+) : BaseStorageService(
+    listOf(Sorting(Forecast::publishDate))
 ) {
 
-    private val forecastsTtl = forecastSource1Properties.ttl
+    private val forecastTtl = forecastSource1Properties.ttl
 
     /**
      * Finds all entities by [Forecast.tickerId] which [Forecast.publishDate] age has not exceeded
-     * [ForecastSource1Properties.ttl] and sorts them by [Forecast.publishDate].
+     * [ForecastSource1Properties.ttl], sorted by default with [Forecast.publishDate] ascending.
      */
-    fun findAllUnexpiredByTickerId(tickerId: String) =
+    fun findAllUnexpiredByTickerId(tickerId: String): List<Forecast> =
         forecastRepo.findAllByTickerIdAndPublishDateAfter(
             tickerId,
-            LocalDateTime.now().minus(forecastsTtl),
-            defaultSorting
+            LocalDateTime.now().minus(forecastTtl),
+            defaultSort
         )
 
     /**
-     * Saves entities to repos transparently.
+     * Saves entities to repo.
      *
      * @see CrudRepository.saveAll
      */
-    fun saveAll(forecasts: List<Forecast>): List<Forecast> {
-
-        forecasts.mapNotNull { it.ticker }
-            .distinctBy { it.id }
-            .also { tickerService.saveAll(it) }
-
-        return forecastRepo.saveAll(forecasts)
-    }
+    fun saveAll(forecasts: List<Forecast>): List<Forecast> = forecastRepo.saveAll(forecasts)
 
     /**
-     * Deletes all entities in batch.
+     * Calculates consensus for given ticker id.
      *
-     * @see JpaRepository.deleteAllInBatch
+     * @return consensus forecast or null, if it cannot be calculated.
      */
-    fun deleteAll() = forecastRepo.deleteAllInBatch()
+    fun calculateConsensusByTickerId(tickerId: String) =
+        consensusService.calculateConsensus(tickerId, findAllUnexpiredByTickerId(tickerId))
 }
