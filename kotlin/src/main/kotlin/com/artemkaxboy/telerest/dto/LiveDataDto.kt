@@ -7,13 +7,9 @@ data class LiveDataDto(
 
     val ticker: String = "",
 
-    val url: String = "",
-
     val currency: String = "",
 
     val name: String = "",
-
-    val logo: String = "",
 
     val date: LocalDate = LocalDate.now(),
 
@@ -21,6 +17,6 @@ data class LiveDataDto(
 
     val forecast: Double? = null,
 
-    val potential: String = ""
+    val potential: Double? = null
 
 ) : AbstractDto

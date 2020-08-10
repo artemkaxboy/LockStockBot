@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -37,11 +38,12 @@ class MessageController(
         @RequestBody(required = true)
         message: MessageDto,
 
-        request: ServerHttpRequest
+        request: ServerHttpRequest,
+        response: ServerHttpResponse
     ): Mono<ResponseDto> {
 
         return ResponseDto
-            .wrapResult(request, telegramSendService.sendMessage(message.chatId, message.text))
+            .wrapResult(request, response, telegramSendService.sendMessage(message.chatId, message.text))
             .toMono()
     }
 }

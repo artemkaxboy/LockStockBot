@@ -1,7 +1,9 @@
 package com.artemkaxboy.telerest.service.storage
 
 import com.artemkaxboy.telerest.entity.LiveData
+import com.artemkaxboy.telerest.entity.LiveDataId
 import com.artemkaxboy.telerest.repo.LiveDataRepo
+import com.artemkaxboy.telerest.tool.RandomUtils
 import com.artemkaxboy.telerest.tool.paging.SinglePage
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
@@ -138,6 +140,29 @@ internal class LiveDataServiceTest {
         /* check the difference */
         Assertions.assertNotEquals(unexpectedUpdated, actualUpdated)
         Assertions.assertNotEquals(unexpectedPrice, actualPrice)
+    }
+
+    @Test
+    fun `fail to filter no potential data on getting liveData sorted by potential`() {
+
+        val maxCount = 10
+        val (totalCount, consensusCount) = (1..maxCount)
+            .map { counter ->
+                LiveData.random(date = LocalDate.now(), consensus = RandomUtils.price().takeIf { counter % 2 == 1 })
+            }
+            .distinctBy { LiveDataId.of(it) }
+            .also { liveDataRepo.saveAll(it) }
+            .partition { it.consensus == null }
+            .let { it.first.size + it.second.size to it.second.size }
+
+        Assertions.assertNotEquals(0, consensusCount)
+        Assertions.assertNotEquals(totalCount, consensusCount)
+
+        val actualPotential = liveDataService.findLiveData(LiveDataService.Order.POTENTIAL).totalElements
+        Assertions.assertEquals(consensusCount.toLong(), actualPotential)
+
+        val actualCount = liveDataService.findLiveData(LiveDataService.Order.TICKER).totalElements
+        Assertions.assertEquals(totalCount.toLong(), actualCount)
     }
 
     @AfterEach

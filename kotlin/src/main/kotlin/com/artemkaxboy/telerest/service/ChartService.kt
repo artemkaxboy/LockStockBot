@@ -104,7 +104,7 @@ class ChartService(
 
             price.add(day, liveData.price)
             forecast.add(day, liveData.consensus)
-            potential.add(day, liveData.getPotential())
+            potential.add(day, liveData.getRoundedPotential())
         }
 
         return ChartCollections(

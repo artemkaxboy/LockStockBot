@@ -2,8 +2,8 @@ package com.artemkaxboy.telerest.mapper
 
 import com.artemkaxboy.telerest.dto.LiveDataDto
 import com.artemkaxboy.telerest.entity.LiveData
-import com.artemkaxboy.telerest.tool.NumberUtils
-import com.artemkaxboy.telerest.tool.extensions.toString
+import com.artemkaxboy.telerest.tool.Constants
+import com.artemkaxboy.telerest.tool.extensions.round
 import org.modelmapper.ModelMapper
 import org.modelmapper.spi.MappingContext
 import org.springframework.stereotype.Component
@@ -30,14 +30,10 @@ class LiveDataToLiveDataDtoMapper(mapper: ModelMapper) :
 
         return destination.copy(
             ticker = source.ticker.id,
-            url = source.ticker.url,
             currency = source.ticker.currencyId,
             name = source.ticker.name,
-            logo = source.ticker.logo,
-            forecast = source.consensus,
-            potential = NumberUtils.getDiffOrNull(source.price, source.consensus)
-                ?.let { "${it.toString(2)}%" }
-                ?: ""
+            forecast = source.consensus?.round(Constants.PRICE_ROUND_PRECISION),
+            potential = source.getRoundedPotential()
         )
     }
 

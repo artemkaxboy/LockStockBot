@@ -52,8 +52,8 @@ private fun generateChartMessage(prevTick: LiveData?, lastTick: LiveData?): Stri
         convertToPercent = true
     )
     val potentialNiceDiffString = getNiceDiffStringOrEmpty(
-        prevTick.getPotential(),
-        lastTick.getPotential(),
+        prevTick.potential,
+        lastTick.potential,
         2)
 
     return "#${ticker.id} ${ticker.name}\n" +

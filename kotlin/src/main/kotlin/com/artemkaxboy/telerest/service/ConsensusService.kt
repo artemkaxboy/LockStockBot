@@ -2,9 +2,7 @@ package com.artemkaxboy.telerest.service
 
 import com.artemkaxboy.telerest.config.properties.ForecastSource1Properties
 import com.artemkaxboy.telerest.entity.Forecast
-import com.artemkaxboy.telerest.tool.Constants
 import com.artemkaxboy.telerest.tool.NumberUtils
-import com.artemkaxboy.telerest.tool.extensions.round
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
 import kotlin.math.absoluteValue
@@ -27,7 +25,6 @@ class ConsensusService(
 
             ?.map { it.targetPrice }
             ?.average()
-            ?.round(Constants.ROUND_PRECISION)
     }
 
     private fun hasQuorum(ticker: String, forecasts: Collection<Any>): Boolean {

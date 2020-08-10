@@ -43,6 +43,6 @@ class ForecastService(
      *
      * @return consensus forecast or null, if it cannot be calculated.
      */
-    fun calculateConsensusByTickerId(tickerId: String) =
+    fun calculateConsensusByTickerId(tickerId: String): Double? =
         consensusService.calculateConsensus(tickerId, findAllUnexpiredByTickerId(tickerId))
 }

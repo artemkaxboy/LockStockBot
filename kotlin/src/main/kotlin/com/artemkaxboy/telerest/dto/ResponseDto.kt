@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.server.ResponseStatusException
 
 // based on https://google.github.io/styleguide/jsoncstyleguide.xml
@@ -69,17 +70,23 @@ data class ResponseDto(
          * Wraps [Result] object to [ResponseDto] according to the specialization
          * [Result.Success] or [Result.Failure].
          */
-        fun <T : Any> wrapResult(request: ServerHttpRequest, result: Result<T>): ResponseDto {
+        fun <T : Any> wrapResult(
+            request: ServerHttpRequest,
+            response: ServerHttpResponse,
+            result: Result<T>
+        ): ResponseDto {
             return result
-                .getOrElse { return wrapError(request, it) }
+                .getOrElse { return wrapError(request, response, it) }
                 .let { wrapData(request, it) }
         }
 
         fun wrapError(
             request: ServerHttpRequest,
+            response: ServerHttpResponse,
             throwable: Throwable
         ): ResponseDto {
             val errorCode = ((throwable as? ResponseStatusException)?.status ?: HttpStatus.INTERNAL_SERVER_ERROR)
+                .also { response.statusCode = it }
                 .value()
 
             val message = when (throwable) {
