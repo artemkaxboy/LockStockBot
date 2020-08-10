@@ -6,6 +6,7 @@ import com.artemkaxboy.telerest.entity.LiveDataShallow
 import com.artemkaxboy.telerest.repo.LiveDataRepo
 import com.artemkaxboy.telerest.tool.sorting.Sorting
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.repository.CrudRepository
@@ -46,12 +47,29 @@ class LiveDataService(
         liveDataRepo.findByIdOrNull(LiveDataId(tickerId, LocalDate.now()))
 
     /**
-     * Finds all [LiveData] by date.
+     * Finds all [LiveData] by date. Filter out data without potential when potential-sorted.
      *
      * @return page of [LiveData].
      */
     fun findAllByDate(date: LocalDate = LocalDate.now(), pageable: Pageable = defaultPageRequest): Page<LiveData> {
+        if (pageable.sort.getOrderFor(LiveData::potential.name) != null) {
+            return liveDataRepo.findAllByDateAndPotentialNotNull(pageable, date)
+        }
         return liveDataRepo.findAllByDate(defaultSortIfUnsorted(pageable), date)
+    }
+
+    /**
+     * Finds today's data with given sort order.
+     */
+    fun findLiveData(
+        order: Order,
+        direction: Sort.Direction = Sort.Direction.ASC,
+        pageable: Pageable = defaultPageRequest
+    ): Page<LiveData> {
+        val sortedPageRequest =
+            PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.by(order.getSortOrder(direction)))
+
+        return findAllByDate(LocalDate.now(), sortedPageRequest)
     }
 
     /**
@@ -84,5 +102,14 @@ class LiveDataService(
      */
     fun saveAll(list: List<LiveData>): List<LiveData> {
         return liveDataRepo.saveAll(list)
+    }
+
+    @Suppress("unused") // used through reflection
+    enum class Order(val field: String) {
+        TICKER(LiveData::tickerId.name),
+        POTENTIAL(LiveData::potential.name);
+
+        fun getSortOrder(direction: Sort.Direction = Sort.Direction.ASC): Sort.Order =
+            Sort.Order(direction, field)
     }
 }

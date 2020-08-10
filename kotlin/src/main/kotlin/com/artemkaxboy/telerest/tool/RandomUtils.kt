@@ -8,7 +8,7 @@ import kotlin.random.Random
 
 object RandomUtils {
 
-    fun price() = Random.nextDouble(50.0, 150.0).round(Constants.ROUND_PRECISION)
+    fun price() = Random.nextDouble(50.0, 150.0).round(Constants.PRICE_ROUND_PRECISION)
 
     fun dateBefore(from: LocalDate = LocalDate.now(), interval: LongRange = (100..365L)): LocalDate =
         from.minusDays(Random.nextLong(interval.first, interval.last))

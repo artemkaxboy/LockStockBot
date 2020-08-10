@@ -20,4 +20,6 @@ interface LiveDataRepo : JpaRepository<LiveData, LiveDataId> {
     ): List<LiveData>
 
     fun findAllByDate(pageable: Pageable, date: LocalDate = LocalDate.now()): Page<LiveData>
+
+    fun findAllByDateAndPotentialNotNull(pageable: Pageable, date: LocalDate = LocalDate.now()): Page<LiveData>
 }

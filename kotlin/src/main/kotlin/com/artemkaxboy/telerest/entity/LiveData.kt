@@ -1,9 +1,9 @@
 package com.artemkaxboy.telerest.entity
 
 import com.artemkaxboy.telerest.tool.Constants
-import com.artemkaxboy.telerest.tool.NumberUtils
 import com.artemkaxboy.telerest.tool.RandomUtils
 import com.artemkaxboy.telerest.tool.extensions.round
+import org.hibernate.annotations.Formula
 import java.time.LocalDate
 import javax.persistence.CascadeType
 import javax.persistence.Column
@@ -36,21 +36,24 @@ data class LiveData(
     val price: Double = Double.NaN,
 
     @Column(precision = 5)
-    val consensus: Double? = null
+    val consensus: Double? = null,
+
+    @Formula("(consensus - price) / price * 100")
+    val potential: Double? = null
 
 ) : ChangeableEntity() {
 
     /**
-     * @return growing potential according to the current price and consensus forecast.
+     * @return [potential] value rounded with [Constants.PERCENT_ROUND_PRECISION]
      */
-    fun getPotential() =
-        consensus?.let { NumberUtils.getPercent(it - price, price).round(Constants.ROUND_PRECISION) }
+    fun getRoundedPotential(): Double? =
+        potential?.round(Constants.PERCENT_ROUND_PRECISION)
 
     /**
      * @return difference between this [LiveData] potential and the [other]'s.
      */
-    fun getPotentialDifferenceOrNull(other: LiveData): Double? {
-        return other.getPotential()?.let { getPotential()?.minus(it) }
+    fun getPotentialDifferenceOrNull(other: LiveData?): Double? {
+        return other?.potential?.let { potential?.minus(it) }
     }
 
     fun equalTo(liveDataShallow: LiveDataShallow?): Boolean {
@@ -93,17 +96,17 @@ data class LiveData(
 
     companion object {
 
-        fun random(): LiveData {
+        fun random(
+            date: LocalDate = RandomUtils.dateBefore(),
+            ticker: Ticker? = Ticker.random(),
+            tickerId: String = ticker?.id ?: Ticker.random().id,
+            price: Double = RandomUtils.price(),
+            consensus: Double? = RandomUtils.price()
+        ): LiveData {
 
-            val ticker = Ticker.random()
+            require(ticker == null || ticker.id == tickerId)
 
-            return LiveData(
-                date = RandomUtils.dateBefore(),
-                tickerId = ticker.id,
-                ticker = ticker,
-                price = RandomUtils.price(),
-                consensus = RandomUtils.price()
-            )
+            return LiveData(date = date, tickerId = tickerId, ticker = ticker, price = price, consensus = consensus)
         }
     }
 }

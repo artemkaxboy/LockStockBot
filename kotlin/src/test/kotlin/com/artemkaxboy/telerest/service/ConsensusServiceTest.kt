@@ -56,7 +56,8 @@ internal class ConsensusServiceTest {
         /* repeat forecast `quorum` times */
         val forecasts = repeat(forecast)
 
-        val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
+        val actual =
+            consensusService.calculateConsensus(dummyTickerId, forecasts)?.round(Constants.PRICE_ROUND_PRECISION)
 
         assertEquals(forecast.targetPrice, actual)
     }
@@ -72,7 +73,8 @@ internal class ConsensusServiceTest {
         val forecasts = repeat(forecast) +
             forecast.copy(targetPrice = forecast.targetPrice * (1 - extremeThreshold * 1.05))
 
-        val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
+        val actual =
+            consensusService.calculateConsensus(dummyTickerId, forecasts)?.round(Constants.PRICE_ROUND_PRECISION)
 
         assertEquals(forecast.targetPrice, actual)
     }
@@ -88,8 +90,9 @@ internal class ConsensusServiceTest {
         val forecasts = repeat(forecast) +
             forecast.copy(targetPrice = forecast.targetPrice * (1 - extremeThreshold * .95))
 
-        val expected = forecasts.map { it.targetPrice }.average().round(Constants.ROUND_PRECISION)
-        val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
+        val expected = forecasts.map { it.targetPrice }.average().round(Constants.PRICE_ROUND_PRECISION)
+        val actual =
+            consensusService.calculateConsensus(dummyTickerId, forecasts)?.round(Constants.PRICE_ROUND_PRECISION)
 
         assertEquals(expected, actual)
     }
@@ -105,7 +108,8 @@ internal class ConsensusServiceTest {
         val forecasts = repeat(forecast) +
             forecast.copy(targetPrice = forecast.targetPrice * (1 + extremeThreshold * 1.05))
 
-        val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
+        val actual =
+            consensusService.calculateConsensus(dummyTickerId, forecasts)?.round(Constants.PRICE_ROUND_PRECISION)
 
         assertEquals(forecast.targetPrice, actual)
     }
@@ -121,8 +125,9 @@ internal class ConsensusServiceTest {
         val forecasts = repeat(forecast) +
             forecast.copy(targetPrice = forecast.targetPrice * (1 + extremeThreshold * .95))
 
-        val expected = forecasts.map { it.targetPrice }.average().round(Constants.ROUND_PRECISION)
-        val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
+        val expected = forecasts.map { it.targetPrice }.average().round(Constants.PRICE_ROUND_PRECISION)
+        val actual =
+            consensusService.calculateConsensus(dummyTickerId, forecasts)?.round(Constants.PRICE_ROUND_PRECISION)
 
         assertEquals(expected, actual)
     }
@@ -139,7 +144,8 @@ internal class ConsensusServiceTest {
             forecast.copy(targetPrice = forecast.targetPrice * (1 - extremeThreshold * 1.1)) +
             forecast.copy(targetPrice = forecast.targetPrice * (1 + extremeThreshold * 1.05))
 
-        val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
+        val actual =
+            consensusService.calculateConsensus(dummyTickerId, forecasts)?.round(Constants.PRICE_ROUND_PRECISION)
 
         assertEquals(forecast.targetPrice, actual)
     }
@@ -156,8 +162,9 @@ internal class ConsensusServiceTest {
             forecast.copy(targetPrice = forecast.targetPrice * (1 - extremeThreshold * .9)) +
             forecast.copy(targetPrice = forecast.targetPrice * (1 + extremeThreshold * .95))
 
-        val expected = forecasts.map { it.targetPrice }.average().round(Constants.ROUND_PRECISION)
-        val actual = consensusService.calculateConsensus(dummyTickerId, forecasts)
+        val expected = forecasts.map { it.targetPrice }.average().round(Constants.PRICE_ROUND_PRECISION)
+        val actual =
+            consensusService.calculateConsensus(dummyTickerId, forecasts)?.round(Constants.PRICE_ROUND_PRECISION)
 
         assertEquals(expected, actual)
     }

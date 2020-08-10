@@ -53,7 +53,7 @@ class UpdateForecastsJob(
                 ?.onEach { newTick ->
 
                     yesterday[newTick.tickerId]
-                        ?.takeIf { it.getPotential() != newTick.getPotential() }
+                        ?.takeIf { it.getRoundedPotential() != newTick.getRoundedPotential() }
                         ?.also {
                             applicationEventPublisher.publishEvent(
                                 PotentialChangedEvent(newTick, it)

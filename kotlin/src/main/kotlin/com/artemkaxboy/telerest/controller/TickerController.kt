@@ -8,7 +8,6 @@ import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.TickerToTickerDtoMapper
 import com.artemkaxboy.telerest.mapper.toDto
 import com.artemkaxboy.telerest.service.storage.TickerService
-import com.artemkaxboy.telerest.tool.paging.mapContent
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -70,7 +69,7 @@ class TickerController(
             .getResponse(request) {
 
                 tickerService.findAll(PageRequest.of(page - 1, pageSize))
-                    .mapContent { TickerToTickerDtoMapper.instance.toDto(it) }
+                    .map { TickerToTickerDtoMapper.instance.toDto(it) }
             }
             .toMono()
     }

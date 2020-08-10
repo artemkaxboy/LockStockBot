@@ -88,9 +88,10 @@ internal class ForecastServiceTest {
             }
             .also { forecastService.saveAll(it) }
             .map { it.targetPrice }
-            .average().round(Constants.ROUND_PRECISION)
+            .average().round(Constants.PRICE_ROUND_PRECISION)
 
-        val actual = forecastService.calculateConsensusByTickerId(forecast.tickerId)
+        val actual =
+            forecastService.calculateConsensusByTickerId(forecast.tickerId)?.round(Constants.PRICE_ROUND_PRECISION)
         assertEquals(expected, actual)
     }
 
