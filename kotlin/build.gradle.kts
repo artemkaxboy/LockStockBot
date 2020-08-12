@@ -16,7 +16,7 @@ version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 val kotlinLoggingVersion by extra("1.7.10")
-val ktTelegramBotVersion by extra("1.3.0-beta")
+val ktTelegramBotVersion by extra("1.3.5")
 val swaggerVersion by extra("1.4.3")
 val modelMapperVersion by extra("2.3.8")
 val mockkVersion by extra("1.10.0")
@@ -71,14 +71,10 @@ dependencies {
 
     /*--------------------- telegram bot ---------------------------------------*/
     // @source https://github.com/elbekD/kt-telegram-bot
-    // implementation("com.github.elbekD:kt-telegram-bot:$ktTelegramBotVersion") {
+    implementation("com.github.elbekD:kt-telegram-bot:$ktTelegramBotVersion") {
         // it's conflicting with netty, and we don't need webhook mode
-    //    exclude("org.eclipse.jetty")
-    // }
-    // own fork while https://github.com/elbekD/kt-telegram-bot/pull/31 not released
-    implementation(files("libs/kt-telegram-bot-1.3.4-SNAPSHOT.jar"))
-    implementation("com.google.code.gson:gson:2.8.5")
-    implementation("com.squareup.okhttp3:okhttp:3.10.0")
+        exclude("org.eclipse.jetty")
+    }
     /*--------------------- end of telegram bot ---------------------------------------*/
 
     implementation("org.jfree:jfreechart:1.5.0")
