@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.tool.telegram
 
+import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.tool.Emoji
 import com.artemkaxboy.telerest.tool.StringUtils.times
 import com.elbekD.bot.types.InlineKeyboardButton as IKB
@@ -9,6 +10,9 @@ import kotlin.math.max
 import kotlin.math.min
 
 object MarkupUtils {
+
+    fun mapLiveDataToMarkupPair(liveData: LiveData): Pair<String, String> =
+        liveData.tickerId to "${liveData.tickerId} (${liveData.price})"
 
     fun getListPageMarkup(page: Page<Pair<String, String>>, callbackDataPrefix: String): IKM {
 
