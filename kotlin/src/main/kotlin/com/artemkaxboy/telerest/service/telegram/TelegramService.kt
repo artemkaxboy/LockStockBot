@@ -23,6 +23,10 @@ class TelegramService(
     final var bot: Bot? = null
         private set
 
+    fun getBot(): Result<Bot> =
+        bot?.let { Result.success(it) }
+            ?: Result.failure("Bot is not ready, current state: $state")
+
     var state: BotState = BotState.OFF
 
     val stateListeners = mutableListOf<BotStateListener>()

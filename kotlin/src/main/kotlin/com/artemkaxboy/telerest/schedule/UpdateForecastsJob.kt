@@ -7,7 +7,10 @@ import com.artemkaxboy.telerest.mapper.toEntity
 import com.artemkaxboy.telerest.service.forecast.impl.ForecastServiceImpl1
 import com.artemkaxboy.telerest.service.storage.LiveDataService
 import com.artemkaxboy.telerest.service.storage.TickerService
+import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
+import com.artemkaxboy.telerest.tool.getOrElse
 import com.artemkaxboy.telerest.tool.paging.SinglePage
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -31,21 +34,24 @@ class UpdateForecastsJob(
     @Transactional
     @Scheduled(fixedRateString = "#{@forecastSource1Properties.updateInterval.toMillis()}")
     fun update() {
+        val error = "Cannot perform scheduled update"
 
         /* it needs to save only changed tickers */
         val today = liveDataService
-            .findAllByDate(LocalDate.now(), SinglePage.unsorted()).content
+            .findAllByDate(LocalDate.now(), SinglePage.unsorted())
+            .getOrElse { return logger.warn { it.getMessage(error) } }
             .associateBy { it.tickerId }
 
         /* it needs to calc potential diff */
         val yesterday = liveDataService
-            .findAllByDate(LocalDate.now().minusDays(1), SinglePage.unsorted()).content
+            .findAllByDate(LocalDate.now().minusDays(1), SinglePage.unsorted())
+            .getOrElse { return logger.warn { it.getMessage(error) } }
             .associateBy { it.tickerId }
 
         runBlocking {
 
             forecastServiceImpl1.takeIf { it.isEnabled() }
-                ?.getFlow()
+                ?.getTickerFlow()
                 ?.onEach { logger.trace { "got: ${it.title}" } }
                 ?.onEach(::saveMissingForecasts)
                 ?.map { liveDataService.getLatestData(it.title, it.price) }
@@ -62,6 +68,7 @@ class UpdateForecastsJob(
                         ?.also { logger.trace { "published: ${it.tickerId}" } }
                 }
                 ?.filter { today[it.tickerId] != it }
+                ?.catch { logger.warn { it.getMessage(error) } }
                 // ?.collect { liveDataService.save(it) } // todo measure and choose save/saveAll
                 ?.toList()
                 ?.let { liveDataService.saveAll(it) }
