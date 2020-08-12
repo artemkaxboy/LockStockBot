@@ -58,8 +58,6 @@ class LiveDataController(
         ]
     )
     fun getLiveData(
-        request: ServerHttpRequest,
-
         @Parameter(description = "Ticker code, e.g. AAPL for Apple or AMZN for Amazon.", example = "AMZN")
         @PathVariable
         ticker: String,
@@ -85,9 +83,12 @@ class LiveDataController(
             required = false
         )
         @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE")
-        pageSize: Int
+        pageSize: Int,
+
+        request: ServerHttpRequest,
+        response: ServerHttpResponse
     ): Mono<ResponseDto> {
-        return ResponseDto.getResponse(request) {
+        return ResponseDto.getResponse(request, response) {
             liveDataService.findByTickerId(
                 ticker,
                 PageRequest.of(page - 1, pageSize)
@@ -162,7 +163,7 @@ class LiveDataController(
         val pageRequest = PageRequest.of(page - 1, pageSize)
 
         return ResponseDto
-            .getResponse(request) {
+            .getResponse(request, response) {
 
                 liveDataService
                     .findLiveData(orderValue, directionValue, pageRequest)

@@ -60,10 +60,11 @@ data class ResponseDto(
          */
         fun getResponse(
             request: ServerHttpRequest,
+            response: ServerHttpResponse,
             block: () -> Any
         ): ResponseDto {
 
-            return wrapData(request, block())
+            return wrapData(request, response, block())
         }
 
         /**
@@ -77,7 +78,7 @@ data class ResponseDto(
         ): ResponseDto {
             return result
                 .getOrElse { return wrapError(request, response, it) }
-                .let { wrapData(request, it) }
+                .let { wrapData(request, response, it) }
         }
 
         fun wrapError(
@@ -112,6 +113,7 @@ data class ResponseDto(
 
         private fun wrapData(
             request: ServerHttpRequest,
+            response: ServerHttpResponse,
             result: Any
         ): ResponseDto {
 
@@ -126,6 +128,12 @@ data class ResponseDto(
                         pageIndex = result.number + 1,
                         totalPages = result.totalPages
                     )
+
+                is Result<*> ->
+                    return result
+                        .getOrElse { return wrapError(request, response, it) }
+                        .let { wrapData(request, response, it) }
+
                 else -> DataDto(listOf(result))
             }
 
