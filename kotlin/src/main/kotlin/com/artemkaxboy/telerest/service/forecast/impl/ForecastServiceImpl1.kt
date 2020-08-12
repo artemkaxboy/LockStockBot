@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
@@ -33,33 +34,38 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             "&offset={offset}"
 
         return WebClient.builder()
-                .baseUrl(url)
-                .defaultUriVariables(
-                    mapOf(
-                        "type" to "share",
-                        "limit" to forecastSource1Properties.pageSize.toString(),
-                        "offset" to (forecastSource1Properties.pageSize * page).toString()
-                    )
+            .baseUrl(url)
+            .defaultUriVariables(
+                mapOf(
+                    "type" to "share",
+                    "limit" to forecastSource1Properties.pageSize.toString(),
+                    "offset" to (forecastSource1Properties.pageSize * page).toString()
                 )
-                .build()
-                .get()
-                .retrieve()
-                .bodyToFlux(Source1TickerDto::class.java)
-                .doFirst { logger.trace { "Got source1 page: $page" } }
-                .collectList()
-                .awaitFirst()
+            )
+            .build()
+            .get()
+            .retrieve()
+            .bodyToFlux(Source1TickerDto::class.java)
+            .doFirst { logger.trace { "Got source1 page: $page" } }
+            .collectList()
+            .awaitFirst()
     }
 
     /**
      * Gets all tickers from source 1 or less if [ForecastSource1Properties.maxPages] value were reached.
      * @return the full list of tickers from source 1.
      */
-    suspend fun getFlow(): Flow<Source1TickerDto> {
+    suspend fun getTickerFlow(): Flow<Source1TickerDto> {
 
+        var lastPageFull = true
         return (0 until forecastSource1Properties.maxPages)
             .asFlow()
-            .map { fetchPageFromSource(it) }
-            .takeWhile { it.size == forecastSource1Properties.pageSize }
+
+            // this code takes last unnecessary loop, to prevent REST request we need this ugly construction
+            .map { if (lastPageFull) fetchPageFromSource(it) else emptyList() }
+            .takeWhile { lastPageFull }
+            .onEach { lastPageFull = it.size == forecastSource1Properties.pageSize }
+
             .flatMapMerge { it.asFlow() }
             .buffer(forecastSource1Properties.pageSize * forecastSource1Properties.bufferPages)
             .filter(this::dropIncorrect)
