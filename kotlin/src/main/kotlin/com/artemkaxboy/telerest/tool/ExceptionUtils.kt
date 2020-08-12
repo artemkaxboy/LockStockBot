@@ -30,6 +30,11 @@ object ExceptionUtils {
             .firstOrNull() ?: default
     }
 
+    fun Throwable.getMessage(prefix: String? = null): String {
+        val mainMessage = prefix?.let { "$it: " } ?: ""
+        return "$mainMessage${message ?: toString()}"
+    }
+
     private fun getThrowableStack(throwable: Throwable?): List<Throwable> {
         val stack = throwable?.let { mutableListOf(throwable) }
             ?: return emptyList()
