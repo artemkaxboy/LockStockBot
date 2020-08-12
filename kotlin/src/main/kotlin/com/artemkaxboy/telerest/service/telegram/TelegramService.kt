@@ -3,7 +3,6 @@ package com.artemkaxboy.telerest.service.telegram
 import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.artemkaxboy.telerest.tool.Exiter
 import com.artemkaxboy.telerest.tool.Result
-import com.artemkaxboy.telerest.tool.orElse
 import com.elbekD.bot.Bot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -98,16 +97,12 @@ class TelegramService(
     private suspend fun startBot(bot: Bot): Result<Bot> {
 
         return withContext(Dispatchers.IO) {
-            Result.of {
+            Result.of("Cannot start telegram bot") {
                 logger.info { "Telegram bot starting..." }
                 bot.start()
                 onBotStarted(bot)
                 logger.info { "Telegram bot started successfully." }
                 bot
-            }.orElse {
-                Result
-                    .failure("Cannot start telegram bot: ${it.message}")
-                    .log(logger)
             }
         }
     }
