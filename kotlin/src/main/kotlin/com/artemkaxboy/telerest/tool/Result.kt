@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.tool
 
+import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
 import mu.KLogger
 
 // @doc https://stackoverflow.com/a/59168658/1452052
@@ -60,15 +61,20 @@ sealed class Result<out T : Any>(
 
         fun failure(message: String) = Failure(Exception(message))
 
-        fun failure(exception: Exception): Failure = Failure(exception)
+        fun failure(exception: Exception, message: String? = null): Failure {
+            val extendedException = message
+                ?.let { Exception(exception.getMessage(message), exception) }
+                ?: exception
+            return Failure(extendedException)
+        }
 
         fun <R : Any> success(value: R) = Success(value)
 
-        inline fun <R : Any> of(block: () -> R?): Result<R> {
+        inline fun <R : Any> of(errorMessage: String? = null, block: () -> R?): Result<R> {
             return try {
                 success(requireNotNull(block()))
             } catch (e: Exception) {
-                failure(e)
+                failure(e, errorMessage)
             }
         }
     }
@@ -77,13 +83,6 @@ sealed class Result<out T : Any>(
 inline fun <T : Any> Result<T>.getOrElse(onFailure: (exception: Throwable) -> T): T {
     return when (val exception = exceptionOrNull()) {
         null -> requireNotNull(getOrNull())
-        else -> onFailure(exception)
-    }
-}
-
-inline fun <T : Any> Result<T>.orElse(onFailure: (exception: Throwable) -> Result<T>): Result<T> {
-    return when (val exception = exceptionOrNull()) {
-        null -> this
         else -> onFailure(exception)
     }
 }
