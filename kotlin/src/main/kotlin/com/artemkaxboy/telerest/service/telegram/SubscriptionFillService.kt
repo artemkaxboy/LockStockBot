@@ -6,6 +6,7 @@ import com.artemkaxboy.telerest.service.storage.UserService
 import com.artemkaxboy.telerest.service.storage.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.service.storage.TickerService
 import com.artemkaxboy.telerest.tool.ExceptionUtils
+import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
 import com.artemkaxboy.telerest.tool.getOrElse
 import com.artemkaxboy.telerest.tool.paging.SinglePage
 import mu.KotlinLogging
@@ -31,7 +32,7 @@ class SubscriptionFillService(
         userService.count()
             .getOrElse {
                 logger.error {
-                    ExceptionUtils.messageOrDefault(it, "Cannot count existing users: ")
+                    it.getMessage("Cannot count existing users")
                 }
                 return
             }
