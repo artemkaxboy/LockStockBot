@@ -43,7 +43,7 @@ class UserTickerSubscriptionService(
      * Subscribe all users to all tickers. Test purposes only.
      */
     @Transactional
-    fun allToAll(users: List<User>, tickers: List<Ticker>) {
+    fun allToAll(users: Iterable<User>, tickers: Iterable<Ticker>) {
 
         users.flatMap { user ->
             tickers

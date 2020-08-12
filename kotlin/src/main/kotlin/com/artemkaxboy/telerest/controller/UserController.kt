@@ -48,7 +48,7 @@ class UserController(
 
         return ResponseDto
             .getResponse(request, response) {
-                userService.findAll(PageRequest.of(page - 1, pageSize)).content
+                userService.findAll(PageRequest.of(page - 1, pageSize))
             }
             .toMono()
     }

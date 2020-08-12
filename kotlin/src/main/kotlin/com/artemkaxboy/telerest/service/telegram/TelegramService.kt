@@ -35,6 +35,7 @@ class TelegramService(
     private fun onBotStarted(bot: Bot) = onBotStateChanged(bot, BotState.STARTED)
 
     private fun onBotStateChanged(bot: Bot, newState: BotState) {
+        state = newState
         stateListeners.forEach { it.onStateChanged(bot, newState) }
     }
 
