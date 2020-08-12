@@ -2,6 +2,7 @@ package com.artemkaxboy.telerest.tool
 
 import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
 import mu.KLogger
+import org.springframework.data.domain.Page
 
 // @doc https://stackoverflow.com/a/59168658/1452052
 
@@ -70,9 +71,9 @@ sealed class Result<out T : Any>(
 
         fun <R : Any> success(value: R) = Success(value)
 
-        inline fun <R : Any> of(errorMessage: String? = null, block: () -> R?): Result<R> {
+        inline fun <R : Any> of(errorMessage: String? = null, block: () -> R): Result<R> {
             return try {
-                success(requireNotNull(block()))
+                success(block())
             } catch (e: Exception) {
                 failure(e, errorMessage)
             }
@@ -80,9 +81,23 @@ sealed class Result<out T : Any>(
     }
 }
 
-inline fun <T : Any> Result<T>.getOrElse(onFailure: (exception: Throwable) -> T): T {
+inline fun <T : Any> Result<T>.getOrElse(onFailure: (exception: Exception) -> T): T {
     return when (val exception = exceptionOrNull()) {
         null -> requireNotNull(getOrNull())
         else -> onFailure(exception)
     }
+}
+
+fun <T : Any, I : Iterable<T>, R : Any> Result<I>.map(block: (T) -> R): Result<Iterable<R>> {
+
+    return getOrElse { return Result.failure(it) }
+        .map(block)
+        .let(Result.Companion::success)
+}
+
+fun <T : Any, I : Page<T>, R : Any> Result<I>.mapPage(block: (T) -> R): Result<Page<R>> {
+
+    return getOrElse { return Result.failure(it) }
+        .map(block)
+        .let(Result.Companion::success)
 }

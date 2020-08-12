@@ -8,6 +8,7 @@ import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.mapper.toDto
 import com.artemkaxboy.telerest.service.storage.LiveDataService
+import com.artemkaxboy.telerest.tool.mapPage
 import com.artemkaxboy.telerest.tool.valueOfOrNull
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -167,7 +168,7 @@ class LiveDataController(
 
                 liveDataService
                     .findLiveData(orderValue, directionValue, pageRequest)
-                    .map { LiveDataToLiveDataDtoMapper.instance.toDto(it) }
+                    .mapPage { LiveDataToLiveDataDtoMapper.instance.toDto(it) }
             }
             .toMono()
     }

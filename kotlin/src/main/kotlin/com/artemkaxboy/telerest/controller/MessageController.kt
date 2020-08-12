@@ -32,7 +32,7 @@ class MessageController(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     @Operation(summary = "Post message", responses = [ApiResponse(responseCode = "202")])
-    fun postMessage(
+    suspend fun postMessage(
 
         @Parameter(description = "Message data")
         @RequestBody(required = true)
