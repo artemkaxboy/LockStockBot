@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.service.telegram
 
+import com.artemkaxboy.telerest.config.properties.TelegramBotProperties
 import com.artemkaxboy.telerest.service.storage.LiveDataService
 import com.artemkaxboy.telerest.service.storage.UserService
 import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
@@ -20,6 +21,7 @@ import javax.annotation.PostConstruct
 
 @Service
 class TelegramReceiveService(
+    telegramBotProperties: TelegramBotProperties,
     private val telegramService: TelegramService,
     private val telegramSendService: TelegramSendService,
     private val userService: UserService,
@@ -27,7 +29,7 @@ class TelegramReceiveService(
 ) : BotStateListener {
 
     private val listCommand = "/list"
-    private val listSize = 5
+    private val listSize = telegramBotProperties.markup.listSize
 
     @PostConstruct
     fun setupService() {
@@ -71,8 +73,8 @@ class TelegramReceiveService(
 
     // ENTRYPOINT
     private suspend fun onAnyCallback(callbackQuery: CallbackQuery) {
-        val error = "Cannot process callback"
         logger.trace { "Got new callback" }
+        val error = "Cannot process callback"
 
         // send ack
         telegramSendService.ackCallback(callbackQuery)
@@ -127,7 +129,10 @@ class TelegramReceiveService(
 
             else -> {
                 telegramSendService.clearMenu(message)
+                    .onFailure { return Result.failure(it.getMessage(error)) }
+
                 telegramSendService.sendChart(message.chat.id, arg)
+                    .onFailure { return Result.failure(it.getMessage(error)) }
             }
         }
 

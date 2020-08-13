@@ -12,6 +12,8 @@ private const val DEFAULT_RECONNECTION_COUNT = 10
 /** Default delay between connection attempts. */
 private const val DEFAULT_RECONNECTION_DELAY_SECONDS = 3L
 
+private const val DEFAULT_MARKUP_LIST_SIZE = 5
+
 @Configuration
 @ConfigurationProperties("telegram")
 class TelegramBotProperties {
@@ -38,6 +40,8 @@ class TelegramBotProperties {
 
     val reconnection = Reconnection()
 
+    val markup = Markup()
+
     class Reconnection {
 
         /** Amount of attempts to initially connect to Telegram API. */
@@ -46,5 +50,11 @@ class TelegramBotProperties {
         /** Delay between connection attempts. */
         @DurationUnit(ChronoUnit.SECONDS)
         var delay: Duration = Duration.ofSeconds(DEFAULT_RECONNECTION_DELAY_SECONDS)
+    }
+
+    class Markup {
+
+        /** Menu list size. */
+        var listSize = DEFAULT_MARKUP_LIST_SIZE
     }
 }

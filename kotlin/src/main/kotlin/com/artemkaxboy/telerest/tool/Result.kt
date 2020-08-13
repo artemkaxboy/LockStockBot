@@ -1,7 +1,6 @@
 package com.artemkaxboy.telerest.tool
 
 import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
-import mu.KLogger
 import org.springframework.data.domain.Page
 
 // @doc https://stackoverflow.com/a/59168658/1452052
@@ -48,11 +47,6 @@ sealed class Result<out T : Any>(
 
         override fun isSuccess() = false
 
-        fun log(logger: KLogger): Failure {
-            logger.error { exception.toString() }
-            return this
-        }
-
         override fun toString(): String {
             return "Failure[$exception]"
         }
@@ -88,7 +82,7 @@ inline fun <T : Any> Result<T>.getOrElse(onFailure: (exception: Exception) -> T)
     }
 }
 
-fun <T : Any, I : Iterable<T>, R : Any> Result<I>.map(block: (T) -> R): Result<Iterable<R>> {
+fun <T : Any, I : List<T>, R : Any> Result<I>.map(block: (T) -> R): Result<List<R>> {
 
     return getOrElse { return Result.failure(it) }
         .map(block)
