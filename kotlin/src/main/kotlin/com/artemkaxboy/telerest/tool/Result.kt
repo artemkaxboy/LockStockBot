@@ -1,6 +1,7 @@
 package com.artemkaxboy.telerest.tool
 
-import mu.KLogger
+import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
+import org.springframework.data.domain.Page
 
 // @doc https://stackoverflow.com/a/59168658/1452052
 
@@ -25,7 +26,7 @@ sealed class Result<out T : Any>(
     fun isFailure() = !isSuccess()
     fun exceptionOrNull() = exception
 
-    inline fun onFailure(action: (exception: Throwable) -> Unit): Result<T> {
+    inline fun onFailure(action: (exception: Exception) -> Unit): Result<T> {
         if (isFailure()) {
             action(requireNotNull(exceptionOrNull()))
         }
@@ -46,11 +47,6 @@ sealed class Result<out T : Any>(
 
         override fun isSuccess() = false
 
-        fun log(logger: KLogger): Failure {
-            logger.error { exception.toString() }
-            return this
-        }
-
         override fun toString(): String {
             return "Failure[$exception]"
         }
@@ -60,30 +56,42 @@ sealed class Result<out T : Any>(
 
         fun failure(message: String) = Failure(Exception(message))
 
-        fun failure(exception: Exception): Failure = Failure(exception)
+        fun failure(exception: Exception, message: String? = null): Failure {
+            val extendedException = message
+                ?.let { Exception(exception.getMessage(message), exception) }
+                ?: exception
+            return Failure(extendedException)
+        }
 
         fun <R : Any> success(value: R) = Success(value)
 
-        inline fun <R : Any> of(block: () -> R?): Result<R> {
+        inline fun <R : Any> of(errorMessage: String? = null, block: () -> R): Result<R> {
             return try {
-                success(requireNotNull(block()))
+                success(block())
             } catch (e: Exception) {
-                failure(e)
+                failure(e, errorMessage)
             }
         }
     }
 }
 
-inline fun <T : Any> Result<T>.getOrElse(onFailure: (exception: Throwable) -> T): T {
+inline fun <T : Any> Result<T>.getOrElse(onFailure: (exception: Exception) -> T): T {
     return when (val exception = exceptionOrNull()) {
         null -> requireNotNull(getOrNull())
         else -> onFailure(exception)
     }
 }
 
-inline fun <T : Any> Result<T>.orElse(onFailure: (exception: Throwable) -> Result<T>): Result<T> {
-    return when (val exception = exceptionOrNull()) {
-        null -> this
-        else -> onFailure(exception)
-    }
+fun <T : Any, I : List<T>, R : Any> Result<I>.map(block: (T) -> R): Result<List<R>> {
+
+    return getOrElse { return Result.failure(it) }
+        .map(block)
+        .let(Result.Companion::success)
+}
+
+fun <T : Any, I : Page<T>, R : Any> Result<I>.mapPage(block: (T) -> R): Result<Page<R>> {
+
+    return getOrElse { return Result.failure(it) }
+        .map(block)
+        .let(Result.Companion::success)
 }

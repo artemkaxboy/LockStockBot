@@ -11,6 +11,7 @@ import javax.persistence.EntityNotFoundException
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
 import org.springframework.http.server.reactive.ServerHttpRequest
+import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -41,12 +42,13 @@ class UserController(
         @RequestParam(required = false, defaultValue = "10")
         pageSize: Int,
 
-        request: ServerHttpRequest
+        request: ServerHttpRequest,
+        response: ServerHttpResponse
     ): Mono<ResponseDto> {
 
         return ResponseDto
-            .getResponse(request) {
-                userService.findAll(PageRequest.of(page - 1, pageSize)).content
+            .getResponse(request, response) {
+                userService.findAll(PageRequest.of(page - 1, pageSize))
             }
             .toMono()
     }
@@ -60,11 +62,12 @@ class UserController(
         @PathVariable
         id: Long,
 
-        request: ServerHttpRequest
+        request: ServerHttpRequest,
+        response: ServerHttpResponse
     ): Mono<ResponseDto> {
 
         return ResponseDto
-            .getResponse(request) {
+            .getResponse(request, response) {
                 userService.findById(id)
                     ?: throw EntityNotFoundException("User with id $id not found.")
             }.toMono()
@@ -81,9 +84,10 @@ class UserController(
         @RequestBody(required = true)
         user: User,
 
-        request: ServerHttpRequest
+        request: ServerHttpRequest,
+        response: ServerHttpResponse
     ): Mono<ResponseDto> {
 
-        return ResponseDto.getResponse(request) { userService.save(user) }.toMono()
+        return ResponseDto.getResponse(request, response) { userService.save(user) }.toMono()
     }
 }

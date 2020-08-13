@@ -4,7 +4,7 @@ import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.listener.event.PotentialChangedEventObject
 import com.artemkaxboy.telerest.service.storage.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.service.telegram.TelegramSendService
-import com.artemkaxboy.telerest.tool.ExceptionUtils
+import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
 import com.artemkaxboy.telerest.tool.Result
 import com.artemkaxboy.telerest.tool.getOrElse
 import kotlinx.coroutines.GlobalScope
@@ -42,9 +42,7 @@ class NotificationService(
                 .onEach { logger.info { "Notify ${it.user.name} about ${it.ticker.id}" } }
                 .forEach { user ->
                     notifyUser(eventObject, user.user).onFailure {
-                        logger.warn {
-                            ExceptionUtils.messageOrDefault(it, "Cannot notify ${user.user.name}: ")
-                        }
+                        logger.warn { it.getMessage("Cannot notify ${user.user.name}") }
                     }
                 }
         }
@@ -57,20 +55,18 @@ class NotificationService(
         val info = "user: ${user.name}, ticker: $tickerId"
 
         val chartMessage = chartService.getChartMessage(todayData = live).getOrElse {
-            return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot get chart ($info): "))
+            return Result.failure(it.getMessage("Cannot get chart ($info)"))
         }
 
         chartMessage.generateByteArray()
             .getOrElse {
-                return Result.failure(
-                    ExceptionUtils.messageOrDefault(it, "Cannot generate byte array to send ($info): ")
-                )
+                return Result.failure(it.getMessage("Cannot generate byte array to send ($info)"))
             }
             .let {
                 telegramSendService.sendPhoto(user.chatId, it, chartMessage.caption)
             }
             .getOrElse {
-                return Result.failure(ExceptionUtils.messageOrDefault(it, "Cannot send graph ($info): "))
+                return Result.failure(it.getMessage("Cannot send graph ($info)"))
             }
             .also {
                 logger.trace { "Chart sent ($info), file_id: $it" }

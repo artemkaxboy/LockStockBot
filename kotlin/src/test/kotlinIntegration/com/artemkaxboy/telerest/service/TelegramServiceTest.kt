@@ -6,7 +6,8 @@ import com.artemkaxboy.telerest.service.telegram.TelegramService
 import com.artemkaxboy.telerest.tool.getOutput
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.Assertions
+import org.assertj.core.api.Assertions as Assertjions
 import org.junit.jupiter.api.Test
 import java.time.Duration
 import kotlin.system.measureTimeMillis
@@ -29,8 +30,8 @@ internal class TelegramServiceTest {
             }
         }
 
-        org.junit.jupiter.api.Assertions.assertEquals(BotState.OFF, bot.state)
-        Assertions.assertThat(out).contains("Telegram bot disabled.")
+        Assertions.assertEquals(BotState.OFF, bot.state)
+        Assertjions.assertThat(out).contains("Telegram bot disabled.")
     }
 
     @Test
@@ -49,9 +50,9 @@ internal class TelegramServiceTest {
             }
         }
 
-        org.junit.jupiter.api.Assertions.assertEquals(BotState.OFF, bot.state)
-        Assertions.assertThat(out).contains("Telegram token is empty.")
-        Assertions.assertThat(out).contains("Telegram bot disabled.")
+        Assertions.assertEquals(BotState.OFF, bot.state)
+        Assertjions.assertThat(out).contains("Telegram token is empty.")
+        Assertjions.assertThat(out).contains("Telegram bot disabled.")
     }
 
     @Test
@@ -70,15 +71,15 @@ internal class TelegramServiceTest {
                 bot.start()
             }
 
-            Assertions.assertThat(result.isFailure()).isTrue()
+            Assertjions.assertThat(result.isFailure()).isTrue()
         }
 
-        org.junit.jupiter.api.Assertions.assertEquals(BotState.OFF, bot.state)
+        Assertions.assertEquals(BotState.CREATED, bot.state)
 
         out.split("\n")
             .count { it.contains("bot starting...") }
             .also {
-                Assertions.assertThat(it).isEqualTo(botProperties.reconnection.count)
+                Assertjions.assertThat(it).isEqualTo(botProperties.reconnection.count)
                     .`as`("No as reconnection messages as attempts")
             }
     }
@@ -99,10 +100,10 @@ internal class TelegramServiceTest {
                 bot.start()
             }
 
-            Assertions.assertThat(result.isFailure()).isTrue()
+            Assertjions.assertThat(result.isFailure()).isTrue()
         }
 
-        Assertions.assertThat(timeSpent)
+        Assertjions.assertThat(timeSpent)
             .isGreaterThan(botProperties.reconnection.let { it.count * it.delay.toMillis() })
     }
 }

@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.service.storage
 
+import com.artemkaxboy.telerest.tool.paging.SinglePage
 import com.artemkaxboy.telerest.tool.sorting.Sorting
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -18,7 +19,8 @@ open class BaseStorageService(
     protected val defaultPageRequest = PageRequest.of(defaultPage.pageNumber, defaultPage.pageSize, defaultSort)
 
     protected fun defaultSortIfUnsorted(pageable: Pageable): Pageable {
-        require(pageable.isPaged)
+        if (pageable.isUnpaged) return SinglePage.of(defaultSort)
+
         return pageable.takeIf { it.sort.isUnsorted }
             ?.let { PageRequest.of(it.pageNumber, it.pageSize, defaultSort) }
             ?: pageable

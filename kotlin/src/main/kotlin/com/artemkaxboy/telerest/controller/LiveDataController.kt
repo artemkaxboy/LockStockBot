@@ -8,6 +8,7 @@ import com.artemkaxboy.telerest.dto.ResponseDto
 import com.artemkaxboy.telerest.mapper.LiveDataToLiveDataDtoMapper
 import com.artemkaxboy.telerest.mapper.toDto
 import com.artemkaxboy.telerest.service.storage.LiveDataService
+import com.artemkaxboy.telerest.tool.mapPage
 import com.artemkaxboy.telerest.tool.valueOfOrNull
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -58,8 +59,6 @@ class LiveDataController(
         ]
     )
     fun getLiveData(
-        request: ServerHttpRequest,
-
         @Parameter(description = "Ticker code, e.g. AAPL for Apple or AMZN for Amazon.", example = "AMZN")
         @PathVariable
         ticker: String,
@@ -85,9 +84,12 @@ class LiveDataController(
             required = false
         )
         @RequestParam(defaultValue = "$DEFAULT_PAGE_SIZE")
-        pageSize: Int
+        pageSize: Int,
+
+        request: ServerHttpRequest,
+        response: ServerHttpResponse
     ): Mono<ResponseDto> {
-        return ResponseDto.getResponse(request) {
+        return ResponseDto.getResponse(request, response) {
             liveDataService.findByTickerId(
                 ticker,
                 PageRequest.of(page - 1, pageSize)
@@ -162,11 +164,11 @@ class LiveDataController(
         val pageRequest = PageRequest.of(page - 1, pageSize)
 
         return ResponseDto
-            .getResponse(request) {
+            .getResponse(request, response) {
 
                 liveDataService
                     .findLiveData(orderValue, directionValue, pageRequest)
-                    .map { LiveDataToLiveDataDtoMapper.instance.toDto(it) }
+                    .mapPage { LiveDataToLiveDataDtoMapper.instance.toDto(it) }
             }
             .toMono()
     }

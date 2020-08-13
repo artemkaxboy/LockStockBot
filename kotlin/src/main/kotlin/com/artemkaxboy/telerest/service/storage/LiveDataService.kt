@@ -4,6 +4,7 @@ import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.entity.LiveDataId
 import com.artemkaxboy.telerest.entity.LiveDataShallow
 import com.artemkaxboy.telerest.repo.LiveDataRepo
+import com.artemkaxboy.telerest.tool.Result
 import com.artemkaxboy.telerest.tool.sorting.Sorting
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -51,12 +52,17 @@ class LiveDataService(
      *
      * @return page of [LiveData].
      */
-    fun findAllByDate(date: LocalDate = LocalDate.now(), pageable: Pageable = defaultPageRequest): Page<LiveData> {
-        if (pageable.sort.getOrderFor(LiveData::potential.name) != null) {
-            return liveDataRepo.findAllByDateAndPotentialNotNull(pageable, date)
+    fun findAllByDate(
+        date: LocalDate = LocalDate.now(),
+        pageable: Pageable = defaultPageRequest
+    ): Result<Page<LiveData>> =
+        Result.of("Cannot find LiveData by date") {
+            if (pageable.sort.getOrderFor(LiveData::potential.name) != null) {
+                liveDataRepo.findAllByDateAndPotentialNotNull(pageable, date)
+            } else {
+                liveDataRepo.findAllByDate(defaultSortIfUnsorted(pageable), date)
+            }
         }
-        return liveDataRepo.findAllByDate(defaultSortIfUnsorted(pageable), date)
-    }
 
     /**
      * Finds today's data with given sort order.
@@ -65,7 +71,7 @@ class LiveDataService(
         order: Order,
         direction: Sort.Direction = Sort.Direction.ASC,
         pageable: Pageable = defaultPageRequest
-    ): Page<LiveData> {
+    ): Result<Page<LiveData>> {
         val sortedPageRequest =
             PageRequest.of(pageable.pageNumber, pageable.pageSize, Sort.by(order.getSortOrder(direction)))
 

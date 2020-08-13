@@ -10,12 +10,10 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDate
 import kotlin.random.Random
@@ -97,11 +95,6 @@ internal class LiveDataServiceTest {
     }
 
     @Test
-    fun `fail to find all ticks unpaged`() {
-        assertThrows<IllegalArgumentException> { liveDataService.findAllByDate(pageable = Pageable.unpaged()) }
-    }
-
-    @Test
     fun `fail to find all ticks by date`() {
         val date = LocalDate.now().minusDays(Random.nextLong(100, 365))
 
@@ -118,7 +111,8 @@ internal class LiveDataServiceTest {
             }
             .sortedWith(liveDataService.defaultComparator)
 
-        val actual1 = liveDataService.findAllByDate(date, SinglePage.of(liveDataService.defaultSort)).content
+        val actual1 = liveDataService
+            .findAllByDate(date, SinglePage.of(liveDataService.defaultSort)).getOrNull()?.content
         Assertions.assertEquals(expected, actual1)
     }
 
@@ -158,10 +152,10 @@ internal class LiveDataServiceTest {
         Assertions.assertNotEquals(0, consensusCount)
         Assertions.assertNotEquals(totalCount, consensusCount)
 
-        val actualPotential = liveDataService.findLiveData(LiveDataService.Order.POTENTIAL).totalElements
+        val actualPotential = liveDataService.findLiveData(LiveDataService.Order.POTENTIAL).getOrNull()?.totalElements
         Assertions.assertEquals(consensusCount.toLong(), actualPotential)
 
-        val actualCount = liveDataService.findLiveData(LiveDataService.Order.TICKER).totalElements
+        val actualCount = liveDataService.findLiveData(LiveDataService.Order.TICKER).getOrNull()?.totalElements
         Assertions.assertEquals(totalCount.toLong(), actualCount)
     }
 

@@ -76,7 +76,7 @@ internal class TickerServiceTest {
 
         tickerRepo.deleteAll()
 
-        val actualSize = tickerService.findAll().content.size
+        val actualSize = tickerService.findAll().totalElements
         assertEquals(0, actualSize)
 
         val actualCurrency = currencyRepo.findByIdOrNull(expected.currencyId)

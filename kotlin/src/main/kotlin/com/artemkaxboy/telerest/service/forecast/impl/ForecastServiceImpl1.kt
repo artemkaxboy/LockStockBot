@@ -3,21 +3,18 @@ package com.artemkaxboy.telerest.service.forecast.impl
 import com.artemkaxboy.telerest.config.properties.ForecastSource1Properties
 import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.service.forecast.ForecastService
-import com.artemkaxboy.telerest.tool.ExceptionUtils
-import com.artemkaxboy.telerest.tool.Result
-import com.artemkaxboy.telerest.tool.orElse
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.buffer
-import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.takeWhile
+import kotlinx.coroutines.reactive.awaitFirst
 import mu.KotlinLogging
 import org.springframework.stereotype.Service
-import org.springframework.web.client.RestTemplate
-import java.io.IOException
+import org.springframework.web.reactive.function.client.WebClient
 
 @Service
 class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource1Properties) :
@@ -29,53 +26,47 @@ class ForecastServiceImpl1(private val forecastSource1Properties: ForecastSource
             forecastSource1Properties.pageSize > 0 &&
             forecastSource1Properties.updateInterval.toMillis() > 0
 
-    private suspend fun fetchPageFromSource(page: Int): Result<Array<Source1TickerDto>> {
+    private suspend fun fetchPageFromSource(page: Int): List<Source1TickerDto> {
 
         val url = forecastSource1Properties.baseUrl +
-            "?type=share" +
-            "&limit=${forecastSource1Properties.pageSize}" +
-            "&offset=${forecastSource1Properties.pageSize * page}"
+            "?type={type}" +
+            "&limit={limit}" +
+            "&offset={offset}"
 
-        return withContext(Dispatchers.IO) {
-
-            Result.of {
-
-                requireNotNull(RestTemplate().getForObject(url, Array<Source1TickerDto>::class.java))
-                    .also { logger.trace { "Got source1 page: $page" } }
-            }.orElse { exception ->
-
-                val message = ExceptionUtils.messageOrDefault(exception, "Cannot fetch data from url $url: ")
-                Result.failure(IOException(message, exception))
-            }
-        }
+        return WebClient.builder()
+            .baseUrl(url)
+            .defaultUriVariables(
+                mapOf(
+                    "type" to "share",
+                    "limit" to forecastSource1Properties.pageSize.toString(),
+                    "offset" to (forecastSource1Properties.pageSize * page).toString()
+                )
+            )
+            .build()
+            .get()
+            .retrieve()
+            .bodyToFlux(Source1TickerDto::class.java)
+            .doFirst { logger.trace { "Got source1 page: $page" } }
+            .collectList()
+            .awaitFirst()
     }
 
     /**
      * Gets all tickers from source 1 or less if [ForecastSource1Properties.maxPages] value were reached.
      * @return the full list of tickers from source 1.
      */
-    fun getFlow(): Flow<Source1TickerDto> {
+    suspend fun getTickerFlow(): Flow<Source1TickerDto> {
 
-        return flow {
-            logger.info { "Fetching source 1 tickers" }
-            for (i in 0.until(forecastSource1Properties.maxPages)) {
-                val pageResult = fetchPageFromSource(i)
+        var lastPageFull = true
+        return (0 until forecastSource1Properties.maxPages)
+            .asFlow()
 
-                if (pageResult.isFailure()) {
+            // this code takes last unnecessary loop, to prevent REST request we need this ugly construction
+            .map { if (lastPageFull) fetchPageFromSource(it) else emptyList() }
+            .takeWhile { lastPageFull }
+            .onEach { lastPageFull = it.size == forecastSource1Properties.pageSize }
 
-                    logger.error {
-                        ExceptionUtils.messageOrDefault(pageResult, "Cannot fetch tickers, page $i: ")
-                    }
-                    break // break doesn't work from scope functions
-                }
-
-                val page = requireNotNull(pageResult.getOrNull())
-
-                emitAll(page.asFlow())
-                /* break if last page */
-                if (page.size != forecastSource1Properties.pageSize) break
-            }
-        }
+            .flatMapMerge { it.asFlow() }
             .buffer(forecastSource1Properties.pageSize * forecastSource1Properties.bufferPages)
             .filter(this::dropIncorrect)
     }
