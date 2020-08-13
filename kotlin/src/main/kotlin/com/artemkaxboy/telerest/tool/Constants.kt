@@ -1,7 +1,6 @@
 package com.artemkaxboy.telerest.tool
 
 object Constants {
-    const val UNKNOWN_ERROR = "Unknown error"
     const val PRICE_ROUND_PRECISION = 4
     const val PERCENT_ROUND_PRECISION = 2
 }

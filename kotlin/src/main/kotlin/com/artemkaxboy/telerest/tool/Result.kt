@@ -27,7 +27,7 @@ sealed class Result<out T : Any>(
     fun isFailure() = !isSuccess()
     fun exceptionOrNull() = exception
 
-    inline fun onFailure(action: (exception: Throwable) -> Unit): Result<T> {
+    inline fun onFailure(action: (exception: Exception) -> Unit): Result<T> {
         if (isFailure()) {
             action(requireNotNull(exceptionOrNull()))
         }

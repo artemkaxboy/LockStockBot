@@ -11,6 +11,7 @@ spring:
   datasource:
     hikari:
       connection-timeout: 1000
+      maximum-pool-size: 4
 
 # suppress ticker immutability warning
 logging:

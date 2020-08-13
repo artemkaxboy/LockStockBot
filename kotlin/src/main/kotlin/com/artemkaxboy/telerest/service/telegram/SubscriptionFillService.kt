@@ -5,7 +5,6 @@ import com.artemkaxboy.telerest.entity.User
 import com.artemkaxboy.telerest.service.storage.UserService
 import com.artemkaxboy.telerest.service.storage.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.service.storage.TickerService
-import com.artemkaxboy.telerest.tool.ExceptionUtils
 import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
 import com.artemkaxboy.telerest.tool.getOrElse
 import com.artemkaxboy.telerest.tool.paging.SinglePage
