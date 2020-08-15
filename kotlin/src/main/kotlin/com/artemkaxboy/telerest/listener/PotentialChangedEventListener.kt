@@ -1,7 +1,6 @@
 package com.artemkaxboy.telerest.listener
 
 import com.artemkaxboy.telerest.listener.event.PotentialChangedEvent
-import com.artemkaxboy.telerest.listener.event.PotentialChangedEventObject
 import com.artemkaxboy.telerest.service.NotificationService
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -17,11 +16,8 @@ class PotentialChangedEventListener(
      * Listen each [PotentialChangedEvent] and starts coroutine to notify subscribers.
      */
     override fun onApplicationEvent(event: PotentialChangedEvent) {
-        val changes = event.source as? PotentialChangedEventObject
-            ?: return
-
         GlobalScope.launch {
-            notificationService.notify(changes)
+            notificationService.notify(event.source)
         }
     }
 }
