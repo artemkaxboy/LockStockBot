@@ -16,6 +16,9 @@ object RandomUtils {
     fun timeBefore(from: LocalDateTime = LocalDateTime.now(), interval: LongRange = (100..365L)): LocalDateTime =
         from.minusDays(Random.nextLong(interval.first, interval.last))
 
+    fun dateAfter(from: LocalDate = LocalDate.now(), interval: LongRange = (100..365L)): LocalDate =
+        from.plusDays(Random.nextLong(interval.first, interval.last))
+
     fun timeAfter(from: LocalDateTime = LocalDateTime.now(), interval: LongRange = (100..365L)): LocalDateTime =
         from.plusDays(Random.nextLong(interval.first, interval.last))
 
