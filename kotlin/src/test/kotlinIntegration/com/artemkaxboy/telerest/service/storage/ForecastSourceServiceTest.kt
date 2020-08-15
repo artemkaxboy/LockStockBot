@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // To make @BeforeAll non-static
-internal class ForecastServiceTest {
+internal class ForecastSourceServiceTest {
 
     @Autowired
     lateinit var forecastService: ForecastService
