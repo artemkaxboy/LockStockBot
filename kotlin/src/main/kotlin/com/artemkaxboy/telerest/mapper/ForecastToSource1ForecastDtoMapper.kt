@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.mapper
 
+import com.artemkaxboy.telerest.converter.toLocalDate
 import com.artemkaxboy.telerest.converter.toLocalDateTime
 import com.artemkaxboy.telerest.dto.Source1ForecastDto
 import com.artemkaxboy.telerest.entity.Forecast
@@ -22,7 +23,7 @@ class ForecastToSource1ForecastDtoMapper(mapper: ModelMapper) :
             upstreamId = source.id,
             source = 1,
             publishDate = source.publishDate.toLocalDateTime(),
-            expirationDate = source.expirationDate.toLocalDateTime(),
+            expirationDate = source.expirationDate.toLocalDate(),
             targetPrice = source.sharePrice,
             tickerId = ""
         )
