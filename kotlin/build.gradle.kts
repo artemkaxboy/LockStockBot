@@ -77,7 +77,11 @@ dependencies {
     }
     /*--------------------- end of telegram bot ---------------------------------------*/
 
+    // --------- chars
     implementation("org.jfree:jfreechart:1.5.0")
+
+    // --------- dom parsing
+    implementation("org.jsoup:jsoup:1.13.1")
 
     // spring test
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
