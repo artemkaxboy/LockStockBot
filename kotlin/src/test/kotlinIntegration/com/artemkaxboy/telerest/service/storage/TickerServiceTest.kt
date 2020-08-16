@@ -91,8 +91,10 @@ internal class TickerServiceTest {
 
         val oldForecasts = (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .also { tickerService.save(ticker.copy(forecasts = it)) }
@@ -103,8 +105,10 @@ internal class TickerServiceTest {
 
         (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .plus(oldForecasts)
@@ -123,8 +127,10 @@ internal class TickerServiceTest {
 
         (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .also { tickerService.save(ticker.copy(forecasts = it)) }
@@ -134,8 +140,10 @@ internal class TickerServiceTest {
 
         (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .let { ticker.copy(forecasts = it) }

@@ -27,15 +27,17 @@ internal class ForecastSourceServiceTest {
     @Autowired
     lateinit var forecastRepo: ForecastRepo
 
-    @Test
+    @Test // todo save link or id to analyst field, add analyst found field
     fun `fail to find unexpired`() {
         val forecast = Forecast.random().copy(publishDate = LocalDateTime.now())
 
         /* save a few forecasts years-aged */
         (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     publishDate = forecast.publishDate.minusYears(it)
                 )
             }
@@ -44,8 +46,10 @@ internal class ForecastSourceServiceTest {
         /* save a few forecasts minutes-aged */
         val expected = (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     publishDate = forecast.publishDate.minusMinutes(it)
                 )
             }
@@ -64,8 +68,10 @@ internal class ForecastSourceServiceTest {
         val forecast = Forecast.random().copy(publishDate = LocalDateTime.now())
         val expected = (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     publishDate = forecast.publishDate.minusMinutes(it)
                 )
             }
@@ -81,8 +87,10 @@ internal class ForecastSourceServiceTest {
         val forecast = Forecast.random().copy(publishDate = LocalDateTime.now())
         val expected = (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     targetPrice = forecast.targetPrice * 1.02
                 )
             }
