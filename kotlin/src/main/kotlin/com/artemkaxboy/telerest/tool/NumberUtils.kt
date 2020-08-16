@@ -16,4 +16,7 @@ object NumberUtils {
     }
 
     fun getPercent(value: Double, base: Double): Double = value / base * 100
+
+    fun getPrecision(value: Double): Int =
+        value.toString().substringAfter(".", "").length
 }

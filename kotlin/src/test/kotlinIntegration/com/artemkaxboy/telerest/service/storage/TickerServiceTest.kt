@@ -39,7 +39,7 @@ internal class TickerServiceTest {
             .also { tickerRepo.saveAll(it) }
             .sortedBy { it.id }
 
-        val actual = tickerService.findAll().content
+        val actual = tickerService.findAll()?.content
         assertEquals(expected, actual)
     }
 
@@ -59,9 +59,9 @@ internal class TickerServiceTest {
         val expected = Ticker.random()
             .also { tickerService.save(it) }
 
-        val actual = tickerService.findAll().content
-            .also { assertEquals(1, it.size) }
-            .first()
+        val actual = tickerService.findAll()?.content
+            ?.also { assertEquals(1, it.size) }
+            ?.first()
 
         assertEquals(expected, actual)
     }
@@ -76,7 +76,7 @@ internal class TickerServiceTest {
 
         tickerRepo.deleteAll()
 
-        val actualSize = tickerService.findAll().totalElements
+        val actualSize = tickerService.findAll()?.totalElements
         assertEquals(0, actualSize)
 
         val actualCurrency = currencyRepo.findByIdOrNull(expected.currencyId)
@@ -91,8 +91,10 @@ internal class TickerServiceTest {
 
         val oldForecasts = (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .also { tickerService.save(ticker.copy(forecasts = it)) }
@@ -103,8 +105,10 @@ internal class TickerServiceTest {
 
         (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .plus(oldForecasts)
@@ -123,8 +127,10 @@ internal class TickerServiceTest {
 
         (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .also { tickerService.save(ticker.copy(forecasts = it)) }
@@ -134,8 +140,10 @@ internal class TickerServiceTest {
 
         (1..expected)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId()
+                    upstreamId = id,
+                    analyst = id
                 )
             }
             .let { ticker.copy(forecasts = it) }

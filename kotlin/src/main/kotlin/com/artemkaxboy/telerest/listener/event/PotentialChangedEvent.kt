@@ -5,15 +5,11 @@ import org.springframework.context.ApplicationEvent
 
 // @doc https://www.baeldung.com/spring-events
 
-class PotentialChangedEvent(liveData: LiveData, yesterdayData: LiveData) :
-    ApplicationEvent(
-        PotentialChangedEventObject(
-            liveData,
-            yesterdayData
-        )
-    )
+class PotentialChangedEvent(val source: Source) :
+    ApplicationEvent(source) {
 
-class PotentialChangedEventObject(
-    val liveData: LiveData,
-    val yesterdayData: LiveData
-)
+    class Source(
+        val liveData: LiveData,
+        val yesterdayData: LiveData
+    )
+}

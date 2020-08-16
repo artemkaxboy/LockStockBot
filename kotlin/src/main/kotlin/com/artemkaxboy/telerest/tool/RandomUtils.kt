@@ -16,6 +16,9 @@ object RandomUtils {
     fun timeBefore(from: LocalDateTime = LocalDateTime.now(), interval: LongRange = (100..365L)): LocalDateTime =
         from.minusDays(Random.nextLong(interval.first, interval.last))
 
+    fun dateAfter(from: LocalDate = LocalDate.now(), interval: LongRange = (100..365L)): LocalDate =
+        from.plusDays(Random.nextLong(interval.first, interval.last))
+
     fun timeAfter(from: LocalDateTime = LocalDateTime.now(), interval: LongRange = (100..365L)): LocalDateTime =
         from.plusDays(Random.nextLong(interval.first, interval.last))
 
@@ -28,4 +31,8 @@ object RandomUtils {
     fun company(id: String) = "Company $id"
 
     fun string() = UUID.randomUUID().toString()
+
+    suspend fun delay(from: Long = 5_000L, until: Long = 10_000L) =
+        Random.nextLong(from, until).let { kotlinx.coroutines.delay(it) }
+
 }

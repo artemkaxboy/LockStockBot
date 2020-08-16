@@ -65,9 +65,10 @@ sealed class Result<out T : Any>(
 
         fun <R : Any> success(value: R) = Success(value)
 
-        inline fun <R : Any> of(errorMessage: String? = null, block: () -> R): Result<R> {
+        inline fun <R : Any> of(errorMessage: String? = null, block: () -> R?): Result<R> {
             return try {
-                success(block())
+                block()?.let { success(it) }
+                    ?: failure(Exception("Got null result"), errorMessage)
             } catch (e: Exception) {
                 failure(e, errorMessage)
             }

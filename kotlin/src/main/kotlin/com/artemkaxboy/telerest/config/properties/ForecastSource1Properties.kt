@@ -16,6 +16,8 @@ private const val DEFAULT_MAX_PAGES = 20
 private const val DEFAULT_BUFFER_PAGES = 3
 private const val DEFAULT_UPDATE_INTERVAL_MINUTES = 15
 
+private const val DEFAULT_RESOLVER_START_DELAY = 15_000L
+
 @Configuration
 @ConfigurationProperties("forecast.source1")
 @Validated
@@ -53,6 +55,34 @@ class ForecastSource1Properties {
     var ttl: Duration = Duration.ofDays(DEFAULT_TTL_PERIOD_DAYS.toLong())
 
     /** Base url to perform requests. */
-    // @NotBlank(message = "Source1 base url cannot be empty.")
     var baseUrl: String = ""
+
+    var analystResolver: AnalystResolver = AnalystResolver()
+
+    fun isEnabled() = baseUrl.isNotBlank() &&
+        maxPages > 0 &&
+        pageSize > 0 &&
+        !updateInterval.isZero
+
+    class AnalystResolver {
+
+        /** Enable resolver. */
+        var enabled: Boolean = false
+
+        /** Resolver delay before start work. Needed to allow main update transaction to finish. */
+        var startDelay: Long = DEFAULT_RESOLVER_START_DELAY
+
+        var containerSelector: String = ""
+        var elementSelector: String = ""
+        var analystMark: String = ""
+        var analystValueSelector: String = ""
+        var analysisValueSelector: String = ""
+
+        fun isEnabled() = enabled &&
+            containerSelector.isNotBlank() &&
+            elementSelector.isNotBlank() &&
+            analystMark.isNotBlank() &&
+            analystValueSelector.isNotBlank() &&
+            analysisValueSelector.isNotBlank()
+    }
 }

@@ -57,8 +57,8 @@ class SubscriptionFillService(
             }
             .also { userService.saveAll(it) }
 
-        val tickers = tickerService.findAll(SinglePage.unsorted())
-        subscriptionService.allToAll(users, tickers)
+        tickerService.findAll(SinglePage.unsorted())
+            ?.let { subscriptionService.allToAll(users, it) }
     }
 
     companion object {

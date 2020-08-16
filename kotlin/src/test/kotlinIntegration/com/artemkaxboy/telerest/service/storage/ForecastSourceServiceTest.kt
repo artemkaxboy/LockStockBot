@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) // To make @BeforeAll non-static
-internal class ForecastServiceTest {
+internal class ForecastSourceServiceTest {
 
     @Autowired
     lateinit var forecastService: ForecastService
@@ -27,15 +27,17 @@ internal class ForecastServiceTest {
     @Autowired
     lateinit var forecastRepo: ForecastRepo
 
-    @Test
+    @Test // todo save link or id to analyst field, add analyst found field
     fun `fail to find unexpired`() {
         val forecast = Forecast.random().copy(publishDate = LocalDateTime.now())
 
         /* save a few forecasts years-aged */
         (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     publishDate = forecast.publishDate.minusYears(it)
                 )
             }
@@ -44,8 +46,10 @@ internal class ForecastServiceTest {
         /* save a few forecasts minutes-aged */
         val expected = (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     publishDate = forecast.publishDate.minusMinutes(it)
                 )
             }
@@ -64,8 +68,10 @@ internal class ForecastServiceTest {
         val forecast = Forecast.random().copy(publishDate = LocalDateTime.now())
         val expected = (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     publishDate = forecast.publishDate.minusMinutes(it)
                 )
             }
@@ -81,8 +87,10 @@ internal class ForecastServiceTest {
         val forecast = Forecast.random().copy(publishDate = LocalDateTime.now())
         val expected = (1..10L)
             .map {
+                val id = RandomUtils.forecastId()
                 forecast.copy(
-                    upstreamId = RandomUtils.forecastId(),
+                    upstreamId = id,
+                    analyst = id,
                     targetPrice = forecast.targetPrice * 1.02
                 )
             }

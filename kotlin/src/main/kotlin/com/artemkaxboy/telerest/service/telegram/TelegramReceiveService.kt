@@ -48,7 +48,7 @@ class TelegramReceiveService(
 
     // ENTRYPOINT
     private suspend fun onAnyMessage(message: Message) {
-        logger.trace { "Got new message" }
+        logger.trace { "Got new message (${message.from?.id} ${message.from?.username})" }
 
         if (isCustomReadRequest(message)) {
             onCustomRead(message)
