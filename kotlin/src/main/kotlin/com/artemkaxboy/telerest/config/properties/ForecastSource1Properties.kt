@@ -73,12 +73,14 @@ class ForecastSource1Properties {
         var startDelay: Long = DEFAULT_RESOLVER_START_DELAY
 
         var containerSelector: String = ""
+        var elementSelector: String = ""
         var analystMark: String = ""
         var analystValueSelector: String = ""
         var analysisValueSelector: String = ""
 
         fun isEnabled() = enabled &&
             containerSelector.isNotBlank() &&
+            elementSelector.isNotBlank() &&
             analystMark.isNotBlank() &&
             analystValueSelector.isNotBlank() &&
             analysisValueSelector.isNotBlank()
