@@ -23,7 +23,7 @@ import javax.persistence.Table
 data class Forecast(
 
     @Id
-    val source: Int = 1,
+    val sourceId: Int = 1,
 
     @Id
     val upstreamId: String = "",
@@ -50,6 +50,7 @@ data class Forecast(
 
 ) : ChangeableEntity() {
 
+    @Suppress("DuplicatedCode") // supposed to be similar
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -59,7 +60,7 @@ data class Forecast(
         if (analyst != other.analyst) return false
         if (publishDate != other.publishDate) return false
         if (upstreamId != other.upstreamId) return false
-        if (source != other.source) return false
+        if (sourceId != other.sourceId) return false
         if (expirationDate != other.expirationDate) return false
         if (targetPrice != other.targetPrice) return false
         if (url != other.url) return false
@@ -72,7 +73,7 @@ data class Forecast(
         var result = analyst.hashCode()
         result = 31 * result + publishDate.hashCode()
         result = 31 * result + upstreamId.hashCode()
-        result = 31 * result + source
+        result = 31 * result + sourceId
         result = 31 * result + expirationDate.hashCode()
         result = 31 * result + targetPrice.hashCode()
         result = 31 * result + url.hashCode()
@@ -84,7 +85,7 @@ data class Forecast(
         return "Forecast(analyst='$analyst', " +
             "publishDate=$publishDate, " +
             "upstreamId='$upstreamId', " +
-            "source=$source, " +
+            "sourceId=$sourceId, " +
             "expirationDate=$expirationDate, " +
             "targetPrice=$targetPrice, " +
             "url='$url', " +
@@ -107,7 +108,7 @@ data class Forecast(
 
             return Forecast(
                 upstreamId = upstreamId,
-                source = RandomUtils.forecastSource(),
+                sourceId = RandomUtils.forecastSource(),
                 publishDate = RandomUtils.timeBefore(),
                 expirationDate = RandomUtils.dateAfter(),
                 targetPrice = RandomUtils.price(),

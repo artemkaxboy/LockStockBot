@@ -31,4 +31,8 @@ object RandomUtils {
     fun company(id: String) = "Company $id"
 
     fun string() = UUID.randomUUID().toString()
+
+    suspend fun delay(from: Long = 5_000L, until: Long = 10_000L) =
+        Random.nextLong(from, until).let { kotlinx.coroutines.delay(it) }
+
 }

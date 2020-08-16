@@ -26,7 +26,7 @@ interface ForecastRepo : JpaRepository<Forecast, ForecastId> {
         date: LocalDateTime
     ): List<Forecast>
 
-    fun findAllBySourceAndUpstreamIdIn(source: Int, upstreamIds: Iterable<String>): List<Forecast>
+    fun findAllBySourceIdAndUpstreamIdIn(sourceId: Int, upstreamIds: Iterable<String>): List<Forecast>
 
-    fun findAllBySourceAndAnalystNull(source: Int): List<Forecast>
+    fun findAllBySourceIdAndAnalystNull(sourceId: Int): List<Forecast>
 }

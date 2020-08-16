@@ -21,7 +21,7 @@ class ForecastToSource1ForecastDtoMapper(mapper: ModelMapper) :
     override fun postConvert(source: Source1ForecastDto, destination: Forecast): Forecast {
         return destination.copy(
             upstreamId = source.id,
-            source = 1,
+            sourceId = 1,
             publishDate = source.publishDate.toLocalDateTime(),
             expirationDate = source.expirationDate.toLocalDate(),
             targetPrice = source.sharePrice,

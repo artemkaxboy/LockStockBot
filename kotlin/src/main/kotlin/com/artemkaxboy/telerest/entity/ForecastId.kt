@@ -4,7 +4,7 @@ import java.io.Serializable
 
 data class ForecastId(
 
-    val source: Int = 1,
+    val sourceId: Int = 1,
 
     val upstreamId: String = ""
 
@@ -12,6 +12,6 @@ data class ForecastId(
 
     companion object {
 
-        fun of(entity: Forecast): ForecastId = ForecastId(entity.source, entity.upstreamId)
+        fun of(entity: Forecast): ForecastId = ForecastId(entity.sourceId, entity.upstreamId)
     }
 }
