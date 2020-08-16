@@ -114,7 +114,8 @@ data class Forecast(
                 targetPrice = RandomUtils.price(),
                 url = RandomUtils.url(upstreamId),
                 ticker = tickerToAdd,
-                tickerId = tickerIdToAdd
+                tickerId = tickerIdToAdd,
+                analyst = upstreamId
             )
         }
     }
