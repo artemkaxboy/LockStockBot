@@ -1,12 +1,9 @@
 package com.artemkaxboy.telerest.schedule
 
-import com.artemkaxboy.telerest.dto.Source1TickerDto
 import com.artemkaxboy.telerest.listener.event.PotentialChangedEvent
-import com.artemkaxboy.telerest.mapper.TickerToSource1TickerDtoMapper
-import com.artemkaxboy.telerest.mapper.toEntity
-import com.artemkaxboy.telerest.service.forecast.impl.ForecastServiceImpl1
+import com.artemkaxboy.telerest.listener.event.UpdateFinishedEvent
+import com.artemkaxboy.telerest.service.forecast.impl.ForecastSourceServiceImpl1
 import com.artemkaxboy.telerest.service.storage.LiveDataService
-import com.artemkaxboy.telerest.service.storage.TickerService
 import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
 import com.artemkaxboy.telerest.tool.getOrElse
 import com.artemkaxboy.telerest.tool.paging.SinglePage
@@ -26,8 +23,7 @@ import javax.transaction.Transactional
 @Component
 class UpdateForecastsJob(
     private val applicationEventPublisher: ApplicationEventPublisher,
-    private val forecastServiceImpl1: ForecastServiceImpl1,
-    private val tickerService: TickerService,
+    private val forecastSourceServiceImpl1: ForecastSourceServiceImpl1,
     private val liveDataService: LiveDataService
 ) {
 
@@ -50,10 +46,10 @@ class UpdateForecastsJob(
 
         runBlocking {
 
-            forecastServiceImpl1.takeIf { it.isEnabled() }
+            forecastSourceServiceImpl1.takeIf { it.isEnabled() }
                 ?.getTickerFlow()
                 ?.onEach { logger.trace { "got: ${it.title}" } }
-                ?.onEach(::saveMissingForecasts)
+                ?.onEach(forecastSourceServiceImpl1::saveMissingForecasts)
                 ?.map { liveDataService.getLatestData(it.title, it.price) }
                 ?.onEach { logger.trace { "mapped: ${it.tickerId}" } }
                 ?.onEach { newTick ->
@@ -62,7 +58,7 @@ class UpdateForecastsJob(
                         ?.takeIf { it.getRoundedPotential() != newTick.getRoundedPotential() }
                         ?.also {
                             applicationEventPublisher.publishEvent(
-                                PotentialChangedEvent(newTick, it)
+                                PotentialChangedEvent(PotentialChangedEvent.Source(newTick, it))
                             )
                         }
                         ?.also { logger.trace { "published: ${it.tickerId}" } }
@@ -72,14 +68,9 @@ class UpdateForecastsJob(
                 // ?.collect { liveDataService.save(it) } // todo measure and choose save/saveAll
                 ?.toList()
                 ?.let { liveDataService.saveAll(it) }
+                ?.also { applicationEventPublisher.publishEvent(UpdateFinishedEvent()) }
                 ?: logger.info { "ForecastService Source1 disabled." }
         }
-    }
-
-    suspend fun saveMissingForecasts(tickerDto: Source1TickerDto) {
-        TickerToSource1TickerDtoMapper.instance.toEntity(tickerDto)
-            .also { logger.trace { "Saving ticker ${it.id}..." } }
-            .also { tickerService.save(it) }
     }
 
     companion object {
