@@ -18,6 +18,7 @@ data class Currency(
     val tickers: List<Ticker>? = null
 ) : AbstractEntity() {
 
+    @Suppress("DuplicatedCode") // supposed to be similar
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
