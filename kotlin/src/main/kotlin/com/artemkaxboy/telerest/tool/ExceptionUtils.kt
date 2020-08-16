@@ -23,6 +23,9 @@ object ExceptionUtils {
             is UnknownHostException ->
                 throwable.message?.prefixReason("Unknown host")
 
+            is NullPointerException ->
+                "Null pointer exception"
+
             else ->
                 throwable.message
         } ?: throwable.toString()
