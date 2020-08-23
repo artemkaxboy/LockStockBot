@@ -23,12 +23,15 @@ internal class LiveDataTest {
 
     @Test
     fun `getPotentialDifferenceOrNull() fail to return null`() {
-        val noPotentialData = LiveData.random()
-        val withPotentialData = noPotentialData.copy(potential = RandomUtils.price())
+        val noNoPotential = LiveData.random().copy(potential = null, previousPotential = null)
+        val noYesPotential = LiveData.random().copy(potential = null, previousPotential = RandomUtils.price())
+        val yesNoPotential = LiveData.random().copy(potential = RandomUtils.price(), previousPotential = null)
+        val yesYesPotential =
+            LiveData.random().copy(potential = RandomUtils.price(), previousPotential = RandomUtils.price())
 
-        assertNull(noPotentialData.getPotentialDifferenceOrNull(null))
-        assertNull(noPotentialData.getPotentialDifferenceOrNull(withPotentialData))
-        assertNull(withPotentialData.getPotentialDifferenceOrNull(noPotentialData))
-        assertNotNull(withPotentialData.getPotentialDifferenceOrNull(withPotentialData))
+        assertNull(noNoPotential.getPotentialDifferenceOrNull())
+        assertNull(noYesPotential.getPotentialDifferenceOrNull())
+        assertNull(yesNoPotential.getPotentialDifferenceOrNull())
+        assertNotNull(yesYesPotential.getPotentialDifferenceOrNull())
     }
 }

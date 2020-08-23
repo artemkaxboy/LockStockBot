@@ -22,7 +22,7 @@ import java.time.Duration
  */
 class Repetition<T : Any>(private val times: Int, private val delay: Long) {
 
-    constructor(times: Int, delay: Duration): this(times, delay.toMillis())
+    constructor(times: Int, delay: Duration) : this(times, delay.toMillis())
 
     private val failureListeners = mutableListOf<((Exception, Int) -> Unit)>()
 

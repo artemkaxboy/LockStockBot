@@ -33,14 +33,8 @@ class UpdateForecastsJob(
         val error = "Cannot perform scheduled update"
 
         /* it needs to save only changed tickers */
-        val today = liveDataService
+        val savedData = liveDataService
             .findAllByDate(LocalDate.now(), SinglePage.unsorted())
-            .getOrElse { return logger.warn { it.getMessage(error) } }
-            .associateBy { it.tickerId }
-
-        /* it needs to calc potential diff */
-        val yesterday = liveDataService
-            .findAllByDate(LocalDate.now().minusDays(1), SinglePage.unsorted())
             .getOrElse { return logger.warn { it.getMessage(error) } }
             .associateBy { it.tickerId }
 
@@ -54,16 +48,13 @@ class UpdateForecastsJob(
                 ?.onEach { logger.trace { "mapped: ${it.tickerId}" } }
                 ?.onEach { newTick ->
 
-                    yesterday[newTick.tickerId]
-                        ?.takeIf { it.getRoundedPotential() != newTick.getRoundedPotential() }
-                        ?.also {
-                            applicationEventPublisher.publishEvent(
-                                PotentialChangedEvent(PotentialChangedEvent.Source(newTick, it))
-                            )
-                        }
-                        ?.also { logger.trace { "published: ${it.tickerId}" } }
+                    savedData[newTick.tickerId]
+                        ?.getPotentialDifferenceOrNull()
+                        ?.takeIf { it != 0.0 }
+                        ?.also { applicationEventPublisher.publishEvent(PotentialChangedEvent(newTick)) }
+                        ?.also { logger.trace { "published: ${newTick.tickerId}" } }
                 }
-                ?.filter { today[it.tickerId] != it }
+                ?.filter { savedData[it.tickerId] != it }
                 ?.catch { logger.warn { it.getMessage(error) } }
                 // ?.collect { liveDataService.save(it) } // todo measure and choose save/saveAll
                 ?.toList()

@@ -4,8 +4,10 @@ import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.entity.LiveDataId
 import com.artemkaxboy.telerest.entity.LiveDataShallow
 import com.artemkaxboy.telerest.repo.LiveDataRepo
+import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
 import com.artemkaxboy.telerest.tool.Result
 import com.artemkaxboy.telerest.tool.sorting.Sorting
+import mu.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -44,8 +46,26 @@ class LiveDataService(
     /**
      * Finds today's [LiveData] by ticker id.
      */
-    fun findTodayDataByTickerId(tickerId: String): LiveData? =
-        liveDataRepo.findByIdOrNull(LiveDataId(tickerId, LocalDate.now()))
+    fun findTodayDataByTickerId(tickerId: String): LiveData? = findById(LiveDataId(tickerId, LocalDate.now()))
+
+    /**
+     * Finds yesterday's [LiveData] by ticker id.
+     */
+    fun findYesterdayDataByTickerId(tickerId: String): LiveData? =
+        findById(LiveDataId(tickerId, LocalDate.now().minusDays(1)))
+
+    /**
+     * Retrieves an entity by its id. Never throws exception.
+     *
+     * @return the entity with the given id or null.
+     */
+    fun findById(id: LiveDataId): LiveData? {
+        val error = "Cannot get live data (id: $id)"
+
+        return Result.of(error) { liveDataRepo.findByIdOrNull(id) }
+            .onFailure { logger.warn { it.getMessage() } }
+            .getOrNull()
+    }
 
     /**
      * Finds all [LiveData] by date. Filter out data without potential when potential-sorted.
@@ -85,13 +105,20 @@ class LiveDataService(
     fun getLatestData(tickerId: String, currentPrice: Double): LiveData {
 
         val latestData = findTodayDataByTickerId(tickerId)
-            ?: LiveData(tickerId = tickerId, price = Double.NaN)
+            ?: generateNewLatestData(tickerId)
 
         val newConsensus = forecastService.calculateConsensusByTickerId(tickerId)
 
         return latestData.takeIf { it.price != currentPrice || it.consensus != newConsensus }
             ?.copy(price = currentPrice, consensus = newConsensus)
             ?: latestData
+    }
+
+    private fun generateNewLatestData(tickerId: String): LiveData {
+
+        return findYesterdayDataByTickerId(tickerId)
+            ?.let { LiveData(tickerId = tickerId, previousPrice = it.price, previousConsensus = it.consensus) }
+            ?: LiveData(tickerId = tickerId)
     }
 
     /**
@@ -117,5 +144,9 @@ class LiveDataService(
 
         fun getSortOrder(direction: Sort.Direction = Sort.Direction.ASC): Sort.Order =
             Sort.Order(direction, field)
+    }
+
+    companion object {
+        private val logger = KotlinLogging.logger { }
     }
 }

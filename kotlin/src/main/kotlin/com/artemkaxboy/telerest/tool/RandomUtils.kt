@@ -26,7 +26,7 @@ object RandomUtils {
 
     fun forecastId() = string()
 
-    fun url(id: String = string(), filename: String = "") = "http://site.com/$id/$filename"
+    fun url(id: String = string(), filename: String = "") = "https://site.com/$id/$filename"
 
     fun company(id: String) = "Company $id"
 
@@ -34,5 +34,4 @@ object RandomUtils {
 
     suspend fun delay(from: Long = 5_000L, until: Long = 10_000L) =
         Random.nextLong(from, until).let { kotlinx.coroutines.delay(it) }
-
 }

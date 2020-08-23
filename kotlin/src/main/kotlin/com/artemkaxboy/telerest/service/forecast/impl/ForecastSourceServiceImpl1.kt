@@ -90,7 +90,6 @@ class ForecastSourceServiceImpl1(
         val properties = forecastSource1Properties.analystResolver
 
         RandomUtils.delay()
-            .also { logger.debug { "Delay: ${it}ms" } }
 
         return Result.of(error) {
             val dom = withContext(Dispatchers.IO) {
