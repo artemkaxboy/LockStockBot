@@ -37,17 +37,19 @@ internal class RandomUtilsTest {
 
     @Test
     fun urlTest() {
+        val httpsSchema = "https://"
+
         val url1 = RandomUtils.url()
-        assertTrue(url1.startsWith("https://"))
+        assertTrue(url1.startsWith(httpsSchema))
 
         val id = "superId"
         val url2 = RandomUtils.url(id)
-        assertTrue(url2.startsWith("https://"))
+        assertTrue(url2.startsWith(httpsSchema))
         assertTrue(url2.contains(id))
 
         val filename = "file.html"
         val url3 = RandomUtils.url(filename = filename)
-        assertTrue(url3.startsWith("https://"))
+        assertTrue(url3.startsWith(httpsSchema))
         assertTrue(url3.endsWith(filename))
     }
 }
