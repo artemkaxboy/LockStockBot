@@ -1,5 +1,6 @@
 package com.artemkaxboy.telerest.entity
 
+import com.artemkaxboy.telerest.business.PriceConsensusPotential
 import com.artemkaxboy.telerest.tool.Constants
 import com.artemkaxboy.telerest.tool.RandomUtils
 import com.artemkaxboy.telerest.tool.extensions.round
@@ -36,24 +37,40 @@ data class LiveData(
     val price: Double = Double.NaN,
 
     @Column(precision = 5)
+    val previousPrice: Double? = null,
+
+    @Column(precision = 5)
     val consensus: Double? = null,
 
+    @Column(precision = 5)
+    val previousConsensus: Double? = null,
+
     @Formula("(consensus - price) / price * 100")
-    val potential: Double? = null
+    val potential: Double? = null,
+
+    @Formula("(previous_consensus - previous_price) / previous_price * 100")
+    val previousPotential: Double? = null
 
 ) : ChangeableEntity() {
+
+    private fun getTodayValues() = PriceConsensusPotential(price, consensus, potential)
+
+    private fun getPreviousValues() = PriceConsensusPotential(previousPrice, previousConsensus, previousPotential)
+
+    private fun getValues(previous: Boolean) =
+        if (previous) getPreviousValues() else getTodayValues()
 
     /**
      * @return [potential] value rounded with [Constants.PERCENT_ROUND_PRECISION]
      */
-    fun getRoundedPotential(): Double? =
-        potential?.round(Constants.PERCENT_ROUND_PRECISION)
+    fun getRoundedPotential(previous: Boolean = false): Double? =
+        getValues(previous).potential?.round(Constants.PERCENT_ROUND_PRECISION)
 
     /**
-     * @return difference between this [LiveData] potential and the [other]'s.
+     * @return difference between this previous data and latest.
      */
-    fun getPotentialDifferenceOrNull(other: LiveData?): Double? {
-        return other?.potential?.let { potential?.minus(it) }
+    fun getPotentialDifferenceOrNull(): Double? {
+        return previousPotential?.let { potential?.minus(it) }
     }
 
     fun equalTo(liveDataShallow: LiveDataShallow?): Boolean {

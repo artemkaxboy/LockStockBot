@@ -1,7 +1,7 @@
 package com.artemkaxboy.telerest.service
 
+import com.artemkaxboy.telerest.entity.LiveData
 import com.artemkaxboy.telerest.entity.User
-import com.artemkaxboy.telerest.listener.event.PotentialChangedEvent
 import com.artemkaxboy.telerest.service.storage.UserTickerSubscriptionService
 import com.artemkaxboy.telerest.service.telegram.TelegramSendService
 import com.artemkaxboy.telerest.tool.ExceptionUtils.getMessage
@@ -27,16 +27,16 @@ class NotificationService(
      * Finds all users who are subscribed on ticker updates, set threshold less than current change
      * and has not been notified today and notifies them.
      */
-    suspend fun notify(eventObject: PotentialChangedEvent.Source) {
+    suspend fun notify(eventObject: LiveData) {
 
         /* check input */
-        val diff = eventObject.liveData.getPotentialDifferenceOrNull(eventObject.yesterdayData)?.absoluteValue
+        val diff = eventObject.getPotentialDifferenceOrNull()?.absoluteValue
             ?: return
 
         GlobalScope.launch {
             userTickerSubscriptionService
                 .findAllUnnotified(
-                    eventObject.liveData.tickerId,
+                    eventObject.tickerId,
                     diff
                 )
                 .onEach { logger.info { "Notify ${it.user.name} about ${it.ticker.id}" } }
@@ -48,13 +48,12 @@ class NotificationService(
         }
     }
 
-    private suspend fun notifyUser(update: PotentialChangedEvent.Source, user: User): Result<Unit> = Result.of {
+    private suspend fun notifyUser(update: LiveData, user: User): Result<Unit> = Result.of {
 
-        val live = update.liveData
-        val tickerId = live.tickerId
+        val tickerId = update.tickerId
         val info = "user: ${user.name}, ticker: $tickerId"
 
-        val chartMessage = chartService.getChartMessage(todayData = live).getOrElse {
+        val chartMessage = chartService.getChartMessage(todayData = update).getOrElse {
             return Result.failure(it.getMessage("Cannot get chart ($info)"))
         }
 
