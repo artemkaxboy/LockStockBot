@@ -1,3 +1,5 @@
+*Deprecation notice:* repository is no longer maintained, upstream API is no longer accessible
+
 # Telerest
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/39c53f648a8a44c1a0cb0c009fef6f32)](https://app.codacy.com/manual/artemkaxboy/LockStockBot?utm_source=github.com&utm_medium=referral&utm_content=artemkaxboy/LockStockBot&utm_campaign=Badge_Grade_Dashboard)
